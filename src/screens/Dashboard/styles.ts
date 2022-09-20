@@ -1,5 +1,4 @@
 import styled from "styled-components/native";
-import { FlatList } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 import { getStatusBarHeight } from "react-native-iphone-x-helper";
@@ -28,7 +27,7 @@ export const Header = styled.View`
     height: ${RFPercentage(42)}px;
     background-color: ${({ theme }) => theme.colors.primary};
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     flex-direction: row;
     border-radius: 25px;
 `;
@@ -38,7 +37,7 @@ export const UserWrapper = styled.View`
     padding: 0 24px;
     margin-top: ${Platform.OS === "ios"
         ? getStatusBarHeight() + RFValue(28)
-        : RFValue(-98)}px;
+        : RFValue(35)}px;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
@@ -72,7 +71,7 @@ export const UserName = styled.Text`
 `;
 
 export const Icon = styled(Feather)`
-    color: ${({ theme }) => theme.colors.secondary};
+    color: ${({ theme }) => theme.colors.shape};
     font-size: ${RFValue(24)}px;
 `;
 
@@ -97,12 +96,3 @@ export const Title = styled.Text`
     font-family: ${({ theme }) => theme.fonts.regular};
     margin-bottom: 16px;
 `;
-
-export const TransactionList = styled(
-    FlatList as new () => FlatList<DataListProps>
-).attrs({
-    showsVerticalScrollIndicator: false,
-    contentContainerStyle: {
-        paddingBottom: getBottomSpace(),
-    },
-})``;

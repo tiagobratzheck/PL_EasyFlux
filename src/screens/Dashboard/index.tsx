@@ -1,4 +1,6 @@
 import React from "react";
+import { FlatList } from "react-native";
+import { getBottomSpace } from "react-native-iphone-x-helper";
 
 import { HighlightCard } from "../../components/HighlightCard";
 import {
@@ -19,7 +21,6 @@ import {
     HighlightCards,
     Transactions,
     Title,
-    TransactionList,
 } from "./styles";
 
 export interface DataListProps extends TransactionCardProps {
@@ -78,7 +79,7 @@ export function Dashboard() {
                             <UserName>Tiago</UserName>
                         </User>
                     </UserInfo>
-                    <Icon name="power" />
+                    <Icon name="log-out" />
                 </UserWrapper>
             </Header>
             <HighlightCards>
@@ -103,10 +104,14 @@ export function Dashboard() {
             </HighlightCards>
             <Transactions>
                 <Title>Listagem</Title>
-                <TransactionList
+                <FlatList
                     data={data}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => <TransactionCard data={item} />}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{
+                        paddingBottom: getBottomSpace(),
+                    }}
                 />
             </Transactions>
         </Container>
