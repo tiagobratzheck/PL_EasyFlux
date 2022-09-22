@@ -58,7 +58,20 @@ export function AppRoutes() {
                 options={{
                     tabBarIcon: ({ size, color }) => (
                         <MaterialIcons
-                            name="pie-chart"
+                            name="bar-chart"
+                            size={size}
+                            color={color}
+                        />
+                    ),
+                }}
+            />
+            <Screen
+                name="Orçamento"
+                component={Register}
+                options={{
+                    tabBarIcon: ({ size, color }) => (
+                        <MaterialIcons
+                            name="table-view"
                             size={size}
                             color={color}
                         />
