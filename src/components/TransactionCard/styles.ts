@@ -1,5 +1,5 @@
 import styled from "styled-components/native";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 
 interface TransactionProps {
@@ -39,7 +39,7 @@ export const Category = styled.View`
     align-items: center;
 `;
 
-export const Icon = styled(Feather)`
+export const Icon = styled(MaterialCommunityIcons)`
     font-size: ${RFValue(20)}px;
     color: ${({ theme }) => theme.colors.text};
 `;

@@ -23,10 +23,10 @@ export const Header = styled.View`
     width: 100%;
     height: ${RFPercentage(42)}px;
     background-color: ${({ theme }) => theme.colors.primary};
-    justify-content: center;
+    justify-content: flex-start;
     align-items: flex-start;
-    flex-direction: row;
-    border-radius: 25px;
+    flex-direction: column;
+    border-radius: 0px;
 `;
 
 export const UserWrapper = styled.View`
@@ -34,7 +34,7 @@ export const UserWrapper = styled.View`
     padding: 0 24px;
     margin-top: ${Platform.OS === "ios"
         ? getStatusBarHeight() + RFValue(28)
-        : RFValue(35)}px;
+        : RFValue(13)}px;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
@@ -81,17 +81,46 @@ export const HighlightCards = styled.ScrollView.attrs({
 })`
     width: 100%;
     position: absolute;
-    margin-top: ${RFPercentage(20)}px;
+    margin-top: ${RFPercentage(23)}px;
 `;
 
 export const Transactions = styled.View`
     flex: 1%;
     padding: 0 24px;
-    margin-top: ${RFPercentage(12)}px;
+    margin-top: ${RFPercentage(15)}px;
 `;
 
 export const Title = styled.Text`
-    font-size: ${RFValue(18)}px;
+    font-size: ${RFValue(13)}px;
     font-family: ${({ theme }) => theme.fonts.regular};
-    margin-bottom: 16px;
+    margin-bottom: 0px;
+`;
+
+export const LoadContainer = styled.View`
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+`;
+
+export const MonthSelect = styled.View`
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-content: center;
+    margin-top: 40px;
+`;
+
+export const MonthSelectButton = styled(BorderlessButton)`
+    justify-content: center;
+`;
+
+export const MonthSelectIcon = styled(Feather)`
+    color: ${({ theme }) => theme.colors.shape};
+    font-size: ${RFValue(20)}px;
+`;
+
+export const Month = styled.Text`
+    font-family: ${({ theme }) => theme.fonts.regular};
+    color: ${({ theme }) => theme.colors.shape};
+    font-size: ${RFValue(15)}px;
 `;

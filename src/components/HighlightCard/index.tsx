@@ -20,7 +20,7 @@ interface Props {
 const icon = {
     up: "arrow-up-circle",
     down: "arrow-down-circle",
-    total: "dollar-sign",
+    total: "currency-brl",
 };
 
 export function HighlightCard({ title, amount, lastTransaction, type }: Props) {
@@ -31,7 +31,9 @@ export function HighlightCard({ title, amount, lastTransaction, type }: Props) {
                 <Icon name={icon[type]} type={type} />
             </Header>
             <Footer>
-                <Amount type={type}>{amount}</Amount>
+                <Amount type={type} amount={amount}>
+                    {amount}
+                </Amount>
                 <LastTransaction type={type}>{lastTransaction}</LastTransaction>
             </Footer>
         </Container>

@@ -43,7 +43,7 @@ export function CategorySelect({
             </Header>
             <FlatList
                 data={
-                    transactionType === "down"
+                    transactionType === "negative"
                         ? categoriesOutcome
                         : categoriesIncome
                 }

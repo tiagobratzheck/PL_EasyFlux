@@ -2,6 +2,7 @@
     "expo": {
         "name": "EasyFlux",
         "slug": "EasyFlux",
+        "schema": "EasyFlux",
         "version": "1.0.0",
         "assetBundlePatterns": ["**/*"],
         "icon": "./assets/icon.png",

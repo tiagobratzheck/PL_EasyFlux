@@ -1,4 +1,13 @@
 import React from "react";
+import { ActivityIndicator } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import { addMonths, subMonths, format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+
+import { useFocusEffect } from "@react-navigation/native";
+import { useTheme } from "styled-components";
+
 import { FlatList } from "react-native";
 import { getBottomSpace } from "react-native-iphone-x-helper";
 
@@ -22,101 +31,241 @@ import {
     Transactions,
     Title,
     LogoutButton,
+    LoadContainer,
+    MonthSelect,
+    MonthSelectButton,
+    MonthSelectIcon,
+    Month,
 } from "./styles";
 
 export interface DataListProps extends TransactionCardProps {
     id: string;
 }
 
+interface HighLightProps {
+    amount: string;
+    lastTransaction: string;
+}
+
+interface HighLightData {
+    entries: HighLightProps;
+    expenses: HighLightProps;
+    total: HighLightProps;
+}
+
 export function Dashboard() {
-    const data: DataListProps[] = [
-        {
-            id: "1",
-            type: "positive",
-            title: "Remuneração",
-            amount: "R$ 3.980,59",
-            category: {
-                name: "Salário",
-                icon: "dollar-sign",
+    const [isLoading, setIsLoading] = React.useState(true);
+    const [data, setData] = React.useState<DataListProps[]>([]);
+    const [highLightData, sethighLightData] = React.useState<HighLightData>(
+        {} as HighLightData
+    );
+    const [selectedDate, setSelectedDate] = React.useState(new Date());
+    const theme = useTheme();
+
+    function getLastTransactionDate(
+        collection: DataListProps[],
+        type: "positive" | "negative"
+    ) {
+        const lastTransaction = new Date(
+            Math.max.apply(
+                Math,
+                collection
+                    .filter((transaction) => transaction.type === type)
+                    .map((transaction) => new Date(transaction.date).getTime())
+            )
+        );
+        return `${lastTransaction.getDate()} de ${lastTransaction.toLocaleString(
+            "pt-BR",
+            { month: "long" }
+        )}`;
+    }
+
+    function handleDateChange(action: "next" | "prev") {
+        if (action === "next") {
+            const newDate = addMonths(selectedDate, 1);
+            setSelectedDate(newDate);
+        } else {
+            const newDate = subMonths(selectedDate, 1);
+            setSelectedDate(newDate);
+        }
+    }
+
+    async function loadTransactions() {
+        const dataKey = "@EasyFlux:transactions";
+        const response = await AsyncStorage.getItem(dataKey);
+        const transactions = response ? JSON.parse(response) : [];
+
+        let entriesSum = 0;
+        let expensesSum = 0;
+
+        const transactionsFormatted: DataListProps[] = transactions.map(
+            (item: DataListProps) => {
+                if (item.type === "positive") {
+                    entriesSum += Number(item.amount);
+                } else {
+                    expensesSum += Number(item.amount);
+                }
+
+                const amount = Number(item.amount).toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                });
+                const date = Intl.DateTimeFormat("pt-BR", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "2-digit",
+                }).format(new Date(item.date));
+
+                return {
+                    id: item.id,
+                    name: item.name,
+                    amount,
+                    type: item.type,
+                    category: item.category,
+                    date,
+                };
+            }
+        );
+        setData(transactionsFormatted);
+
+        const lastTransactionEntries = getLastTransactionDate(
+            transactions,
+            "positive"
+        );
+        const lastTransactionExpenses = getLastTransactionDate(
+            transactions,
+            "negative"
+        );
+        const totalInterval = `01 a ${lastTransactionExpenses}`;
+
+        const total = entriesSum - expensesSum;
+
+        sethighLightData({
+            entries: {
+                amount: entriesSum.toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                }),
+                lastTransaction: `Última entrada dia ${lastTransactionEntries}`,
             },
-            date: "15/08/2022",
-        },
-        {
-            id: "2",
-            type: "negative",
-            title: "Compras Muffato",
-            amount: "R$ 321,58",
-            category: {
-                name: "Alimentação",
-                icon: "coffee",
+            expenses: {
+                amount: expensesSum.toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                }),
+                lastTransaction: `Última saída dia ${lastTransactionExpenses}`,
             },
-            date: "15/08/2022",
-        },
-        {
-            id: "3",
-            type: "negative",
-            title: "Aluguel da casa",
-            amount: "R$ 1650,00",
-            category: {
-                name: "Aluguel",
-                icon: "shopping-bag",
+            total: {
+                amount: total.toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                }),
+                lastTransaction: totalInterval,
             },
-            date: "15/08/2022",
-        },
-    ];
+        });
+
+        setIsLoading(false);
+    }
+
+    React.useEffect(() => {
+        loadTransactions();
+    }, []);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            loadTransactions();
+        }, [])
+    );
 
     return (
         <Container>
-            <Header>
-                <UserWrapper>
-                    <UserInfo>
-                        <Photo
-                            source={{
-                                uri: "https://avatars.githubusercontent.com/u/44751489?v=4",
+            {isLoading ? (
+                <LoadContainer>
+                    <ActivityIndicator
+                        size={"large"}
+                        color={theme.colors.primary}
+                    />
+                </LoadContainer>
+            ) : (
+                <>
+                    <Header>
+                        <UserWrapper>
+                            <UserInfo>
+                                <Photo
+                                    source={{
+                                        uri: "https://avatars.githubusercontent.com/u/44751489?v=4",
+                                    }}
+                                />
+                                <User>
+                                    <UserGreeting>Olá!</UserGreeting>
+                                    <UserName>Tiago</UserName>
+                                </User>
+                            </UserInfo>
+                            <LogoutButton onPress={() => {}}>
+                                <Icon name="log-out" />
+                            </LogoutButton>
+                        </UserWrapper>
+                        <MonthSelect>
+                            <MonthSelectButton
+                                onPress={() => handleDateChange("prev")}
+                            >
+                                <MonthSelectIcon name="chevron-left" />
+                            </MonthSelectButton>
+                            <Month>
+                                {format(selectedDate, "MMMM, yyyy", {
+                                    locale: ptBR,
+                                })}
+                            </Month>
+                            <MonthSelectButton
+                                onPress={() => handleDateChange("next")}
+                            >
+                                <MonthSelectIcon name="chevron-right" />
+                            </MonthSelectButton>
+                        </MonthSelect>
+                    </Header>
+
+                    <HighlightCards>
+                        <HighlightCard
+                            type="up"
+                            title="Entradas"
+                            amount={highLightData.entries.amount}
+                            lastTransaction={
+                                highLightData.entries.lastTransaction
+                            }
+                        />
+                        <HighlightCard
+                            type="down"
+                            title="Saídas"
+                            amount={highLightData.expenses.amount}
+                            lastTransaction={
+                                highLightData.expenses.lastTransaction
+                            }
+                        />
+                        <HighlightCard
+                            type="total"
+                            title="Total"
+                            amount={highLightData.total.amount}
+                            lastTransaction={
+                                highLightData.total.lastTransaction
+                            }
+                        />
+                    </HighlightCards>
+                    <Transactions>
+                        <Title>Listagem</Title>
+                        <FlatList
+                            data={data}
+                            keyExtractor={(item) => item.id}
+                            renderItem={({ item }) => (
+                                <TransactionCard data={item} />
+                            )}
+                            showsVerticalScrollIndicator={false}
+                            contentContainerStyle={{
+                                paddingBottom: getBottomSpace(),
                             }}
                         />
-                        <User>
-                            <UserGreeting>Olá!</UserGreeting>
-                            <UserName>Tiago</UserName>
-                        </User>
-                    </UserInfo>
-                    <LogoutButton onPress={() => {}}>
-                        <Icon name="log-out" />
-                    </LogoutButton>
-                </UserWrapper>
-            </Header>
-            <HighlightCards>
-                <HighlightCard
-                    type="up"
-                    title="Entradas"
-                    amount="R$ 8.635,59"
-                    lastTransaction="Último lançamento dia 19 de setembro"
-                />
-                <HighlightCard
-                    type="down"
-                    title="Saídas"
-                    amount="R$ 4.115,22"
-                    lastTransaction="Último lançamento dia 28 de setembro"
-                />
-                <HighlightCard
-                    type="total"
-                    title="Total"
-                    amount="R$ 4.520,37"
-                    lastTransaction="29 de setembro"
-                />
-            </HighlightCards>
-            <Transactions>
-                <Title>Listagem</Title>
-                <FlatList
-                    data={data}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => <TransactionCard data={item} />}
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{
-                        paddingBottom: getBottomSpace(),
-                    }}
-                />
-            </Transactions>
+                    </Transactions>
+                </>
+            )}
         </Container>
     );
 }
