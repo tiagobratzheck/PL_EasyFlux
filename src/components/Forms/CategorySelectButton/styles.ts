@@ -11,12 +11,12 @@ export const Container = styled(RectButton).attrs({
     justify-content: space-between;
     align-items: center;
     border-radius: 5px;
-    padding: 18px 16px;
+    padding: 13px 13px;
 `;
 
 export const Category = styled.Text`
     font-family: ${({ theme }) => theme.fonts.regular};
-    font-size: ${RFValue(14)}px;
+    font-size: ${RFValue(13)}px;
 `;
 
 export const Icon = styled(Feather)`

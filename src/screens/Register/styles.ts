@@ -9,7 +9,7 @@ export const Container = styled.View`
 export const Header = styled.View`
     background-color: ${({ theme }) => theme.colors.primary};
     width: 100%;
-    height: ${RFValue(70)}px;
+    height: ${RFValue(60)}px;
     align-items: center;
     justify-content: flex-end;
     padding-bottom: 19px;
@@ -18,7 +18,7 @@ export const Header = styled.View`
 export const Title = styled.Text`
     color: ${({ theme }) => theme.colors.shape};
     font-family: ${({ theme }) => theme.fonts.regular};
-    font-size: ${RFValue(18)}px;
+    font-size: ${RFValue(13)}px;
 `;
 
 export const Form = styled.View`

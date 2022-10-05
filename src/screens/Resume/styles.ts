@@ -13,7 +13,7 @@ export const Container = styled.View`
 export const Header = styled.View`
     background-color: ${({ theme }) => theme.colors.primary};
     width: 100%;
-    height: ${RFValue(70)}px;
+    height: ${RFValue(60)}px;
     align-items: center;
     justify-content: flex-end;
     padding-bottom: 19px;
@@ -22,7 +22,7 @@ export const Header = styled.View`
 export const Title = styled.Text`
     color: ${({ theme }) => theme.colors.shape};
     font-family: ${({ theme }) => theme.fonts.regular};
-    font-size: ${RFValue(18)}px;
+    font-size: ${RFValue(13)}px;
 `;
 
 export const Content = styled.ScrollView``;
@@ -35,7 +35,7 @@ export const ChartContainer = styled.View`
 export const MonthSelect = styled.View`
     width: 100%;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: space-evenly;
     align-content: center;
     margin-top: 24px;
 `;
@@ -45,12 +45,12 @@ export const MonthSelectButton = styled(BorderlessButton)`
 `;
 
 export const MonthSelectIcon = styled(Feather)`
-    font-size: ${RFValue(24)}px;
+    font-size: ${RFValue(20)}px;
 `;
 
 export const Month = styled.Text`
     font-family: ${({ theme }) => theme.fonts.regular};
-    font-size: ${RFValue(20)}px;
+    font-size: ${RFValue(15)}px;
 `;
 
 export const LoadContainer = styled.View`

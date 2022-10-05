@@ -4,6 +4,9 @@ import { ActivityIndicator } from "react-native";
 import { HistoryCard } from "../../components/HistoryCard";
 import { categoriesOutcome } from "../../utils/categories";
 
+import { useFocusEffect } from "@react-navigation/native";
+import { useAuth } from "../../hooks/auth";
+
 import { useTheme } from "styled-components";
 
 import { VictoryPie } from "victory-native";
@@ -25,7 +28,6 @@ import {
     Month,
     LoadContainer,
 } from "./styles";
-import { useFocusEffect } from "@react-navigation/native";
 
 interface TransactionData {
     id: string;
@@ -49,6 +51,7 @@ export function Resume() {
     const [totalByCategories, setTotalByCategories] = React.useState<
         CategoryData[]
     >([]);
+    const { user } = useAuth();
 
     const [selectedDate, setSelectedDate] = React.useState(new Date());
 
@@ -68,7 +71,7 @@ export function Resume() {
 
     async function loadData() {
         setIsLoading(true);
-        const dataKey = "@EasyFlux:transactions";
+        const dataKey = `@EasyFlux:transactions_user:${user.id}`;
         const response = await AsyncStorage.getItem(dataKey);
         const responseFormatted = response ? JSON.parse(response) : [];
 
@@ -179,11 +182,13 @@ export function Resume() {
                                 labels: {
                                     fontSize: RFValue(11),
                                     fontWeight: "bold",
-                                    fill: theme.colors.shape,
+                                    fill: theme.colors.text,
                                 },
                             }}
+                            padAngle={2}
+                            innerRadius={100}
                             height={380}
-                            labelRadius={70}
+                            labelRadius={150}
                             x="percent"
                             y="total"
                         />

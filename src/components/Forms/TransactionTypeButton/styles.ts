@@ -40,11 +40,11 @@ export const Button = styled(RectButton)`
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    padding: 16px;
+    padding: 12px;
 `;
 
 export const Icon = styled(Feather)<IconsProps>`
-    font-size: ${RFValue(24)}px;
+    font-size: ${RFValue(20)}px;
     margin-right: 12px;
     color: ${({ theme, type }) =>
         type === "up" ? theme.colors.success : theme.colors.attention};
@@ -52,6 +52,6 @@ export const Icon = styled(Feather)<IconsProps>`
 
 export const Title = styled.Text`
     font-family: ${({ theme }) => theme.fonts.regular};
-    font-size: ${RFValue(14)}px;
+    font-size: ${RFValue(10)}px;
     color: ${({ theme }) => theme.colors.text_dark};
 `;

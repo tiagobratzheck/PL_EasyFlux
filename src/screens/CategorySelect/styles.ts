@@ -18,7 +18,7 @@ export const Container = styled(GestureHandlerRootView)`
 
 export const Header = styled.View`
     width: 100%;
-    height: ${RFValue(113)}px;
+    height: ${RFValue(60)}px;
     background-color: ${({ theme }) => theme.colors.primary};
     align-items: center;
     justify-content: flex-end;
@@ -27,13 +27,13 @@ export const Header = styled.View`
 
 export const Title = styled.Text`
     font-family: ${({ theme }) => theme.fonts.regular};
-    font-size: ${RFValue(18)}px;
+    font-size: ${RFValue(13)}px;
     color: ${({ theme }) => theme.colors.shape};
 `;
 
 export const Category = styled.TouchableOpacity<CategoryProps>`
     width: 100%;
-    padding: ${RFValue(15)}px;
+    padding: ${RFValue(12)}px;
     flex-direction: row;
     align-items: center;
 
@@ -42,13 +42,13 @@ export const Category = styled.TouchableOpacity<CategoryProps>`
 `;
 
 export const Icon = styled(MaterialCommunityIcons)`
-    font-size: ${RFValue(20)}px;
+    font-size: ${RFValue(17)}px;
     margin-right: 16px;
 `;
 
 export const Name = styled.Text`
     font-family: ${({ theme }) => theme.fonts.regular};
-    font-size: ${RFValue(15)}px;
+    font-size: ${RFValue(12)}px;
 `;
 
 export const Separator = styled.View`

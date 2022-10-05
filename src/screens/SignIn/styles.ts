@@ -3,6 +3,7 @@ import styled from "styled-components/native";
 
 export const Container = styled.View`
     flex: 1;
+    background-color: ${({ theme }) => theme.colors.shape};
 `;
 
 export const Header = styled.View`
@@ -43,6 +44,8 @@ export const Footer = styled.View`
     width: 100%;
     height: 30%;
     background-color: ${({ theme }) => theme.colors.primary};
+    border-bottom-left-radius: 50px;
+    border-top-right-radius: 50px;
 `;
 
 export const FooterWrapper = styled.View`

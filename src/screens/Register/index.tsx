@@ -28,6 +28,7 @@ import {
     TransactionsTypes,
 } from "./styles";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAuth } from "../../hooks/auth";
 
 export type FormData = {
     [name: string]: any;
@@ -42,8 +43,6 @@ const schema = Yup.object().shape({
         .required("Valor é obrigatório"),
 });
 
-const dataKey = "@EasyFlux:transactions";
-
 export function Register() {
     const [transactionType, setTransactionType] = useState("");
     const [categoryModalOpen, setCategoryModalOpen] = useState(false);
@@ -51,6 +50,7 @@ export function Register() {
         key: "category",
         name: "Categoria",
     });
+    const { user } = useAuth();
 
     const { navigate }: NavigationProp<ParamListBase> = useNavigation();
 
@@ -94,6 +94,7 @@ export function Register() {
         };
 
         try {
+            const dataKey = `@EasyFlux:transactions_user:${user.id}`;
             const data = await AsyncStorage.getItem(dataKey);
             const currentData = data ? JSON.parse(data) : [];
 
