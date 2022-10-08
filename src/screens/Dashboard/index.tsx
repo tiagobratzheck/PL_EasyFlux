@@ -133,6 +133,7 @@ export function Dashboard() {
                     type: item.type,
                     category: item.category,
                     date,
+                    period: item.period,
                 };
             }
         );
@@ -170,7 +171,7 @@ export function Dashboard() {
                     currency: "BRL",
                 }),
                 lastTransaction:
-                    lastTransactionEntries === 0
+                    lastTransactionExpenses === 0
                         ? "Sem lançamentos para o período "
                         : `Última saída dia ${lastTransactionExpenses}`,
             },

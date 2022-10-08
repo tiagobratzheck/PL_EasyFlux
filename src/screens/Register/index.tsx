@@ -13,6 +13,9 @@ import {
 
 import uuid from "react-native-uuid";
 
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+
 import { Button } from "../../components/Forms/Button";
 import { CategorySelectButton } from "../../components/Forms/CategorySelectButton";
 import { InputForm } from "../../components/Forms/InputForm";
@@ -91,6 +94,7 @@ export function Register() {
             type: transactionType,
             category: category.key,
             date: new Date(),
+            period: format(new Date(), "MMMM/yyyy", { locale: ptBR }),
         };
 
         try {

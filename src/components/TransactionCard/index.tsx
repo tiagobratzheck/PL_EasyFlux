@@ -24,6 +24,7 @@ export interface TransactionCardProps {
     amount: string;
     category: string;
     date: string;
+    period: string;
     type: "positive" | "negative";
 }
 

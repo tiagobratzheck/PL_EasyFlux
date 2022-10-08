@@ -37,7 +37,7 @@ export const MonthSelect = styled.View`
     flex-direction: row;
     justify-content: space-evenly;
     align-content: center;
-    margin-top: 24px;
+    margin-top: 20px;
 `;
 
 export const MonthSelectButton = styled(BorderlessButton)`
