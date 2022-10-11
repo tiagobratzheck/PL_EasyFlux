@@ -2,10 +2,13 @@ import React from "react";
 
 import {
     Container,
+    Icon,
     Title,
     Amount,
     Header,
+    Description,
     Footer,
+    DescriptionTotals,
     Account,
     Total,
     Percent,
@@ -15,19 +18,34 @@ interface Props {
     title: string;
     amount: string;
     color: string;
+    icon: string;
+    total: string;
+    percent: string;
 }
 
-export function BudgetCard({ title, amount, color }: Props) {
+export function BudgetCard({
+    title,
+    amount,
+    color,
+    icon,
+    total,
+    percent,
+}: Props) {
     return (
         <Container color={color}>
             <Header>
-                <Title>{title}</Title>
+                <Description>
+                    <Icon name={icon} />
+                    <Title>{title}</Title>
+                </Description>
                 <Amount>{amount}</Amount>
             </Header>
             <Footer>
-                <Account>Total para essa conta:</Account>
-                <Total>R$ 699,27</Total>
-                <Percent>54%</Percent>
+                <DescriptionTotals>
+                    <Account>Total para essa conta:</Account>
+                    <Total>{total}</Total>
+                </DescriptionTotals>
+                <Percent>{percent}</Percent>
             </Footer>
         </Container>
     );

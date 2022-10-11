@@ -6,6 +6,7 @@ import { BorderlessButton } from "react-native-gesture-handler";
 export const Container = styled.View`
     flex: 1;
     background-color: ${({ theme }) => theme.colors.background};
+    justify-content: flex-start;
 `;
 
 export const Header = styled.View`
@@ -23,8 +24,17 @@ export const Title = styled.Text`
     font-size: ${RFValue(13)}px;
 `;
 
-export const Content = styled.ScrollView`
+export const TitleList = styled.Text`
+    color: ${({ theme }) => theme.colors.text};
+    font-family: ${({ theme }) => theme.fonts.regular};
+    font-size: ${RFValue(11)}px;
+`;
+
+export const Content = styled.View`
     flex: 1;
+    width: 100%;
+    padding: 24px;
+    margin-top: -55px;
 `;
 
 export const MonthSelect = styled.View`

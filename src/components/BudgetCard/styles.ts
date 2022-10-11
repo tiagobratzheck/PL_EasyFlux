@@ -1,5 +1,6 @@
-import { RFValue } from "react-native-responsive-fontsize";
 import styled from "styled-components/native";
+import { RFValue } from "react-native-responsive-fontsize";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 
 interface ContainerProps {
     color: string;
@@ -15,6 +16,12 @@ export const Container = styled.View<ContainerProps>`
     padding-left: 4px;
     margin-bottom: 15px;
     margin-top: 2px;
+`;
+
+export const Icon = styled(MaterialCommunityIcons)`
+    font-size: ${RFValue(18)}px;
+    color: ${({ theme }) => theme.colors.text};
+    margin-right: 5px;
 `;
 
 export const Title = styled.Text`
@@ -34,6 +41,20 @@ export const Header = styled.View`
     align-content: space-between;
     justify-content: space-between;
     margin-bottom: 23px;
+`;
+
+export const Description = styled.View`
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    align-content: center;
+`;
+
+export const DescriptionTotals = styled.View`
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    align-content: center;
 `;
 
 export const Footer = styled.View`
