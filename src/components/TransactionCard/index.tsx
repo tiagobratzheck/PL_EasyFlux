@@ -2,15 +2,20 @@ import React from "react";
 import { View } from "react-native";
 import { commonCategories } from "../../utils/categories";
 
+import { isEqual, isAfter } from "date-fns";
+
 import {
     Container,
+    Description,
+    DeleteRegister,
+    DeleteIcon,
     Title,
     Amount,
     Footer,
     Category,
     Icon,
     CategoryName,
-    Date,
+    DisplayDate,
 } from "./styles";
 
 interface Category {
@@ -20,6 +25,7 @@ interface Category {
 }
 
 export interface TransactionCardProps {
+    id: string;
     name: string;
     amount: string;
     category: string;
@@ -30,16 +36,29 @@ export interface TransactionCardProps {
 
 interface Props {
     data: TransactionCardProps;
+    selectedDate: Date;
 }
 
-export function TransactionCard({ data }: Props) {
+export function TransactionCard({ data, selectedDate }: Props) {
     const category = commonCategories.filter(
         (item) => item.key === data.category
     )[0];
 
     return (
         <Container>
-            <Title>{data.name}</Title>
+            <Description>
+                <Title>{data.name}</Title>
+                {new Date().getMonth() === selectedDate.getMonth() &&
+                new Date().getFullYear() === selectedDate.getFullYear() ? (
+                    <DeleteRegister
+                        onPress={() => {
+                            console.log(data.id);
+                        }}
+                    >
+                        <DeleteIcon name="delete" />
+                    </DeleteRegister>
+                ) : null}
+            </Description>
             <Amount type={data.type}>
                 {data.type === "negative" && "-"}
                 {data.amount}
@@ -49,7 +68,7 @@ export function TransactionCard({ data }: Props) {
                     <Icon name={category.icon} />
                     <CategoryName>{category.name}</CategoryName>
                 </Category>
-                <Date>{data.date}</Date>
+                <DisplayDate>{data.date}</DisplayDate>
             </Footer>
         </Container>
     );

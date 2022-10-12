@@ -1,6 +1,6 @@
 import styled from "styled-components/native";
 import { Feather } from "@expo/vector-icons";
-import { RFValue } from "react-native-responsive-fontsize";
+import { RFValue, RFPercentage } from "react-native-responsive-fontsize";
 import { BorderlessButton } from "react-native-gesture-handler";
 
 export const Container = styled.View`
@@ -31,10 +31,8 @@ export const TitleList = styled.Text`
 `;
 
 export const Content = styled.View`
-    flex: 1;
-    width: 100%;
-    padding: 24px;
-    margin-top: -55px;
+    flex: 1%;
+    padding: 0 24px;
 `;
 
 export const MonthSelect = styled.View`
@@ -61,7 +59,7 @@ export const Month = styled.Text`
 export const Form = styled.View`
     flex: 1;
     width: 100%;
-    padding: 24px;
+    padding: 0px 24px;
     justify-content: space-evenly;
 `;
 

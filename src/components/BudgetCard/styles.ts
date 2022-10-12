@@ -1,6 +1,7 @@
 import styled from "styled-components/native";
 import { RFValue } from "react-native-responsive-fontsize";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import { BorderlessButton } from "react-native-gesture-handler";
 
 interface ContainerProps {
     color: string;
@@ -19,7 +20,7 @@ export const Container = styled.View<ContainerProps>`
 `;
 
 export const Icon = styled(MaterialCommunityIcons)`
-    font-size: ${RFValue(18)}px;
+    font-size: ${RFValue(20)}px;
     color: ${({ theme }) => theme.colors.text};
     margin-right: 5px;
 `;
@@ -32,13 +33,13 @@ export const Title = styled.Text`
 export const Amount = styled.Text`
     font-family: ${({ theme }) => theme.fonts.bold};
     font-size: ${RFValue(13)}px;
-    margin-right: 3px;
+    margin-right: 4px;
 `;
 
 export const Header = styled.View`
     flex-direction: row;
     align-items: center;
-    align-content: space-between;
+    align-content: center;
     justify-content: space-between;
     margin-bottom: 23px;
 `;
@@ -48,6 +49,7 @@ export const Description = styled.View`
     justify-content: flex-start;
     align-items: center;
     align-content: center;
+    margin-right: 4px;
 `;
 
 export const DescriptionTotals = styled.View`
@@ -55,6 +57,13 @@ export const DescriptionTotals = styled.View`
     justify-content: flex-start;
     align-items: center;
     align-content: center;
+`;
+
+export const DeleteRegister = styled(BorderlessButton)``;
+
+export const DeleteIcon = styled(Feather)`
+    color: ${({ theme }) => theme.colors.attention};
+    font-size: ${RFValue(20)}px;
 `;
 
 export const Footer = styled.View`
@@ -76,5 +85,5 @@ export const Total = styled.Text`
 
 export const Percent = styled.Text`
     font-size: ${RFValue(11)}px;
-    margin-right: 3px;
+    margin-right: 4px;
 `;

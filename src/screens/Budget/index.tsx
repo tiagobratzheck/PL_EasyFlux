@@ -1,7 +1,7 @@
 import React from "react";
 import { Modal, Alert, FlatList } from "react-native";
 
-import { addMonths, subMonths, format } from "date-fns";
+import { addMonths, subMonths, format, isAfter } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 import * as Yup from "yup";
@@ -15,6 +15,11 @@ import { CategorySelectButton } from "../../components/Forms/CategorySelectButto
 import { InputForm } from "../../components/Forms/InputForm";
 import { TransactionTypeButton } from "../../components/Forms/TransactionTypeButton";
 import { CategorySelect } from "../CategorySelect";
+
+import { useAuth } from "../../hooks/auth";
+import { BudgetCard } from "../../components/BudgetCard";
+import { commonCategories } from "../../utils/categories";
+import { getBottomSpace } from "react-native-iphone-x-helper";
 
 import {
     Container,
@@ -31,11 +36,6 @@ import {
     TransactionsTypes,
 } from "./styles";
 
-import { useAuth } from "../../hooks/auth";
-import { BudgetCard } from "../../components/BudgetCard";
-import { commonCategories } from "../../utils/categories";
-import { getBottomSpace } from "react-native-iphone-x-helper";
-
 export type FormData = {
     [name: string]: any;
 };
@@ -50,6 +50,19 @@ const schema = Yup.object().shape({
 
 export function Budget() {
     const dataExample = [
+        {
+            amount: "R$ 4680,00",
+            category: "salary",
+            color: "#147819",
+            icon: "account-cash-outline",
+            date: "2022-11-10T22:45:54.358Z",
+            id: "4407fb74-dc63-441c-aad3-1e38b769a834",
+            name: "Salário",
+            period: "novembro/2022",
+            type: "positive",
+            total: "R$ 4680,00",
+            percent: "100,00%",
+        },
         {
             amount: "R$ 1500,99",
             category: "supermarket",
@@ -104,8 +117,16 @@ export function Budget() {
         },
     ];
 
+    const listCategoriesNotSelectable: string[] = [
+        "salary",
+        "supermarket",
+        "water",
+        "light",
+        "rent",
+    ];
+
     const [selectedDate, setSelectedDate] = React.useState(new Date());
-    const [transactionType, setTransactionType] = React.useState("");
+    const [transactionType, setTransactionType] = React.useState("positive");
     const [categoryModalOpen, setCategoryModalOpen] = React.useState(false);
     const [category, setCategory] = React.useState({
         key: "category",
@@ -230,6 +251,7 @@ export function Budget() {
                 <Button
                     title="Cadastrar orçamento"
                     onPress={handleSubmit(handleRegister)}
+                    enabled={isAfter(selectedDate, new Date()) ? true : false}
                 ></Button>
             </Form>
             <Modal visible={categoryModalOpen}>
@@ -238,6 +260,7 @@ export function Budget() {
                     setCategory={setCategory}
                     closeSelectCategory={handleCloseSelectCategory}
                     transactionType={transactionType}
+                    listCategoriesNotSelectable={listCategoriesNotSelectable}
                 />
             </Modal>
             <Content>
@@ -247,7 +270,9 @@ export function Budget() {
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => (
                         <BudgetCard
+                            selectedDate={selectedDate}
                             key={item.category}
+                            id={item.id}
                             title={item.name}
                             amount={item.amount}
                             color={item.color}
@@ -257,6 +282,9 @@ export function Budget() {
                         />
                     )}
                     showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{
+                        paddingBottom: getBottomSpace(),
+                    }}
                 />
             </Content>
         </Container>

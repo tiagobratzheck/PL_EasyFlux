@@ -47,7 +47,7 @@ const schema = Yup.object().shape({
 });
 
 export function Register() {
-    const [transactionType, setTransactionType] = useState("");
+    const [transactionType, setTransactionType] = useState("positive");
     const [categoryModalOpen, setCategoryModalOpen] = useState(false);
     const [category, setCategory] = useState({
         key: "category",

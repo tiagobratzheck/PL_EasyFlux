@@ -41,6 +41,7 @@ import { useAuth } from "../../hooks/auth";
 
 export interface DataListProps extends TransactionCardProps {
     id: string;
+    selectedDate: Date;
 }
 
 interface HighLightProps {
@@ -276,7 +277,10 @@ export function Dashboard() {
                             data={data}
                             keyExtractor={(item) => item.id}
                             renderItem={({ item }) => (
-                                <TransactionCard data={item} />
+                                <TransactionCard
+                                    data={item}
+                                    selectedDate={selectedDate}
+                                />
                             )}
                             showsVerticalScrollIndicator={false}
                             contentContainerStyle={{

@@ -1,5 +1,7 @@
 import React from "react";
 
+import { isAfter } from "date-fns";
+
 import {
     Container,
     Icon,
@@ -12,9 +14,13 @@ import {
     Account,
     Total,
     Percent,
+    DeleteRegister,
+    DeleteIcon,
 } from "./styles";
 
 interface Props {
+    selectedDate: Date;
+    id: string;
     title: string;
     amount: string;
     color: string;
@@ -24,6 +30,8 @@ interface Props {
 }
 
 export function BudgetCard({
+    selectedDate,
+    id,
     title,
     amount,
     color,
@@ -38,7 +46,18 @@ export function BudgetCard({
                     <Icon name={icon} />
                     <Title>{title}</Title>
                 </Description>
-                <Amount>{amount}</Amount>
+                <Description>
+                    <Amount>{amount}</Amount>
+                    {isAfter(selectedDate, new Date()) ? (
+                        <DeleteRegister
+                            onPress={() => {
+                                console.log(id);
+                            }}
+                        >
+                            <DeleteIcon name="delete" />
+                        </DeleteRegister>
+                    ) : null}
+                </Description>
             </Header>
             <Footer>
                 <DescriptionTotals>

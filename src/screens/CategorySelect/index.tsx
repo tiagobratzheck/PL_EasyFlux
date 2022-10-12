@@ -24,14 +24,26 @@ interface CategoryProps {
     setCategory: (category: Category) => void;
     closeSelectCategory: () => void;
     transactionType: string;
+    listCategoriesNotSelectable?: string[];
 }
+
+let categoriesSelectable = [];
 
 export function CategorySelect({
     category,
     setCategory,
     closeSelectCategory,
     transactionType,
+    listCategoriesNotSelectable = [],
 }: CategoryProps) {
+    categoriesSelectable =
+        transactionType === "negative" ? categoriesOutcome : categoriesIncome;
+
+    if (listCategoriesNotSelectable.length > 0) {
+        categoriesSelectable = categoriesSelectable.filter(
+            (item) => !listCategoriesNotSelectable.includes(item.key)
+        );
+    }
     function handleCategorySelect(category: Category) {
         setCategory(category);
     }
@@ -42,11 +54,7 @@ export function CategorySelect({
                 <Title>Categoria</Title>
             </Header>
             <FlatList
-                data={
-                    transactionType === "negative"
-                        ? categoriesOutcome
-                        : categoriesIncome
-                }
+                data={categoriesSelectable}
                 keyExtractor={(item) => item.key}
                 style={{}}
                 renderItem={({ item }) => (
