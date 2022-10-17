@@ -58,7 +58,7 @@ interface HighLightData {
 export function Dashboard() {
     const [isLoading, setIsLoading] = React.useState(true);
     const [data, setData] = React.useState<DataListProps[]>([]);
-    const [highLightData, sethighLightData] = React.useState<HighLightData>(
+    const [highLightData, setHighLightData] = React.useState<HighLightData>(
         {} as HighLightData
     );
     const [selectedDate, setSelectedDate] = React.useState(new Date());
@@ -129,6 +129,7 @@ export function Dashboard() {
 
                 return {
                     id: item.id,
+                    entryType: item.entryType,
                     name: item.name,
                     amount,
                     type: item.type,
@@ -149,13 +150,15 @@ export function Dashboard() {
             "negative"
         );
         const totalInterval =
-            lastTransactionExpenses === 0
-                ? "Sem lançamentos"
-                : `01 a ${lastTransactionExpenses}`;
+            lastTransactionExpenses !== 0
+                ? `01 a ${lastTransactionExpenses}`
+                : lastTransactionEntries !== 0
+                ? `01 a ${lastTransactionEntries}`
+                : "Sem lançamentos";
 
         const total = entriesSum - expensesSum;
 
-        sethighLightData({
+        setHighLightData({
             entries: {
                 amount: entriesSum.toLocaleString("pt-BR", {
                     style: "currency",

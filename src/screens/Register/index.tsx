@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Keyboard, Modal, Alert } from "react-native";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
+import firestore from "@react-native-firebase/firestore";
+
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
@@ -10,8 +12,6 @@ import {
     NavigationProp,
     ParamListBase,
 } from "@react-navigation/native";
-
-import uuid from "react-native-uuid";
 
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -88,7 +88,7 @@ export function Register() {
         }
 
         const newTransaction = {
-            id: String(uuid.v4()),
+            entryType: "actual",
             name: form.name,
             amount: form.amount,
             type: transactionType,
@@ -105,6 +105,7 @@ export function Register() {
             const dataFormatted = [...currentData, newTransaction];
 
             await AsyncStorage.setItem(dataKey, JSON.stringify(dataFormatted));
+
             reset();
             setTransactionType("");
             setCategory({

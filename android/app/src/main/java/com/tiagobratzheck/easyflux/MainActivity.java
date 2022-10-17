@@ -1,4 +1,4 @@
-package com.easyflux;
+package com.tiagobratzheck.easyflux;
 
 import android.os.Build;
 import android.os.Bundle;

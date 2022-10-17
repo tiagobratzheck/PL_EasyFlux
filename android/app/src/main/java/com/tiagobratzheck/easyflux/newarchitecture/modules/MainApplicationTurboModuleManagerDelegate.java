@@ -1,4 +1,4 @@
-package com.easyflux.newarchitecture.modules;
+package com.tiagobratzheck.easyflux.newarchitecture.modules;
 
 import com.facebook.jni.HybridData;
 import com.facebook.react.ReactPackage;

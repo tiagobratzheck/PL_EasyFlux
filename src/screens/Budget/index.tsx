@@ -185,6 +185,7 @@ export function Budget() {
 
         const budgetEntry = {
             id: String(uuid.v4()),
+            entryType: "budget",
             name: category.name,
             amount: totalFormatted,
             type: transactionType,

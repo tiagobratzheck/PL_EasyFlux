@@ -1,4 +1,4 @@
-package com.easyflux.newarchitecture;
+package com.tiagobratzheck.easyflux.newarchitecture;
 
 import android.app.Application;
 import androidx.annotation.NonNull;
@@ -20,9 +20,9 @@ import com.facebook.react.fabric.EmptyReactNativeConfig;
 import com.facebook.react.fabric.FabricJSIModuleProvider;
 import com.facebook.react.fabric.ReactNativeConfig;
 import com.facebook.react.uimanager.ViewManagerRegistry;
-import com.easyflux.BuildConfig;
-import com.easyflux.newarchitecture.components.MainComponentsRegistry;
-import com.easyflux.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
+import com.tiagobratzheck.easyflux.BuildConfig;
+import com.tiagobratzheck.easyflux.newarchitecture.components.MainComponentsRegistry;
+import com.tiagobratzheck.easyflux.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
 import java.util.ArrayList;
 import java.util.List;
 

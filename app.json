@@ -5,6 +5,7 @@
         "schema": "EasyFlux",
         "version": "1.0.0",
         "assetBundlePatterns": ["**/*"],
+        "plugins": ["@react-native-firebase/app"],
         "icon": "./assets/icon.png",
         "splash": {
             "image": "./assets/splash.png",
@@ -13,11 +14,16 @@
         },
         "android": {
             "package": "com.tiagobratzheck.easyflux",
+            "googleServicesFile": "./google-services.json",
             "adaptiveIcon": {
                 "foregroundImage": "./assets/adaptive-icon.png",
                 "backgroundColor": "#FFFFFF"
             },
             "softwareKeyboardLayoutMode": "pan"
+        },
+        "ios": {
+            "bundleIdentifier": "com.tiagobratzheck.easyflux",
+            "googleServicesFile": "./GoogleService-Info.plist"
         }
     },
     "name": "EasyFlux"

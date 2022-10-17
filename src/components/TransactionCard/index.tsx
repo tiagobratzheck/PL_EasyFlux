@@ -26,6 +26,7 @@ interface Category {
 
 export interface TransactionCardProps {
     id: string;
+    entryType: "actual" | "budget";
     name: string;
     amount: string;
     category: string;

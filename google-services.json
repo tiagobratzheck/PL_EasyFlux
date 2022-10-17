@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "645280289700",
+    "project_id": "pl-easyflux-35b6b",
+    "storage_bucket": "pl-easyflux-35b6b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:645280289700:android:65177044a031c7f41aa731",
+        "android_client_info": {
+          "package_name": "com.tiagobratzheck.easyflux"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "645280289700-js21tg4eh317hcrplf7ev1nl05usungj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAgIFvXVpudtTXFZi6z9bY1nJwzNZd-R0A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "645280289700-js21tg4eh317hcrplf7ev1nl05usungj.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "645280289700-g2d4e3l69c4fcpmoi56ev4b5uh4ij4sg.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.tiagobratzheck.easyflux"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

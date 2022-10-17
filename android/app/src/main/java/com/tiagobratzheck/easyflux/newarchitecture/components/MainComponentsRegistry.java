@@ -1,4 +1,4 @@
-package com.easyflux.newarchitecture.components;
+package com.tiagobratzheck.easyflux.newarchitecture.components;
 
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;

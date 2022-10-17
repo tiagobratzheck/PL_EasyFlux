@@ -15,8 +15,8 @@ export const Header = styled.View`
 `;
 
 export const Image = styled.Image`
-    width: 350px;
-    height: 350px;
+    width: 340px;
+    height: 340px;
 `;
 
 export const TitleWrapper = styled.View`
@@ -28,7 +28,6 @@ export const Title = styled.Text`
     color: ${({ theme }) => theme.colors.primary};
     font-size: ${RFValue(25)}px;
     text-align: center;
-    margin-bottom: 19px;
 `;
 
 export const SignInTitle = styled.Text`
@@ -36,8 +35,7 @@ export const SignInTitle = styled.Text`
     color: ${({ theme }) => theme.colors.primary};
     font-size: ${RFValue(12)}px;
     text-align: center;
-    margin-top: 40px;
-    margin-bottom: 17px;
+    margin-top: 30px;
 `;
 
 export const Footer = styled.View`
