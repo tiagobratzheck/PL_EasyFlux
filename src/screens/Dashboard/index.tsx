@@ -2,6 +2,8 @@ import React from "react";
 import { ActivityIndicator } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+import firestore from "@react-native-firebase/firestore";
+
 import { addMonths, subMonths, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -41,7 +43,6 @@ import { useAuth } from "../../hooks/auth";
 
 export interface DataListProps extends TransactionCardProps {
     id: string;
-    selectedDate: Date;
 }
 
 interface HighLightProps {
@@ -192,8 +193,47 @@ export function Dashboard() {
     }
 
     React.useEffect(() => {
-        loadTransactions();
-    }, []);
+        const subscriber = firestore()
+            .collection("@EasyFlux:transactions_user:2547789544")
+            .where("entryType", "==", "actual")
+            .where(
+                "period",
+                "==",
+                format(selectedDate, "MMMM/yyyy", { locale: ptBR })
+            )
+            .onSnapshot((snapshot) => {
+                const data = snapshot.docs.map((doc) => {
+                    const {
+                        amount,
+                        category,
+                        date,
+                        entryType,
+                        name,
+                        period,
+                        type,
+                    } = doc.data();
+
+                    const dateFormatted = Intl.DateTimeFormat("pt-BR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "2-digit",
+                    }).format(new Date(date.toDate()));
+
+                    return {
+                        id: doc.id,
+                        amount,
+                        category,
+                        dateFormatted,
+                        entryType,
+                        name,
+                        period,
+                        type,
+                    };
+                });
+            });
+
+        return subscriber;
+    }, [selectedDate]);
 
     useFocusEffect(
         React.useCallback(() => {

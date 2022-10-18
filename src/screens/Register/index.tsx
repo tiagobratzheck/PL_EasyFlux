@@ -97,23 +97,47 @@ export function Register() {
             period: format(new Date(), "MMMM/yyyy", { locale: ptBR }),
         };
 
-        try {
-            const dataKey = `@EasyFlux:transactions_user:${user.id}`;
-            const data = await AsyncStorage.getItem(dataKey);
-            const currentData = data ? JSON.parse(data) : [];
-
-            const dataFormatted = [...currentData, newTransaction];
-
-            await AsyncStorage.setItem(dataKey, JSON.stringify(dataFormatted));
-
-            reset();
-            setTransactionType("");
-            setCategory({
-                key: "category",
-                name: "Categoria",
+        firestore()
+            .collection("@EasyFlux:transactions_user:2547789544")
+            .add(newTransaction)
+            .then(() => {
+                Alert.alert(
+                    "Solicitação",
+                    "Solicitação registrada com sucesso."
+                );
+                reset();
+                setTransactionType("");
+                setCategory({
+                    key: "category",
+                    name: "Categoria",
+                });
+                navigate("Listagem");
+            })
+            .catch((error) => {
+                console.log(error);
+                return Alert.alert(
+                    "Solicitação",
+                    "Não foi possível registrar o pedido"
+                );
             });
-            navigate("Listagem");
-        } catch (error) {}
+
+        //try {
+        //    const dataKey = `@EasyFlux:transactions_user:${user.id}`;
+        //    const data = await AsyncStorage.getItem(dataKey);
+        //    const currentData = data ? JSON.parse(data) : [];
+
+        //    const dataFormatted = [...currentData, newTransaction];
+
+        //    await AsyncStorage.setItem(dataKey, JSON.stringify(dataFormatted));
+
+        //    reset();
+        //    setTransactionType("");
+        //    setCategory({
+        //        key: "category",
+        //        name: "Categoria",
+        //    });
+        //    navigate("Listagem");
+        //} catch (error) {}
     }
 
     return (

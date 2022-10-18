@@ -4,11 +4,11 @@ import { Modal, Alert, FlatList } from "react-native";
 import { addMonths, subMonths, format, isAfter } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
+import firestore from "@react-native-firebase/firestore";
+
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
-
-import uuid from "react-native-uuid";
 
 import { Button } from "../../components/Forms/Button";
 import { CategorySelectButton } from "../../components/Forms/CategorySelectButton";
@@ -184,19 +184,37 @@ export function Budget() {
         )[0];
 
         const budgetEntry = {
-            id: String(uuid.v4()),
             entryType: "budget",
             name: category.name,
-            amount: totalFormatted,
+            amount: form.amount,
             type: transactionType,
             category: category.key,
-            color: categoryProperties.color,
-            icon: categoryProperties.icon,
             date: selectedDate,
             period: format(selectedDate, "MMMM/yyyy", { locale: ptBR }),
         };
 
-        console.log(budgetEntry);
+        firestore()
+            .collection("@EasyFlux:transactions_user:2547789544")
+            .add(budgetEntry)
+            .then(() => {
+                Alert.alert(
+                    "Solicitação",
+                    "Solicitação registrada com sucesso."
+                );
+                reset();
+                setTransactionType("");
+                setCategory({
+                    key: "category",
+                    name: "Categoria",
+                });
+            })
+            .catch((error: any) => {
+                console.log(error);
+                return Alert.alert(
+                    "Solicitação",
+                    "Não foi possível registrar o pedido"
+                );
+            });
     }
 
     return (

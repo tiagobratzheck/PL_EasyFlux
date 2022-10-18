@@ -31,11 +31,13 @@ import {
 
 interface TransactionData {
     id: string;
+    entryType: "actual" | "budget";
     type: "positive" | "negative";
     name: string;
     amount: string;
     category: string;
     date: string;
+    period: string;
 }
 
 interface CategoryData {
