@@ -9,6 +9,12 @@ export const Container = styled.View`
     justify-content: flex-start;
 `;
 
+export const LoadContainer = styled.View`
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+`;
+
 export const Header = styled.View`
     background-color: ${({ theme }) => theme.colors.primary};
     width: 100%;

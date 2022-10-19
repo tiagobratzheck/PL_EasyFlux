@@ -1,10 +1,14 @@
 import React from "react";
-import { Modal, Alert, FlatList } from "react-native";
+import { Modal, Alert, FlatList, ActivityIndicator } from "react-native";
 
 import { addMonths, subMonths, format, isAfter } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 import firestore from "@react-native-firebase/firestore";
+
+import { TransactionCardProps } from "../../components/TransactionCard";
+
+import { useTheme } from "styled-components";
 
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -18,11 +22,12 @@ import { CategorySelect } from "../CategorySelect";
 
 import { useAuth } from "../../hooks/auth";
 import { BudgetCard } from "../../components/BudgetCard";
-import { commonCategories } from "../../utils/categories";
+import { categoriesOutcome, commonCategories } from "../../utils/categories";
 import { getBottomSpace } from "react-native-iphone-x-helper";
 
 import {
     Container,
+    LoadContainer,
     Content,
     TitleList,
     Header,
@@ -35,6 +40,22 @@ import {
     Fields,
     TransactionsTypes,
 } from "./styles";
+
+interface CategoryData {
+    key: string;
+    name: string;
+    total: number;
+    totalFormatted: string;
+    color: string;
+    percent: string;
+}
+
+export interface BudgetListProps extends TransactionCardProps {
+    color: string;
+    icon: string;
+    total: string;
+    percent: string;
+}
 
 export type FormData = {
     [name: string]: any;
@@ -49,81 +70,12 @@ const schema = Yup.object().shape({
 });
 
 export function Budget() {
-    const dataExample = [
-        {
-            amount: "R$ 4680,00",
-            category: "salary",
-            color: "#147819",
-            icon: "account-cash-outline",
-            date: "2022-11-10T22:45:54.358Z",
-            id: "4407fb74-dc63-441c-aad3-1e38b769a834",
-            name: "Salário",
-            period: "novembro/2022",
-            type: "positive",
-            total: "R$ 4680,00",
-            percent: "100,00%",
-        },
-        {
-            amount: "R$ 1500,99",
-            category: "supermarket",
-            color: "#0A6407",
-            icon: "warehouse",
-            date: "2022-11-10T22:45:54.358Z",
-            id: "4407fb74-dc63-441c-aad3-1e38b769a835",
-            name: "Supermercado",
-            period: "novembro/2022",
-            type: "negative",
-            total: "R$ 798,33",
-            percent: "53,19%",
-        },
-        {
-            amount: "R$ 85,00",
-            category: "water",
-            color: "#1F86DE",
-            icon: "water-outline",
-            date: "2022-11-10T22:45:54.358Z",
-            id: "4407fb74-dc63-441c-aad3-1e38b769a836",
-            name: "Água",
-            period: "novembro/2022",
-            type: "negative",
-            total: "R$ 87,03",
-            percent: "102,39%",
-        },
-        {
-            amount: "R$ 120,50",
-            category: "light",
-            color: "#F0980C",
-            icon: "lightbulb-outline",
-            date: "2022-11-10T22:45:54.358Z",
-            id: "4407fb74-dc63-441c-aad3-1e38b769a837",
-            name: "Luz",
-            period: "novembro/2022",
-            type: "negative",
-            total: "R$ 115,97",
-            percent: "96,24%",
-        },
-        {
-            amount: "R$ 1800,00",
-            category: "rent",
-            color: "#1C3EBD",
-            icon: "home-outline",
-            date: "2022-11-10T22:45:54.358Z",
-            id: "4407fb74-dc63-441c-aad3-1e38b769a838",
-            name: "Aluguel",
-            period: "novembro/2022",
-            type: "negative",
-            total: "R$ 1699,12",
-            percent: "94,40%",
-        },
-    ];
-
-    const listCategoriesNotSelectable: string[] = [
-        "salary",
-        "supermarket",
-        "water",
-        "light",
-        "rent",
-    ];
+    const [isLoading, setIsLoading] = React.useState(true);
+    const [budgetEntries, setBudgetEntries] = React.useState<BudgetListProps[]>(
+        []
+    );
+    const [listCategoriesNotSelectable, setListCategoriesNotSelectable] =
+        React.useState<string[]>([]);
 
     const [selectedDate, setSelectedDate] = React.useState(new Date());
     const [transactionType, setTransactionType] = React.useState("positive");
@@ -132,7 +84,9 @@ export function Budget() {
         key: "category",
         name: "Categoria",
     });
+
     const { user } = useAuth();
+    const theme = useTheme();
 
     const {
         control,
@@ -174,15 +128,6 @@ export function Budget() {
             return Alert.alert("Selecione a categoria");
         }
 
-        const totalFormatted = form.amount.toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-        });
-
-        const categoryProperties = commonCategories.filter(
-            (item) => item.key === category.key
-        )[0];
-
         const budgetEntry = {
             entryType: "budget",
             name: category.name,
@@ -197,12 +142,7 @@ export function Budget() {
             .collection("@EasyFlux:transactions_user:2547789544")
             .add(budgetEntry)
             .then(() => {
-                Alert.alert(
-                    "Solicitação",
-                    "Solicitação registrada com sucesso."
-                );
                 reset();
-                setTransactionType("");
                 setCategory({
                     key: "category",
                     name: "Categoria",
@@ -214,98 +154,274 @@ export function Budget() {
                     "Solicitação",
                     "Não foi possível registrar o pedido"
                 );
+            })
+            .finally(() => loadTransactions());
+    }
+
+    function loadTransactions() {
+        firestore()
+            .collection("@EasyFlux:transactions_user:2547789544")
+            .where("type", "==", transactionType)
+            .where(
+                "period",
+                "==",
+                format(selectedDate, "MMMM/yyyy", { locale: ptBR })
+            )
+            .onSnapshot((snapshot) => {
+                const dataTransformed: TransactionCardProps[] =
+                    snapshot.docs.map((doc) => {
+                        const {
+                            amount,
+                            category,
+                            date,
+                            entryType,
+                            name,
+                            period,
+                            type,
+                        } = doc.data();
+
+                        return {
+                            id: doc.id,
+                            amount,
+                            category,
+                            date: new Date(date.toDate()).toDateString(),
+                            entryType,
+                            name,
+                            period,
+                            type,
+                        };
+                    });
+
+                const budgetData: TransactionCardProps[] =
+                    dataTransformed.filter(
+                        (entry: TransactionCardProps) =>
+                            entry.entryType === "budget"
+                    );
+                const actualData: TransactionCardProps[] =
+                    dataTransformed.filter(
+                        (entry: TransactionCardProps) =>
+                            entry.entryType === "actual"
+                    );
+
+                const expensesTotal = actualData.reduce(
+                    (acumullator: number, expense: TransactionCardProps) => {
+                        return acumullator + Number(expense.amount);
+                    },
+                    0
+                );
+
+                const totalByCategory: CategoryData[] = [];
+
+                categoriesOutcome.forEach((category) => {
+                    let categorySum = 0;
+                    actualData.forEach((expense: TransactionCardProps) => {
+                        if (expense.category === category.key) {
+                            categorySum += Number(expense.amount);
+                        }
+                    });
+
+                    if (categorySum > 0) {
+                        const totalFormatted = categorySum.toLocaleString(
+                            "pt-BR",
+                            {
+                                style: "currency",
+                                currency: "BRL",
+                            }
+                        );
+
+                        const percent = `${(
+                            (categorySum / expensesTotal) *
+                            100
+                        ).toFixed(2)}%`;
+
+                        totalByCategory.push({
+                            key: category.key,
+                            name: category.name,
+                            color: category.color,
+                            total: categorySum,
+                            totalFormatted,
+                            percent,
+                        });
+                    }
+                });
+
+                let categoriesAlreadySelected: string[] = [];
+
+                const budgetDataFormatted: BudgetListProps[] = budgetData.map(
+                    (entry: TransactionCardProps) => {
+                        const categoryProperties = commonCategories.filter(
+                            (item) => item.key === entry.category
+                        )[0];
+
+                        const totalActualByCategory: CategoryData =
+                            totalByCategory.filter(
+                                (item) => item.key === entry.category
+                            )[0];
+
+                        let percent: string = "";
+
+                        if (totalActualByCategory) {
+                            percent = `${(
+                                (totalActualByCategory.total /
+                                    Number(entry.amount)) *
+                                100
+                            ).toFixed(2)}%`;
+                        }
+
+                        const amountFormatted = Number(
+                            entry.amount
+                        ).toLocaleString("pt-BR", {
+                            style: "currency",
+                            currency: "BRL",
+                        });
+
+                        categoriesAlreadySelected.push(entry.category);
+
+                        return {
+                            amount: amountFormatted,
+                            category: entry.category,
+                            color:
+                                categoryProperties && categoryProperties.color,
+                            icon: categoryProperties && categoryProperties.icon,
+                            entryType: entry.entryType,
+                            date: entry.date,
+                            id: entry.id,
+                            name: entry.name,
+                            period: entry.period,
+                            type: entry.type,
+                            total: totalActualByCategory
+                                ? totalActualByCategory.total.toLocaleString(
+                                      "pt-BR",
+                                      {
+                                          style: "currency",
+                                          currency: "BRL",
+                                      }
+                                  )
+                                : "R$ 0,00",
+                            percent,
+                        };
+                    }
+                );
+                setBudgetEntries(budgetDataFormatted);
+                setListCategoriesNotSelectable(categoriesAlreadySelected);
+                setIsLoading(false);
             });
     }
 
+    React.useEffect(() => {
+        const subscriber = loadTransactions();
+
+        return subscriber;
+    }, [selectedDate, transactionType]);
+
     return (
         <Container>
-            <Header>
-                <Title>Orçamentos</Title>
-            </Header>
-            <MonthSelect>
-                <MonthSelectButton onPress={() => handleDateChange("prev")}>
-                    <MonthSelectIcon name="chevron-left" />
-                </MonthSelectButton>
-                <Month>
-                    {format(selectedDate, "MMMM, yyyy", {
-                        locale: ptBR,
-                    })}
-                </Month>
-                <MonthSelectButton onPress={() => handleDateChange("next")}>
-                    <MonthSelectIcon name="chevron-right" />
-                </MonthSelectButton>
-            </MonthSelect>
-            <Form>
-                <TransactionsTypes>
-                    <TransactionTypeButton
-                        type="up"
-                        title="Entrada"
-                        onPress={() => {
-                            handleTransactionsType("positive");
-                        }}
-                        isActive={transactionType === "positive"}
+            {isLoading ? (
+                <LoadContainer>
+                    <ActivityIndicator
+                        size={"large"}
+                        color={theme.colors.primary}
                     />
-                    <TransactionTypeButton
-                        type="down"
-                        title="Saída"
-                        onPress={() => {
-                            handleTransactionsType("negative");
-                        }}
-                        isActive={transactionType === "negative"}
-                    />
-                </TransactionsTypes>
-                <CategorySelectButton
-                    onPress={handleOpenSelectCategory}
-                    title={category.name}
-                />
-                <Fields>
-                    <InputForm
-                        name="amount"
-                        control={control}
-                        placeholder="valor"
-                        keyboardType="numeric"
-                        error={errors.amount && errors.amount.message}
-                    />
-                </Fields>
-                <Button
-                    title="Cadastrar orçamento"
-                    onPress={handleSubmit(handleRegister)}
-                    enabled={isAfter(selectedDate, new Date()) ? true : false}
-                ></Button>
-            </Form>
-            <Modal visible={categoryModalOpen}>
-                <CategorySelect
-                    category={category}
-                    setCategory={setCategory}
-                    closeSelectCategory={handleCloseSelectCategory}
-                    transactionType={transactionType}
-                    listCategoriesNotSelectable={listCategoriesNotSelectable}
-                />
-            </Modal>
-            <Content>
-                <TitleList>Lista de orçamentos:</TitleList>
-                <FlatList
-                    data={dataExample}
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => (
-                        <BudgetCard
-                            selectedDate={selectedDate}
-                            key={item.category}
-                            id={item.id}
-                            title={item.name}
-                            amount={item.amount}
-                            color={item.color}
-                            icon={item.icon}
-                            total={item.total}
-                            percent={item.percent}
+                </LoadContainer>
+            ) : (
+                <>
+                    <Header>
+                        <Title>Orçamentos</Title>
+                    </Header>
+                    <MonthSelect>
+                        <MonthSelectButton
+                            onPress={() => handleDateChange("prev")}
+                        >
+                            <MonthSelectIcon name="chevron-left" />
+                        </MonthSelectButton>
+                        <Month>
+                            {format(selectedDate, "MMMM, yyyy", {
+                                locale: ptBR,
+                            })}
+                        </Month>
+                        <MonthSelectButton
+                            onPress={() => handleDateChange("next")}
+                        >
+                            <MonthSelectIcon name="chevron-right" />
+                        </MonthSelectButton>
+                    </MonthSelect>
+                    <Form>
+                        <TransactionsTypes>
+                            <TransactionTypeButton
+                                type="up"
+                                title="Entrada"
+                                onPress={() => {
+                                    handleTransactionsType("positive");
+                                }}
+                                isActive={transactionType === "positive"}
+                            />
+                            <TransactionTypeButton
+                                type="down"
+                                title="Saída"
+                                onPress={() => {
+                                    handleTransactionsType("negative");
+                                }}
+                                isActive={transactionType === "negative"}
+                            />
+                        </TransactionsTypes>
+                        <CategorySelectButton
+                            onPress={handleOpenSelectCategory}
+                            title={category.name}
                         />
-                    )}
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{
-                        paddingBottom: getBottomSpace(),
-                    }}
-                />
-            </Content>
+                        <Fields>
+                            <InputForm
+                                name="amount"
+                                control={control}
+                                placeholder="valor"
+                                keyboardType="numeric"
+                                error={errors.amount && errors.amount.message}
+                            />
+                        </Fields>
+                        <Button
+                            title="Cadastrar orçamento"
+                            onPress={handleSubmit(handleRegister)}
+                            enabled={
+                                isAfter(selectedDate, new Date()) ? true : false
+                            }
+                        ></Button>
+                    </Form>
+                    <Modal visible={categoryModalOpen}>
+                        <CategorySelect
+                            category={category}
+                            setCategory={setCategory}
+                            closeSelectCategory={handleCloseSelectCategory}
+                            transactionType={transactionType}
+                            listCategoriesNotSelectable={
+                                listCategoriesNotSelectable
+                            }
+                        />
+                    </Modal>
+                    <Content>
+                        <TitleList>Lista de orçamentos:</TitleList>
+                        <FlatList
+                            data={budgetEntries}
+                            keyExtractor={(item) => item.id}
+                            renderItem={({ item }) => (
+                                <BudgetCard
+                                    selectedDate={selectedDate}
+                                    key={item.category}
+                                    id={item.id}
+                                    title={item.name}
+                                    amount={item.amount}
+                                    color={item.color}
+                                    icon={item.icon}
+                                    total={item.total}
+                                    percent={item.percent}
+                                />
+                            )}
+                            showsVerticalScrollIndicator={false}
+                            contentContainerStyle={{
+                                paddingBottom: getBottomSpace(),
+                            }}
+                        />
+                    </Content>
+                </>
+            )}
         </Container>
     );
 }

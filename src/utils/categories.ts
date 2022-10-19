@@ -112,6 +112,12 @@ export const commonCategories = [
         color: "#147819",
     },
     {
+        key: "voucher",
+        name: "Vale alimentação/refeição",
+        icon: "food-apple-outline",
+        color: "#F18C2D",
+    },
+    {
         key: "vacation",
         name: "Férias",
         icon: "beach",

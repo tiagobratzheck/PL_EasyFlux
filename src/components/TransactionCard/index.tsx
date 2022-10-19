@@ -1,8 +1,5 @@
 import React from "react";
-import { View } from "react-native";
 import { commonCategories } from "../../utils/categories";
-
-import { isEqual, isAfter } from "date-fns";
 
 import {
     Container,
@@ -20,7 +17,6 @@ import {
 
 interface Category {
     name: string;
-    //key: string;
     icon: string;
 }
 
@@ -44,6 +40,12 @@ export function TransactionCard({ data, selectedDate }: Props) {
     const category = commonCategories.filter(
         (item) => item.key === data.category
     )[0];
+
+    const dateFormatted = Intl.DateTimeFormat("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "2-digit",
+    }).format(new Date(data.date));
 
     return (
         <Container>
@@ -69,7 +71,7 @@ export function TransactionCard({ data, selectedDate }: Props) {
                     <Icon name={category.icon} />
                     <CategoryName>{category.name}</CategoryName>
                 </Category>
-                <DisplayDate>{data.date}</DisplayDate>
+                <DisplayDate>{dateFormatted}</DisplayDate>
             </Footer>
         </Container>
     );

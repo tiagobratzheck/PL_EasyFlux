@@ -1,13 +1,11 @@
 import React from "react";
 import { ActivityIndicator } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import firestore from "@react-native-firebase/firestore";
 
 import { addMonths, subMonths, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
-import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "styled-components";
 
 import { FlatList } from "react-native";
@@ -41,9 +39,7 @@ import {
 } from "./styles";
 import { useAuth } from "../../hooks/auth";
 
-export interface DataListProps extends TransactionCardProps {
-    id: string;
-}
+export interface DataListProps extends TransactionCardProps {}
 
 interface HighLightProps {
     amount: string;
@@ -102,98 +98,8 @@ export function Dashboard() {
         }
     }
 
-    async function loadTransactions() {
-        const dataKey = `@EasyFlux:transactions_user:${user.id}`;
-        const response = await AsyncStorage.getItem(dataKey);
-        const transactions = response ? JSON.parse(response) : [];
-
-        let entriesSum = 0;
-        let expensesSum = 0;
-
-        const transactionsFormatted: DataListProps[] = transactions.map(
-            (item: DataListProps) => {
-                if (item.type === "positive") {
-                    entriesSum += Number(item.amount);
-                } else {
-                    expensesSum += Number(item.amount);
-                }
-
-                const amount = Number(item.amount).toLocaleString("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                });
-                const date = Intl.DateTimeFormat("pt-BR", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "2-digit",
-                }).format(new Date(item.date));
-
-                return {
-                    id: item.id,
-                    entryType: item.entryType,
-                    name: item.name,
-                    amount,
-                    type: item.type,
-                    category: item.category,
-                    date,
-                    period: item.period,
-                };
-            }
-        );
-        setData(transactionsFormatted);
-
-        const lastTransactionEntries = getLastTransactionDate(
-            transactions,
-            "positive"
-        );
-        const lastTransactionExpenses = getLastTransactionDate(
-            transactions,
-            "negative"
-        );
-        const totalInterval =
-            lastTransactionExpenses !== 0
-                ? `01 a ${lastTransactionExpenses}`
-                : lastTransactionEntries !== 0
-                ? `01 a ${lastTransactionEntries}`
-                : "Sem lançamentos";
-
-        const total = entriesSum - expensesSum;
-
-        setHighLightData({
-            entries: {
-                amount: entriesSum.toLocaleString("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                }),
-                lastTransaction:
-                    lastTransactionEntries === 0
-                        ? "Sem lançamentos para o período "
-                        : `Última entrada dia ${lastTransactionEntries}`,
-            },
-            expenses: {
-                amount: expensesSum.toLocaleString("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                }),
-                lastTransaction:
-                    lastTransactionExpenses === 0
-                        ? "Sem lançamentos para o período "
-                        : `Última saída dia ${lastTransactionExpenses}`,
-            },
-            total: {
-                amount: total.toLocaleString("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                }),
-                lastTransaction: totalInterval,
-            },
-        });
-
-        setIsLoading(false);
-    }
-
-    React.useEffect(() => {
-        const subscriber = firestore()
+    function loadTransactions() {
+        firestore()
             .collection("@EasyFlux:transactions_user:2547789544")
             .where("entryType", "==", "actual")
             .where(
@@ -202,7 +108,10 @@ export function Dashboard() {
                 format(selectedDate, "MMMM/yyyy", { locale: ptBR })
             )
             .onSnapshot((snapshot) => {
-                const data = snapshot.docs.map((doc) => {
+                let entriesSum = 0;
+                let expensesSum = 0;
+
+                const dataTransformed = snapshot.docs.map((doc) => {
                     const {
                         amount,
                         category,
@@ -213,33 +122,89 @@ export function Dashboard() {
                         type,
                     } = doc.data();
 
-                    const dateFormatted = Intl.DateTimeFormat("pt-BR", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "2-digit",
-                    }).format(new Date(date.toDate()));
+                    if (type === "positive") {
+                        entriesSum += Number(amount);
+                    } else {
+                        expensesSum += Number(amount);
+                    }
+
+                    const amountFormatted = Number(amount).toLocaleString(
+                        "pt-BR",
+                        {
+                            style: "currency",
+                            currency: "BRL",
+                        }
+                    );
 
                     return {
                         id: doc.id,
-                        amount,
+                        amount: amountFormatted,
                         category,
-                        dateFormatted,
+                        date: new Date(date.toDate()).toDateString(),
                         entryType,
                         name,
                         period,
                         type,
                     };
                 });
+                setData(dataTransformed);
+
+                const lastTransactionEntries = getLastTransactionDate(
+                    dataTransformed,
+                    "positive"
+                );
+                const lastTransactionExpenses = getLastTransactionDate(
+                    dataTransformed,
+                    "negative"
+                );
+                const totalInterval =
+                    lastTransactionExpenses !== 0
+                        ? `01 a ${lastTransactionExpenses}`
+                        : lastTransactionEntries !== 0
+                        ? `01 a ${lastTransactionEntries}`
+                        : "Sem lançamentos";
+
+                const total = entriesSum - expensesSum;
+
+                setHighLightData({
+                    entries: {
+                        amount: entriesSum.toLocaleString("pt-BR", {
+                            style: "currency",
+                            currency: "BRL",
+                        }),
+                        lastTransaction:
+                            lastTransactionEntries === 0
+                                ? "Sem lançamentos para o período "
+                                : `Última entrada dia ${lastTransactionEntries}`,
+                    },
+                    expenses: {
+                        amount: expensesSum.toLocaleString("pt-BR", {
+                            style: "currency",
+                            currency: "BRL",
+                        }),
+                        lastTransaction:
+                            lastTransactionExpenses === 0
+                                ? "Sem lançamentos para o período "
+                                : `Última saída dia ${lastTransactionExpenses}`,
+                    },
+                    total: {
+                        amount: total.toLocaleString("pt-BR", {
+                            style: "currency",
+                            currency: "BRL",
+                        }),
+                        lastTransaction: totalInterval,
+                    },
+                });
+
+                setIsLoading(false);
             });
+    }
+
+    React.useEffect(() => {
+        const subscriber = loadTransactions();
 
         return subscriber;
     }, [selectedDate]);
-
-    useFocusEffect(
-        React.useCallback(() => {
-            loadTransactions();
-        }, [])
-    );
 
     return (
         <Container>

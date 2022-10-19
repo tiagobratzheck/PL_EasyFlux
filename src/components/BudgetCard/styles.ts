@@ -14,9 +14,8 @@ export const Container = styled.View<ContainerProps>`
     border-radius: 5px;
     border-left-width: 6px;
     border-left-color: ${({ color }) => color};
-    padding-left: 4px;
-    margin-bottom: 15px;
-    margin-top: 2px;
+    padding: 5px 24px;
+    margin-bottom: 10px;
 `;
 
 export const Icon = styled(MaterialCommunityIcons)`
@@ -68,10 +67,10 @@ export const DeleteIcon = styled(Feather)`
 
 export const Footer = styled.View`
     width: 100%;
-    flex: 1;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 2px;
 `;
 
 export const Account = styled.Text`
