@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import React from "react";
 import { ActivityIndicator } from "react-native";
 import { HistoryCard } from "../../components/HistoryCard";
-import { categoriesOutcome } from "../../utils/categories";
+import { categoriesOutcome, commonCategories } from "../../utils/categories";
 
 import { useFocusEffect } from "@react-navigation/native";
 import { useAuth } from "../../hooks/auth";
@@ -16,6 +16,10 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { addMonths, subMonths, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
+import firestore from "@react-native-firebase/firestore";
+
+import { TransactionTypeButton } from "../../components/Forms/TransactionTypeButton";
+
 import {
     Container,
     Header,
@@ -27,6 +31,8 @@ import {
     MonthSelectIcon,
     Month,
     LoadContainer,
+    Form,
+    TransactionsTypes,
 } from "./styles";
 
 interface TransactionData {
@@ -50,6 +56,7 @@ interface CategoryData {
 }
 
 export function Resume() {
+    const [transactionType, setTransactionType] = React.useState("positive");
     const [totalByCategories, setTotalByCategories] = React.useState<
         CategoryData[]
     >([]);
@@ -71,70 +78,115 @@ export function Resume() {
         }
     }
 
-    async function loadData() {
-        setIsLoading(true);
-        const dataKey = `@EasyFlux:transactions_user:${user.id}`;
-        const response = await AsyncStorage.getItem(dataKey);
-        const responseFormatted = response ? JSON.parse(response) : [];
-
-        const expenses = responseFormatted.filter(
-            (expense: TransactionData) =>
-                expense.type === "negative" &&
-                new Date(expense.date).getMonth() === selectedDate.getMonth() &&
-                new Date(expense.date).getFullYear() ===
-                    selectedDate.getFullYear()
-        );
-
-        const expensesTotal = expenses.reduce(
-            (acumullator: number, expense: TransactionData) => {
-                return acumullator + Number(expense.amount);
-            },
-            0
-        );
-
-        const totalByCategory: CategoryData[] = [];
-
-        categoriesOutcome.forEach((category) => {
-            let categorySum = 0;
-            expenses.forEach((expense: TransactionData) => {
-                if (expense.category === category.key) {
-                    categorySum += Number(expense.amount);
-                }
-            });
-
-            if (categorySum > 0) {
-                const totalFormatted = categorySum.toLocaleString("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                });
-
-                const percent = `${(
-                    (categorySum / expensesTotal) *
-                    100
-                ).toFixed(2)}%`;
-
-                totalByCategory.push({
-                    key: category.key,
-                    name: category.name,
-                    color: category.color,
-                    total: categorySum,
-                    totalFormatted,
-                    percent,
-                });
-            }
-        });
-        totalByCategory.sort((a, b) =>
-            a.total < b.total ? 1 : b.total < a.total ? -1 : 0
-        );
-        setTotalByCategories(totalByCategory);
-        setIsLoading(false);
+    function handleTransactionsType(type: "positive" | "negative") {
+        setTransactionType(type);
     }
 
-    useFocusEffect(
-        React.useCallback(() => {
-            loadData();
-        }, [selectedDate])
-    );
+    function loadData() {
+        setIsLoading(true);
+        firestore()
+            .collection("@EasyFlux:transactions_user:2547789544")
+            .where("entryType", "==", "actual")
+            .where("type", "==", transactionType)
+            .where(
+                "period",
+                "==",
+                format(selectedDate, "MMMM/yyyy", { locale: ptBR })
+            )
+            .onSnapshot((snapshot) => {
+                const dataTransformed: TransactionData[] = snapshot.docs.map(
+                    (doc) => {
+                        const {
+                            amount,
+                            category,
+                            date,
+                            entryType,
+                            name,
+                            period,
+                            type,
+                        } = doc.data();
+
+                        return {
+                            id: doc.id,
+                            amount,
+                            category,
+                            date: new Date(date.toDate()).toDateString(),
+                            entryType,
+                            name,
+                            period,
+                            type,
+                        };
+                    }
+                );
+
+                const totalEntries = dataTransformed.filter(
+                    (entry: TransactionData) =>
+                        new Date(entry.date).getMonth() ===
+                            selectedDate.getMonth() &&
+                        new Date(entry.date).getFullYear() ===
+                            selectedDate.getFullYear()
+                );
+
+                const sumEntries = totalEntries.reduce(
+                    (acumullator: number, entry: TransactionData) => {
+                        return acumullator + Number(entry.amount);
+                    },
+                    0
+                );
+
+                const totalByCategory: CategoryData[] = [];
+
+                commonCategories.forEach((category) => {
+                    let categorySum = 0;
+                    totalEntries.forEach((entry: TransactionData) => {
+                        if (entry.category === category.key) {
+                            categorySum += Number(entry.amount);
+                        }
+                    });
+
+                    if (categorySum > 0) {
+                        const totalFormatted = categorySum.toLocaleString(
+                            "pt-BR",
+                            {
+                                style: "currency",
+                                currency: "BRL",
+                            }
+                        );
+
+                        const percent = `${(
+                            (categorySum / sumEntries) *
+                            100
+                        ).toFixed(2)}%`;
+
+                        totalByCategory.push({
+                            key: category.key,
+                            name: category.name,
+                            color: category.color,
+                            total: categorySum,
+                            totalFormatted,
+                            percent,
+                        });
+                    }
+                });
+                totalByCategory.sort((a, b) =>
+                    a.total < b.total ? 1 : b.total < a.total ? -1 : 0
+                );
+                setTotalByCategories(totalByCategory);
+                setIsLoading(false);
+            });
+    }
+
+    //useFocusEffect(
+    //    React.useCallback(() => {
+    //        loadData();
+    //    }, [])
+    //);
+
+    React.useEffect(() => {
+        const subscriber = loadData();
+
+        return subscriber;
+    }, [selectedDate, transactionType]);
 
     return (
         <Container>
@@ -149,13 +201,7 @@ export function Resume() {
                     />
                 </LoadContainer>
             ) : (
-                <Content
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{
-                        paddingHorizontal: 24,
-                        paddingBottom: useBottomTabBarHeight(),
-                    }}
-                >
+                <>
                     <MonthSelect>
                         <MonthSelectButton
                             onPress={() => handleDateChange("prev")}
@@ -173,39 +219,66 @@ export function Resume() {
                             <MonthSelectIcon name="chevron-right" />
                         </MonthSelectButton>
                     </MonthSelect>
-
-                    <ChartContainer>
-                        <VictoryPie
-                            data={totalByCategories}
-                            colorScale={totalByCategories.map(
-                                (category) => category.color
-                            )}
-                            style={{
-                                labels: {
-                                    fontSize: RFValue(11),
-                                    fontWeight: "bold",
-                                    fill: theme.colors.text,
-                                },
-                            }}
-                            padAngle={2}
-                            innerRadius={100}
-                            height={380}
-                            labelRadius={150}
-                            x="percent"
-                            y="total"
-                        />
-                    </ChartContainer>
-                    {totalByCategories.map((item) => {
-                        return (
-                            <HistoryCard
-                                key={item.key}
-                                title={item.name}
-                                amount={item.totalFormatted}
-                                color={item.color}
+                    <Form>
+                        <TransactionsTypes>
+                            <TransactionTypeButton
+                                type="up"
+                                title="Entrada"
+                                onPress={() => {
+                                    handleTransactionsType("positive");
+                                }}
+                                isActive={transactionType === "positive"}
                             />
-                        );
-                    })}
-                </Content>
+                            <TransactionTypeButton
+                                type="down"
+                                title="Saída"
+                                onPress={() => {
+                                    handleTransactionsType("negative");
+                                }}
+                                isActive={transactionType === "negative"}
+                            />
+                        </TransactionsTypes>
+                    </Form>
+                    <Content
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={{
+                            paddingHorizontal: 24,
+                            paddingBottom: useBottomTabBarHeight(),
+                        }}
+                    >
+                        <ChartContainer>
+                            <VictoryPie
+                                data={totalByCategories}
+                                colorScale={totalByCategories.map(
+                                    (category) => category.color
+                                )}
+                                style={{
+                                    labels: {
+                                        fontSize: RFValue(11),
+                                        fontWeight: "bold",
+                                        fill: theme.colors.text,
+                                    },
+                                }}
+                                padAngle={2}
+                                innerRadius={100}
+                                height={380}
+                                labelRadius={150}
+                                x="percent"
+                                y="total"
+                            />
+                        </ChartContainer>
+                        {totalByCategories.map((item) => {
+                            return (
+                                <HistoryCard
+                                    key={item.key}
+                                    title={item.name}
+                                    amount={item.totalFormatted}
+                                    color={item.color}
+                                />
+                            );
+                        })}
+                    </Content>
+                </>
             )}
         </Container>
     );

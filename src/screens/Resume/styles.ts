@@ -8,6 +8,7 @@ import { BorderlessButton } from "react-native-gesture-handler";
 export const Container = styled.View`
     flex: 1;
     background-color: ${({ theme }) => theme.colors.background};
+    justify-content: flex-start;
 `;
 
 export const Header = styled.View`
@@ -25,7 +26,9 @@ export const Title = styled.Text`
     font-size: ${RFValue(13)}px;
 `;
 
-export const Content = styled.ScrollView``;
+export const Content = styled.ScrollView`
+    flex: 1;
+`;
 
 export const ChartContainer = styled.View`
     width: 100%;
@@ -57,4 +60,16 @@ export const LoadContainer = styled.View`
     flex: 1;
     justify-content: center;
     align-items: center;
+`;
+
+export const Form = styled.View`
+    width: 100%;
+    margin-top: 14px;
+    padding: 0px 24px 10px;
+    justify-content: space-evenly;
+`;
+
+export const TransactionsTypes = styled.View`
+    flex-direction: row;
+    justify-content: space-between;
 `;

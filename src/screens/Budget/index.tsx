@@ -159,6 +159,7 @@ export function Budget() {
     }
 
     function loadTransactions() {
+        setIsLoading(true);
         firestore()
             .collection("@EasyFlux:transactions_user:2547789544")
             .where("type", "==", transactionType)
@@ -212,7 +213,7 @@ export function Budget() {
 
                 const totalByCategory: CategoryData[] = [];
 
-                categoriesOutcome.forEach((category) => {
+                commonCategories.forEach((category) => {
                     let categorySum = 0;
                     actualData.forEach((expense: TransactionCardProps) => {
                         if (expense.category === category.key) {
@@ -316,112 +317,102 @@ export function Budget() {
 
     return (
         <Container>
-            {isLoading ? (
-                <LoadContainer>
-                    <ActivityIndicator
-                        size={"large"}
-                        color={theme.colors.primary}
+            <Header>
+                <Title>Orçamentos</Title>
+            </Header>
+            <MonthSelect>
+                <MonthSelectButton onPress={() => handleDateChange("prev")}>
+                    <MonthSelectIcon name="chevron-left" />
+                </MonthSelectButton>
+                <Month>
+                    {format(selectedDate, "MMMM, yyyy", {
+                        locale: ptBR,
+                    })}
+                </Month>
+                <MonthSelectButton onPress={() => handleDateChange("next")}>
+                    <MonthSelectIcon name="chevron-right" />
+                </MonthSelectButton>
+            </MonthSelect>
+            <Form>
+                <TransactionsTypes>
+                    <TransactionTypeButton
+                        type="up"
+                        title="Entrada"
+                        onPress={() => {
+                            handleTransactionsType("positive");
+                        }}
+                        isActive={transactionType === "positive"}
                     />
-                </LoadContainer>
-            ) : (
-                <>
-                    <Header>
-                        <Title>Orçamentos</Title>
-                    </Header>
-                    <MonthSelect>
-                        <MonthSelectButton
-                            onPress={() => handleDateChange("prev")}
-                        >
-                            <MonthSelectIcon name="chevron-left" />
-                        </MonthSelectButton>
-                        <Month>
-                            {format(selectedDate, "MMMM, yyyy", {
-                                locale: ptBR,
-                            })}
-                        </Month>
-                        <MonthSelectButton
-                            onPress={() => handleDateChange("next")}
-                        >
-                            <MonthSelectIcon name="chevron-right" />
-                        </MonthSelectButton>
-                    </MonthSelect>
-                    <Form>
-                        <TransactionsTypes>
-                            <TransactionTypeButton
-                                type="up"
-                                title="Entrada"
-                                onPress={() => {
-                                    handleTransactionsType("positive");
-                                }}
-                                isActive={transactionType === "positive"}
-                            />
-                            <TransactionTypeButton
-                                type="down"
-                                title="Saída"
-                                onPress={() => {
-                                    handleTransactionsType("negative");
-                                }}
-                                isActive={transactionType === "negative"}
-                            />
-                        </TransactionsTypes>
-                        <CategorySelectButton
-                            onPress={handleOpenSelectCategory}
-                            title={category.name}
+                    <TransactionTypeButton
+                        type="down"
+                        title="Saída"
+                        onPress={() => {
+                            handleTransactionsType("negative");
+                        }}
+                        isActive={transactionType === "negative"}
+                    />
+                </TransactionsTypes>
+                <CategorySelectButton
+                    onPress={handleOpenSelectCategory}
+                    title={category.name}
+                />
+                <Fields>
+                    <InputForm
+                        name="amount"
+                        control={control}
+                        placeholder="valor"
+                        keyboardType="numeric"
+                        error={errors.amount && errors.amount.message}
+                    />
+                </Fields>
+                <Button
+                    title="Cadastrar orçamento"
+                    onPress={handleSubmit(handleRegister)}
+                    enabled={isAfter(selectedDate, new Date()) ? true : false}
+                ></Button>
+            </Form>
+            <Modal visible={categoryModalOpen}>
+                <CategorySelect
+                    category={category}
+                    setCategory={setCategory}
+                    closeSelectCategory={handleCloseSelectCategory}
+                    transactionType={transactionType}
+                    listCategoriesNotSelectable={listCategoriesNotSelectable}
+                />
+            </Modal>
+            <Content>
+                <TitleList>Lista de orçamentos:</TitleList>
+                {isLoading ? (
+                    <LoadContainer>
+                        <ActivityIndicator
+                            size={"large"}
+                            color={theme.colors.primary}
                         />
-                        <Fields>
-                            <InputForm
-                                name="amount"
-                                control={control}
-                                placeholder="valor"
-                                keyboardType="numeric"
-                                error={errors.amount && errors.amount.message}
+                    </LoadContainer>
+                ) : (
+                    <FlatList
+                        data={budgetEntries}
+                        keyExtractor={(item) => item.id}
+                        renderItem={({ item }) => (
+                            <BudgetCard
+                                selectedDate={selectedDate}
+                                key={item.category}
+                                id={item.id}
+                                title={item.name}
+                                amount={item.amount}
+                                color={item.color}
+                                icon={item.icon}
+                                total={item.total}
+                                percent={item.percent}
                             />
-                        </Fields>
-                        <Button
-                            title="Cadastrar orçamento"
-                            onPress={handleSubmit(handleRegister)}
-                            enabled={
-                                isAfter(selectedDate, new Date()) ? true : false
-                            }
-                        ></Button>
-                    </Form>
-                    <Modal visible={categoryModalOpen}>
-                        <CategorySelect
-                            category={category}
-                            setCategory={setCategory}
-                            closeSelectCategory={handleCloseSelectCategory}
-                            transactionType={transactionType}
-                            listCategoriesNotSelectable={
-                                listCategoriesNotSelectable
-                            }
-                        />
-                    </Modal>
-                    <Content>
-                        <TitleList>Lista de orçamentos:</TitleList>
-                        <FlatList
-                            data={budgetEntries}
-                            keyExtractor={(item) => item.id}
-                            renderItem={({ item }) => (
-                                <BudgetCard
-                                    selectedDate={selectedDate}
-                                    key={item.category}
-                                    id={item.id}
-                                    title={item.name}
-                                    amount={item.amount}
-                                    color={item.color}
-                                    icon={item.icon}
-                                    total={item.total}
-                                    percent={item.percent}
-                                />
-                            )}
-                            showsVerticalScrollIndicator={false}
-                            contentContainerStyle={{
-                                paddingBottom: getBottomSpace(),
-                            }}
-                        />
-                    </Content>
-                </>
-            )}
+                        )}
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={{
+                            paddingBottom: getBottomSpace(),
+                        }}
+                    />
+                )}
+            </Content>
         </Container>
     );
 }
