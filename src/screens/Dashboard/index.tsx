@@ -222,12 +222,15 @@ export function Dashboard() {
                             <UserInfo>
                                 <Photo
                                     source={{
-                                        uri: user.photo,
+                                        uri: "https://avatars.githubusercontent.com/u/44751489?v=4",
                                     }}
                                 />
                                 <User>
                                     <UserGreeting>Olá!</UserGreeting>
-                                    <UserName>{user.name}</UserName>
+                                    {
+                                        //<UserName>{user.name}</UserName>
+                                    }
+                                    <UserName>Tiago</UserName>
                                 </User>
                             </UserInfo>
                             <LogoutButton onPress={signOut}>

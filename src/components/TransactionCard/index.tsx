@@ -1,4 +1,6 @@
 import React from "react";
+import { Alert } from "react-native";
+import firestore from "@react-native-firebase/firestore";
 import { commonCategories } from "../../utils/categories";
 
 import {
@@ -47,6 +49,26 @@ export function TransactionCard({ data, selectedDate }: Props) {
         year: "2-digit",
     }).format(new Date(data.date));
 
+    function deleteEntry(id: string) {
+        Alert.alert("Atenção!", "Deseja realmente deletar esse lançamento?", [
+            {
+                text: "Cancelar",
+                onPress: () => {},
+            },
+            {
+                text: "Deletar",
+                onPress: () =>
+                    firestore()
+                        .collection("@EasyFlux:transactions_user:2547789544")
+                        .doc(id)
+                        .delete()
+                        .then(() => {
+                            Alert.alert("Lançamento deletado!");
+                        }),
+            },
+        ]);
+    }
+
     return (
         <Container>
             <Description>
@@ -55,7 +77,7 @@ export function TransactionCard({ data, selectedDate }: Props) {
                 new Date().getFullYear() === selectedDate.getFullYear() ? (
                     <DeleteRegister
                         onPress={() => {
-                            console.log(data.id);
+                            deleteEntry(data.id);
                         }}
                     >
                         <DeleteIcon name="delete" />

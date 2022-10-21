@@ -1,8 +1,7 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import React from "react";
-import { ActivityIndicator } from "react-native";
+import { ActivityIndicator, Modal } from "react-native";
 import { HistoryCard } from "../../components/HistoryCard";
-import { categoriesOutcome, commonCategories } from "../../utils/categories";
+import { commonCategories } from "../../utils/categories";
 
 import { useFocusEffect } from "@react-navigation/native";
 import { useAuth } from "../../hooks/auth";
@@ -34,6 +33,7 @@ import {
     Form,
     TransactionsTypes,
 } from "./styles";
+import { HistoryAccount } from "../HistoryAccount";
 
 interface TransactionData {
     id: string;
@@ -60,6 +60,9 @@ export function Resume() {
     const [totalByCategories, setTotalByCategories] = React.useState<
         CategoryData[]
     >([]);
+    const [categoryModalOpen, setCategoryModalOpen] = React.useState(false);
+    const [categoryKey, setCategoryKey] = React.useState("");
+
     const { user } = useAuth();
 
     const [selectedDate, setSelectedDate] = React.useState(new Date());
@@ -80,6 +83,14 @@ export function Resume() {
 
     function handleTransactionsType(type: "positive" | "negative") {
         setTransactionType(type);
+    }
+
+    function handleCloseSelectCategory() {
+        setCategoryModalOpen(false);
+    }
+
+    function handleOpenSelectCategory() {
+        setCategoryModalOpen(true);
     }
 
     function loadData() {
@@ -176,11 +187,10 @@ export function Resume() {
             });
     }
 
-    //useFocusEffect(
-    //    React.useCallback(() => {
-    //        loadData();
-    //    }, [])
-    //);
+    function handleHistoryAccounts(category: string) {
+        setCategoryKey(category);
+        handleOpenSelectCategory();
+    }
 
     React.useEffect(() => {
         const subscriber = loadData();
@@ -270,6 +280,9 @@ export function Resume() {
                         {totalByCategories.map((item) => {
                             return (
                                 <HistoryCard
+                                    onPress={() => {
+                                        handleHistoryAccounts(item.key);
+                                    }}
                                     key={item.key}
                                     title={item.name}
                                     amount={item.totalFormatted}
@@ -280,6 +293,13 @@ export function Resume() {
                     </Content>
                 </>
             )}
+            <Modal visible={categoryModalOpen}>
+                <HistoryAccount
+                    category={categoryKey}
+                    selectedDate={selectedDate}
+                    closeHistoryAccount={handleCloseSelectCategory}
+                />
+            </Modal>
         </Container>
     );
 }

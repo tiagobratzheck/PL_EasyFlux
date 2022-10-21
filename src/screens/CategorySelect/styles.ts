@@ -1,8 +1,6 @@
 import styled from "styled-components/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
-import { getStatusBarHeight } from "react-native-iphone-x-helper";
-import { Platform } from "react-native";
+import { RFValue } from "react-native-responsive-fontsize";
 
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import theme from "../../global/styles/theme";

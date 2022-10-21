@@ -1,5 +1,6 @@
 import React from "react";
-
+import { Alert } from "react-native";
+import firestore from "@react-native-firebase/firestore";
 import { isAfter } from "date-fns";
 
 import {
@@ -39,6 +40,26 @@ export function BudgetCard({
     total,
     percent,
 }: Props) {
+    function deleteEntry(id: string) {
+        Alert.alert("Atenção!", "Deseja realmente deletar esse lançamento?", [
+            {
+                text: "Cancelar",
+                onPress: () => {},
+            },
+            {
+                text: "Deletar",
+                onPress: () =>
+                    firestore()
+                        .collection("@EasyFlux:transactions_user:2547789544")
+                        .doc(id)
+                        .delete()
+                        .then(() => {
+                            Alert.alert("Lançamento deletado!");
+                        }),
+            },
+        ]);
+    }
+
     return (
         <Container color={color}>
             <Header>
@@ -51,7 +72,7 @@ export function BudgetCard({
                     {isAfter(selectedDate, new Date()) ? (
                         <DeleteRegister
                             onPress={() => {
-                                console.log(id);
+                                deleteEntry(id);
                             }}
                         >
                             <DeleteIcon name="delete" />

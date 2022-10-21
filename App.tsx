@@ -2,6 +2,7 @@ import "react-native-gesture-handler";
 import "intl";
 import "intl/locale-data/jsonp/pt-BR";
 import React from "react";
+
 import { StatusBar } from "react-native";
 import { ThemeProvider } from "styled-components";
 
@@ -36,7 +37,10 @@ export default function App() {
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             <ThemeProvider theme={theme}>
-                <StatusBar barStyle="light-content" />
+                <StatusBar
+                    backgroundColor={theme.colors.primary}
+                    barStyle="light-content"
+                />
                 <AuthProvider>
                     <Routes />
                 </AuthProvider>
