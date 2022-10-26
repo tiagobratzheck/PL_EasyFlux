@@ -30,7 +30,6 @@ import {
     Fields,
     TransactionsTypes,
 } from "./styles";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "../../hooks/auth";
 
 export type FormData = {

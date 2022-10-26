@@ -3,7 +3,6 @@ import { ActivityIndicator, Modal } from "react-native";
 import { HistoryCard } from "../../components/HistoryCard";
 import { commonCategories } from "../../utils/categories";
 
-import { useFocusEffect } from "@react-navigation/native";
 import { useAuth } from "../../hooks/auth";
 
 import { useTheme } from "styled-components";
