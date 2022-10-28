@@ -10,6 +10,10 @@ interface HeaderTableProps {
     color: string;
 }
 
+interface TypeResultProps {
+    amount: string;
+}
+
 export const Container = styled(GestureHandlerRootView)`
     flex: 1;
     background-color: ${({ theme }) => theme.colors.background};
@@ -56,13 +60,13 @@ export const CategoryInformation = styled.View`
 `;
 
 export const Icon = styled(MaterialCommunityIcons)`
-    font-size: ${RFValue(25)}px;
+    font-size: ${RFValue(30)}px;
     color: ${({ theme }) => theme.colors.text};
     margin-right: 5px;
 `;
 
 export const CategoryName = styled.Text`
-    font-size: ${RFValue(20)}px;
+    font-size: ${RFValue(18)}px;
     font-family: ${({ theme }) => theme.fonts.regular};
 `;
 
@@ -88,6 +92,15 @@ export const Description = styled.Text`
     font-family: ${({ theme }) => theme.fonts.regular};
 `;
 
+export const DescriptionResult = styled.Text<TypeResultProps>`
+    font-size: ${RFValue(12)}px;
+    font-family: ${({ theme }) => theme.fonts.regular};
+    color: ${({ amount }) =>
+        amount.split("")[0] === "-"
+            ? theme.colors.attention
+            : theme.colors.primary};
+`;
+
 export const CellWrapper = styled.View`
     padding-left: 24px;
     padding-right: 24px;
@@ -101,3 +114,9 @@ export const CellTable = styled.View`
     justify-content: space-between;
     padding: 10px;
 `;
+
+export const WrapperPeriod = styled.View``;
+
+export const WrapperCenterCell = styled.View``;
+
+export const WrapperResult = styled.View``;

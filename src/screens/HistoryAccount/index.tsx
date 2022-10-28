@@ -29,6 +29,10 @@ import {
     Description,
     CellTable,
     CellWrapper,
+    WrapperPeriod,
+    WrapperCenterCell,
+    WrapperResult,
+    DescriptionResult,
 } from "./styles";
 import theme from "../../global/styles/theme";
 import { commonCategories } from "../../utils/categories";
@@ -297,10 +301,16 @@ export function HistoryAccount({
                             </CategoryName>
                         </CategoryInformation>
                         <VictoryChart
-                            width={400}
-                            domainPadding={10}
-                            //padding={30}
+                            width={380}
+                            domainPadding={25}
+                            padding={{
+                                left: 60,
+                                right: 40,
+                                bottom: 35,
+                                top: 20,
+                            }}
                         >
+                            <VictoryAxis dependentAxis />
                             <VictoryBar
                                 barRatio={0.7}
                                 alignment={"middle"}
@@ -316,12 +326,12 @@ export function HistoryAccount({
                                         fontSize: 13,
                                     },
                                 }}
-                                padding={{ top: 20, bottom: 60 }}
                             />
 
                             <VictoryAxis
                                 orientation="bottom"
-                                width={400}
+                                width={380}
+                                tickValues={[1, 2, 3, 4, 5]}
                                 tickFormat={listPeriods}
                                 style={{ tickLabels: { fontSize: 11 } }}
                             />
@@ -331,23 +341,39 @@ export function HistoryAccount({
                                 <Description>Período</Description>
                                 <Description>Orçamento</Description>
                                 <Description>Realizado</Description>
-                                <Description>Resultado</Description>
+                                <Description>Diferença</Description>
                             </HeaderTable>
                         </HeaderWrapper>
                         <CellWrapper>
                             {actualTransactions.map((entry) => {
                                 return (
                                     <CellTable key={entry.period}>
-                                        <Description>{entry.date}</Description>
-                                        <Description>
-                                            {searchBudgetPeriod(entry.period)}
-                                        </Description>
-                                        <Description>
-                                            {entry.totalFormatted}
-                                        </Description>
-                                        <Description>
-                                            {calculateResult(entry.period)}
-                                        </Description>
+                                        <WrapperPeriod>
+                                            <Description>
+                                                {entry.date}
+                                            </Description>
+                                        </WrapperPeriod>
+                                        <WrapperCenterCell>
+                                            <Description>
+                                                {searchBudgetPeriod(
+                                                    entry.period
+                                                )}
+                                            </Description>
+                                        </WrapperCenterCell>
+                                        <WrapperCenterCell>
+                                            <Description>
+                                                {entry.totalFormatted}
+                                            </Description>
+                                        </WrapperCenterCell>
+                                        <WrapperResult>
+                                            <DescriptionResult
+                                                amount={calculateResult(
+                                                    entry.period
+                                                )}
+                                            >
+                                                {calculateResult(entry.period)}
+                                            </DescriptionResult>
+                                        </WrapperResult>
                                     </CellTable>
                                 );
                             })}
