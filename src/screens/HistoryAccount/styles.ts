@@ -6,10 +6,14 @@ import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import theme from "../../global/styles/theme";
 
+interface HeaderTableProps {
+    color: string;
+}
+
 export const Container = styled(GestureHandlerRootView)`
     flex: 1;
     background-color: ${({ theme }) => theme.colors.background};
-    justify-content: space-between;
+    justify-content: flex-start;
 `;
 
 export const Header = styled.View`
@@ -60,4 +64,40 @@ export const Icon = styled(MaterialCommunityIcons)`
 export const CategoryName = styled.Text`
     font-size: ${RFValue(20)}px;
     font-family: ${({ theme }) => theme.fonts.regular};
+`;
+
+export const HeaderWrapper = styled.View`
+    padding-left: 24px;
+    padding-right: 24px;
+`;
+
+export const HeaderTable = styled.View<HeaderTableProps>`
+    width: 100%;
+    background-color: ${({ theme }) => theme.colors.shape};
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 5px;
+    padding: 14px;
+    border-width: 1px;
+    border-color: ${({ color }) => color};
+`;
+
+export const Description = styled.Text`
+    font-size: ${RFValue(12)}px;
+    font-family: ${({ theme }) => theme.fonts.regular};
+`;
+
+export const CellWrapper = styled.View`
+    padding-left: 24px;
+    padding-right: 24px;
+`;
+
+export const CellTable = styled.View`
+    width: 100%;
+    background-color: ${({ theme }) => theme.colors.shape};
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
 `;

@@ -1,5 +1,5 @@
 import React from "react";
-import { ActivityIndicator } from "react-native";
+import { View, ActivityIndicator } from "react-native";
 
 import { Button } from "../../components/Forms/Button";
 import { format, subMonths } from "date-fns";
@@ -24,6 +24,11 @@ import {
     CategoryInformation,
     Icon,
     CategoryName,
+    HeaderWrapper,
+    HeaderTable,
+    Description,
+    CellTable,
+    CellWrapper,
 } from "./styles";
 import theme from "../../global/styles/theme";
 import { commonCategories } from "../../utils/categories";
@@ -46,6 +51,7 @@ interface TotalByPeriodProps {
     amount: number;
     totalFormatted: string;
     category: string;
+    date: string;
     period: string;
 }
 
@@ -81,6 +87,48 @@ export function HistoryAccount({
 
     const [categoryProperties, setCategoryProperties] =
         React.useState<Category>({} as Category);
+
+    function searchBudgetPeriod(period: string) {
+        const budget = budgetTransactions.filter(
+            (item) => item.period === period
+        )[0];
+
+        if (budget) {
+            const budgetFormatted = Number(budget.amount).toLocaleString(
+                "pt-BR",
+                {
+                    style: "currency",
+                    currency: "BRL",
+                }
+            );
+            return budgetFormatted;
+        } else {
+            return "R$0,00";
+        }
+    }
+
+    function calculateResult(period: string) {
+        const budget = budgetTransactions.filter(
+            (item) => item.period === period
+        )[0];
+
+        const total = actualTransactions.filter(
+            (item) => item.period === period
+        )[0];
+
+        if (budget) {
+            const result = Number(budget.amount) - Number(total.amount);
+
+            return result.toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+            });
+        } else if (total) {
+            return `-${total.totalFormatted}`;
+        } else {
+            return `0`;
+        }
+    }
 
     function loadTransactions() {
         const sixMonthsToSelectedDate = subMonths(selectedDate, 5);
@@ -141,6 +189,7 @@ export function HistoryAccount({
                     let entryType = "";
                     let name = "";
                     let category = "";
+                    let date = "";
 
                     quarter += 1;
 
@@ -150,6 +199,7 @@ export function HistoryAccount({
                             entryType = entry.entryType;
                             name = entry.name;
                             category = entry.category;
+                            date = entry.date;
                         }
                     });
 
@@ -167,6 +217,9 @@ export function HistoryAccount({
                             name,
                             quarter,
                             period,
+                            date: format(new Date(date), "MMM/yyyy", {
+                                locale: ptBR,
+                            }),
                             amount: periodSum,
                             totalFormatted,
                             entryType,
@@ -236,7 +289,7 @@ export function HistoryAccount({
                         />
                     </LoadContainer>
                 ) : (
-                    <>
+                    <View>
                         <CategoryInformation>
                             <Icon name={categoryProperties.icon} />
                             <CategoryName>
@@ -245,8 +298,8 @@ export function HistoryAccount({
                         </CategoryInformation>
                         <VictoryChart
                             width={400}
-                            domainPadding={30}
-                            padding={30}
+                            domainPadding={10}
+                            //padding={30}
                         >
                             <VictoryBar
                                 barRatio={0.7}
@@ -273,7 +326,33 @@ export function HistoryAccount({
                                 style={{ tickLabels: { fontSize: 11 } }}
                             />
                         </VictoryChart>
-                    </>
+                        <HeaderWrapper>
+                            <HeaderTable color={categoryProperties.color}>
+                                <Description>Período</Description>
+                                <Description>Orçamento</Description>
+                                <Description>Realizado</Description>
+                                <Description>Resultado</Description>
+                            </HeaderTable>
+                        </HeaderWrapper>
+                        <CellWrapper>
+                            {actualTransactions.map((entry) => {
+                                return (
+                                    <CellTable key={entry.period}>
+                                        <Description>{entry.date}</Description>
+                                        <Description>
+                                            {searchBudgetPeriod(entry.period)}
+                                        </Description>
+                                        <Description>
+                                            {entry.totalFormatted}
+                                        </Description>
+                                        <Description>
+                                            {calculateResult(entry.period)}
+                                        </Description>
+                                    </CellTable>
+                                );
+                            })}
+                        </CellWrapper>
+                    </View>
                 )}
             </Content>
 
