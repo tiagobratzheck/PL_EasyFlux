@@ -2,17 +2,12 @@ import React from "react";
 import { View, ActivityIndicator } from "react-native";
 
 import { Button } from "../../components/Forms/Button";
-import { format, subMonths } from "date-fns";
+import { format, subMonths, startOfMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 import firestore from "@react-native-firebase/firestore";
 
-import {
-    VictoryChart,
-    VictoryLine,
-    VictoryAxis,
-    VictoryBar,
-} from "victory-native";
+import { VictoryChart, VictoryAxis, VictoryBar } from "victory-native";
 
 import {
     Container,
@@ -26,6 +21,7 @@ import {
     CategoryName,
     HeaderWrapper,
     HeaderTable,
+    DescriptionHeaderCell,
     Description,
     CellTable,
     CellWrapper,
@@ -57,6 +53,7 @@ interface TotalByPeriodProps {
     category: string;
     date: string;
     period: string;
+    type: string;
 }
 
 interface Category {
@@ -111,7 +108,7 @@ export function HistoryAccount({
         }
     }
 
-    function calculateResult(period: string) {
+    function calculateResult(period: string, type: string) {
         const budget = budgetTransactions.filter(
             (item) => item.period === period
         )[0];
@@ -121,16 +118,23 @@ export function HistoryAccount({
         )[0];
 
         if (budget) {
-            const result = Number(budget.amount) - Number(total.amount);
-
-            return result.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-            });
-        } else if (total) {
+            if (type === "negative") {
+                const result = Number(budget.amount) - Number(total.amount);
+                return result.toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                });
+            } else {
+                const result = Number(total.amount) - Number(budget.amount);
+                return result.toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                });
+            }
+        } else if (total && type === "negative") {
             return `-${total.totalFormatted}`;
         } else {
-            return `0`;
+            return `R$ 0,00`;
         }
     }
 
@@ -140,7 +144,7 @@ export function HistoryAccount({
         firestore()
             .collection("@EasyFlux:transactions_user:2547789544")
             .where("category", "==", category)
-            .where("date", ">=", sixMonthsToSelectedDate)
+            .where("date", ">=", startOfMonth(sixMonthsToSelectedDate))
             .where("date", "<=", selectedDate)
             .get()
             .then((transactions) => {
@@ -194,6 +198,7 @@ export function HistoryAccount({
                     let name = "";
                     let category = "";
                     let date = "";
+                    let type = "";
 
                     quarter += 1;
 
@@ -201,6 +206,7 @@ export function HistoryAccount({
                         if (period === entry.period) {
                             periodSum += Number(entry.amount);
                             entryType = entry.entryType;
+                            type = entry.type;
                             name = entry.name;
                             category = entry.category;
                             date = entry.date;
@@ -227,6 +233,7 @@ export function HistoryAccount({
                             amount: periodSum,
                             totalFormatted,
                             entryType,
+                            type,
                         });
                     }
                 });
@@ -293,92 +300,100 @@ export function HistoryAccount({
                         />
                     </LoadContainer>
                 ) : (
-                    <View>
+                    <>
                         <CategoryInformation>
                             <Icon name={categoryProperties.icon} />
                             <CategoryName>
                                 {categoryProperties.name}
                             </CategoryName>
                         </CategoryInformation>
-                        <VictoryChart
-                            width={380}
-                            domainPadding={25}
-                            padding={{
-                                left: 60,
-                                right: 40,
-                                bottom: 35,
-                                top: 20,
-                            }}
-                        >
-                            <VictoryAxis dependentAxis />
-                            <VictoryBar
-                                barRatio={0.7}
-                                alignment={"middle"}
-                                data={actualTransactions}
-                                x="quarter"
-                                y="amount"
-                                labels={({ datum }) =>
-                                    `${datum.totalFormatted}`
-                                }
-                                style={{
-                                    data: { fill: categoryProperties.color },
-                                    labels: {
-                                        fontSize: 13,
-                                    },
-                                }}
-                            />
-
-                            <VictoryAxis
-                                orientation="bottom"
+                        <View>
+                            <VictoryChart
                                 width={380}
-                                tickValues={[1, 2, 3, 4, 5]}
-                                tickFormat={listPeriods}
-                                style={{ tickLabels: { fontSize: 11 } }}
-                            />
-                        </VictoryChart>
+                                domainPadding={25}
+                                padding={{
+                                    left: 55,
+                                    right: 30,
+                                    bottom: 35,
+                                    top: 20,
+                                }}
+                            >
+                                <VictoryAxis
+                                    dependentAxis
+                                    style={{ tickLabels: { fontSize: 11 } }}
+                                />
+                                <VictoryBar
+                                    barRatio={0.6}
+                                    alignment={"middle"}
+                                    data={actualTransactions}
+                                    x="quarter"
+                                    y="amount"
+                                    labels={({ datum }) =>
+                                        `${datum.totalFormatted}`
+                                    }
+                                    style={{
+                                        data: {
+                                            fill: categoryProperties.color,
+                                        },
+                                        labels: {
+                                            fontSize: 11,
+                                        },
+                                    }}
+                                />
+
+                                <VictoryAxis
+                                    orientation="bottom"
+                                    width={380}
+                                    tickValues={[1, 2, 3, 4, 5, 6]}
+                                    tickFormat={listPeriods}
+                                    style={{ tickLabels: { fontSize: 10 } }}
+                                />
+                            </VictoryChart>
+                        </View>
                         <HeaderWrapper>
                             <HeaderTable color={categoryProperties.color}>
-                                <Description>Período</Description>
-                                <Description>Orçamento</Description>
-                                <Description>Realizado</Description>
-                                <Description>Diferença</Description>
+                                <DescriptionHeaderCell>
+                                    Período
+                                </DescriptionHeaderCell>
+                                <DescriptionHeaderCell>
+                                    Orçamento
+                                </DescriptionHeaderCell>
+                                <DescriptionHeaderCell>
+                                    Realizado
+                                </DescriptionHeaderCell>
+                                <DescriptionHeaderCell>
+                                    Diferença
+                                </DescriptionHeaderCell>
                             </HeaderTable>
                         </HeaderWrapper>
                         <CellWrapper>
                             {actualTransactions.map((entry) => {
                                 return (
                                     <CellTable key={entry.period}>
-                                        <WrapperPeriod>
-                                            <Description>
-                                                {entry.date}
-                                            </Description>
-                                        </WrapperPeriod>
-                                        <WrapperCenterCell>
-                                            <Description>
-                                                {searchBudgetPeriod(
-                                                    entry.period
-                                                )}
-                                            </Description>
-                                        </WrapperCenterCell>
-                                        <WrapperCenterCell>
-                                            <Description>
-                                                {entry.totalFormatted}
-                                            </Description>
-                                        </WrapperCenterCell>
-                                        <WrapperResult>
-                                            <DescriptionResult
-                                                amount={calculateResult(
-                                                    entry.period
-                                                )}
-                                            >
-                                                {calculateResult(entry.period)}
-                                            </DescriptionResult>
-                                        </WrapperResult>
+                                        <Description>{entry.date}</Description>
+                                        <Description>
+                                            {searchBudgetPeriod(entry.period)}
+                                        </Description>
+
+                                        <Description>
+                                            {entry.totalFormatted}
+                                        </Description>
+                                        <DescriptionResult
+                                            amount={calculateResult(
+                                                entry.period,
+                                                entry.type
+                                            )}
+                                        >
+                                            {calculateResult(
+                                                entry.period,
+                                                entry.type
+                                            )}
+                                        </DescriptionResult>
                                     </CellTable>
                                 );
                             })}
                         </CellWrapper>
-                    </View>
+                    </>
                 )}
             </Content>
 

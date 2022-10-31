@@ -28,6 +28,7 @@ import { getBottomSpace } from "react-native-iphone-x-helper";
 import {
     Container,
     LoadContainer,
+    TransactionsTypeSelectable,
     Content,
     TitleList,
     Header,
@@ -40,6 +41,8 @@ import {
     Fields,
     TransactionsTypes,
 } from "./styles";
+import { TransactionTypeButtonForBudget } from "../../components/Forms/TransactionTypeButtonForBudget";
+import { ResultBudgetCard } from "../../components/ResultBudgetCard";
 
 interface CategoryData {
     key: string;
@@ -48,6 +51,12 @@ interface CategoryData {
     totalFormatted: string;
     color: string;
     percent: string;
+}
+
+interface BudgetResultProps {
+    entrySum: string;
+    expenseSum: string;
+    result: string;
 }
 
 export interface BudgetListProps extends TransactionCardProps {
@@ -76,6 +85,11 @@ export function Budget() {
     );
     const [listCategoriesNotSelectable, setListCategoriesNotSelectable] =
         React.useState<string[]>([]);
+    const [budgetResult, setBudgetResult] = React.useState<BudgetResultProps>({
+        entrySum: "R$0,00",
+        expenseSum: "R$0,00",
+        result: "R$0,00",
+    });
 
     const [selectedDate, setSelectedDate] = React.useState(new Date());
     const [transactionType, setTransactionType] = React.useState("positive");
@@ -97,7 +111,7 @@ export function Budget() {
         resolver: yupResolver(schema),
     });
 
-    function handleTransactionsType(type: "positive" | "negative") {
+    function handleTransactionsType(type: "positive" | "negative" | "result") {
         setTransactionType(type);
     }
 
@@ -122,6 +136,14 @@ export function Budget() {
     async function handleRegister(form: FormData) {
         if (!transactionType) {
             return Alert.alert("Selecione o tipo do lançamento");
+        }
+
+        if (transactionType === "result") {
+            setCategory({
+                key: "category",
+                name: "Categoria",
+            });
+            return Alert.alert("Selecione Entrada ou Saída");
         }
 
         if (category.key === "category") {
@@ -160,9 +182,168 @@ export function Budget() {
 
     function loadTransactions() {
         setIsLoading(true);
+        if (transactionType === "result") {
+            calculateBudgetResult(selectedDate);
+        } else {
+            firestore()
+                .collection("@EasyFlux:transactions_user:2547789544")
+                .where("type", "==", transactionType)
+                .where(
+                    "period",
+                    "==",
+                    format(selectedDate, "MMMM/yyyy", { locale: ptBR })
+                )
+                .onSnapshot((snapshot) => {
+                    const dataTransformed: TransactionCardProps[] =
+                        snapshot.docs.map((doc) => {
+                            const {
+                                amount,
+                                category,
+                                date,
+                                entryType,
+                                name,
+                                period,
+                                type,
+                            } = doc.data();
+
+                            return {
+                                id: doc.id,
+                                amount,
+                                category,
+                                date: new Date(date.toDate()).toDateString(),
+                                entryType,
+                                name,
+                                period,
+                                type,
+                            };
+                        });
+
+                    const budgetData: TransactionCardProps[] =
+                        dataTransformed.filter(
+                            (entry: TransactionCardProps) =>
+                                entry.entryType === "budget"
+                        );
+                    const actualData: TransactionCardProps[] =
+                        dataTransformed.filter(
+                            (entry: TransactionCardProps) =>
+                                entry.entryType === "actual"
+                        );
+
+                    const expensesTotal = actualData.reduce(
+                        (
+                            acumullator: number,
+                            expense: TransactionCardProps
+                        ) => {
+                            return acumullator + Number(expense.amount);
+                        },
+                        0
+                    );
+
+                    const totalByCategory: CategoryData[] = [];
+
+                    commonCategories.forEach((category) => {
+                        let categorySum = 0;
+                        actualData.forEach((expense: TransactionCardProps) => {
+                            if (expense.category === category.key) {
+                                categorySum += Number(expense.amount);
+                            }
+                        });
+
+                        if (categorySum > 0) {
+                            const totalFormatted = categorySum.toLocaleString(
+                                "pt-BR",
+                                {
+                                    style: "currency",
+                                    currency: "BRL",
+                                }
+                            );
+
+                            const percent = `${(
+                                (categorySum / expensesTotal) *
+                                100
+                            ).toFixed(2)}%`;
+
+                            totalByCategory.push({
+                                key: category.key,
+                                name: category.name,
+                                color: category.color,
+                                total: categorySum,
+                                totalFormatted,
+                                percent,
+                            });
+                        }
+                    });
+
+                    let categoriesAlreadySelected: string[] = [];
+
+                    const budgetDataFormatted: BudgetListProps[] =
+                        budgetData.map((entry: TransactionCardProps) => {
+                            const categoryProperties = commonCategories.filter(
+                                (item) => item.key === entry.category
+                            )[0];
+
+                            const totalActualByCategory: CategoryData =
+                                totalByCategory.filter(
+                                    (item) => item.key === entry.category
+                                )[0];
+
+                            let percent: string = "";
+
+                            if (totalActualByCategory) {
+                                percent = `${(
+                                    (totalActualByCategory.total /
+                                        Number(entry.amount)) *
+                                    100
+                                ).toFixed(2)}%`;
+                            }
+
+                            const amountFormatted = Number(
+                                entry.amount
+                            ).toLocaleString("pt-BR", {
+                                style: "currency",
+                                currency: "BRL",
+                            });
+
+                            categoriesAlreadySelected.push(entry.category);
+
+                            return {
+                                amount: amountFormatted,
+                                category: entry.category,
+                                color:
+                                    categoryProperties &&
+                                    categoryProperties.color,
+                                icon:
+                                    categoryProperties &&
+                                    categoryProperties.icon,
+                                entryType: entry.entryType,
+                                date: entry.date,
+                                id: entry.id,
+                                name: entry.name,
+                                period: entry.period,
+                                type: entry.type,
+                                total: totalActualByCategory
+                                    ? totalActualByCategory.total.toLocaleString(
+                                          "pt-BR",
+                                          {
+                                              style: "currency",
+                                              currency: "BRL",
+                                          }
+                                      )
+                                    : "R$ 0,00",
+                                percent,
+                            };
+                        });
+                    setBudgetEntries(budgetDataFormatted);
+                    setListCategoriesNotSelectable(categoriesAlreadySelected);
+                    setIsLoading(false);
+                });
+        }
+    }
+
+    function calculateBudgetResult(selectedDate: Date) {
         firestore()
             .collection("@EasyFlux:transactions_user:2547789544")
-            .where("type", "==", transactionType)
+            .where("entryType", "==", "budget")
             .where(
                 "period",
                 "==",
@@ -193,118 +374,43 @@ export function Budget() {
                         };
                     });
 
-                const budgetData: TransactionCardProps[] =
-                    dataTransformed.filter(
-                        (entry: TransactionCardProps) =>
-                            entry.entryType === "budget"
-                    );
-                const actualData: TransactionCardProps[] =
-                    dataTransformed.filter(
-                        (entry: TransactionCardProps) =>
-                            entry.entryType === "actual"
-                    );
+                const entryBudgets = dataTransformed.filter(
+                    (entry) => entry.type === "positive"
+                );
 
-                const expensesTotal = actualData.reduce(
-                    (acumullator: number, expense: TransactionCardProps) => {
-                        return acumullator + Number(expense.amount);
+                const expenseBudgets = dataTransformed.filter(
+                    (entry) => entry.type === "negative"
+                );
+
+                const sumEntries = entryBudgets.reduce(
+                    (acumullator: number, entry) => {
+                        return acumullator + Number(entry.amount);
+                    },
+                    0
+                );
+                const sumExpenses = expenseBudgets.reduce(
+                    (acumullator: number, entry) => {
+                        return acumullator + Number(entry.amount);
                     },
                     0
                 );
 
-                const totalByCategory: CategoryData[] = [];
+                const budgetResult = sumEntries - sumExpenses;
 
-                commonCategories.forEach((category) => {
-                    let categorySum = 0;
-                    actualData.forEach((expense: TransactionCardProps) => {
-                        if (expense.category === category.key) {
-                            categorySum += Number(expense.amount);
-                        }
-                    });
-
-                    if (categorySum > 0) {
-                        const totalFormatted = categorySum.toLocaleString(
-                            "pt-BR",
-                            {
-                                style: "currency",
-                                currency: "BRL",
-                            }
-                        );
-
-                        const percent = `${(
-                            (categorySum / expensesTotal) *
-                            100
-                        ).toFixed(2)}%`;
-
-                        totalByCategory.push({
-                            key: category.key,
-                            name: category.name,
-                            color: category.color,
-                            total: categorySum,
-                            totalFormatted,
-                            percent,
-                        });
-                    }
+                setBudgetResult({
+                    entrySum: sumEntries.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                    }),
+                    expenseSum: sumExpenses.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                    }),
+                    result: budgetResult.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                    }),
                 });
-
-                let categoriesAlreadySelected: string[] = [];
-
-                const budgetDataFormatted: BudgetListProps[] = budgetData.map(
-                    (entry: TransactionCardProps) => {
-                        const categoryProperties = commonCategories.filter(
-                            (item) => item.key === entry.category
-                        )[0];
-
-                        const totalActualByCategory: CategoryData =
-                            totalByCategory.filter(
-                                (item) => item.key === entry.category
-                            )[0];
-
-                        let percent: string = "";
-
-                        if (totalActualByCategory) {
-                            percent = `${(
-                                (totalActualByCategory.total /
-                                    Number(entry.amount)) *
-                                100
-                            ).toFixed(2)}%`;
-                        }
-
-                        const amountFormatted = Number(
-                            entry.amount
-                        ).toLocaleString("pt-BR", {
-                            style: "currency",
-                            currency: "BRL",
-                        });
-
-                        categoriesAlreadySelected.push(entry.category);
-
-                        return {
-                            amount: amountFormatted,
-                            category: entry.category,
-                            color:
-                                categoryProperties && categoryProperties.color,
-                            icon: categoryProperties && categoryProperties.icon,
-                            entryType: entry.entryType,
-                            date: entry.date,
-                            id: entry.id,
-                            name: entry.name,
-                            period: entry.period,
-                            type: entry.type,
-                            total: totalActualByCategory
-                                ? totalActualByCategory.total.toLocaleString(
-                                      "pt-BR",
-                                      {
-                                          style: "currency",
-                                          currency: "BRL",
-                                      }
-                                  )
-                                : "R$ 0,00",
-                            percent,
-                        };
-                    }
-                );
-                setBudgetEntries(budgetDataFormatted);
-                setListCategoriesNotSelectable(categoriesAlreadySelected);
                 setIsLoading(false);
             });
     }
@@ -335,7 +441,7 @@ export function Budget() {
             </MonthSelect>
             <Form>
                 <TransactionsTypes>
-                    <TransactionTypeButton
+                    <TransactionTypeButtonForBudget
                         type="up"
                         title="Entrada"
                         onPress={() => {
@@ -343,7 +449,7 @@ export function Budget() {
                         }}
                         isActive={transactionType === "positive"}
                     />
-                    <TransactionTypeButton
+                    <TransactionTypeButtonForBudget
                         type="down"
                         title="Saída"
                         onPress={() => {
@@ -351,7 +457,16 @@ export function Budget() {
                         }}
                         isActive={transactionType === "negative"}
                     />
+                    <TransactionTypeButtonForBudget
+                        type="result"
+                        title="Resultado"
+                        onPress={() => {
+                            handleTransactionsType("result");
+                        }}
+                        isActive={transactionType === "result"}
+                    />
                 </TransactionsTypes>
+
                 <CategorySelectButton
                     onPress={handleOpenSelectCategory}
                     title={category.name}
@@ -389,7 +504,7 @@ export function Budget() {
                             color={theme.colors.primary}
                         />
                     </LoadContainer>
-                ) : (
+                ) : transactionType !== "result" ? (
                     <FlatList
                         data={budgetEntries}
                         keyExtractor={(item) => item.id}
@@ -410,6 +525,12 @@ export function Budget() {
                         contentContainerStyle={{
                             paddingBottom: getBottomSpace(),
                         }}
+                    />
+                ) : (
+                    <ResultBudgetCard
+                        entrySum={budgetResult.entrySum}
+                        expenseSum={budgetResult.expenseSum}
+                        result={budgetResult.result}
                     />
                 )}
             </Content>

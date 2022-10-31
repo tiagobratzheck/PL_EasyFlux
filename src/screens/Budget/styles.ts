@@ -36,6 +36,12 @@ export const TitleList = styled.Text`
     font-size: ${RFValue(11)}px;
 `;
 
+export const TransactionsTypeSelectable = styled.ScrollView.attrs({
+    horizontal: true,
+    showsHorizontalScrollIndicator: false,
+    contentContainerStyle: { paddingHorizontal: 24 },
+})``;
+
 export const Content = styled.View`
     flex: 1%;
     padding: 0 24px;

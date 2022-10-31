@@ -55,18 +55,18 @@ export const LoadContainer = styled.View`
 export const CategoryInformation = styled.View`
     width: 100%;
     flex-direction: row;
-    align-content: center;
     justify-content: center;
+    align-items: center;
 `;
 
 export const Icon = styled(MaterialCommunityIcons)`
-    font-size: ${RFValue(30)}px;
+    font-size: ${RFValue(25)}px;
     color: ${({ theme }) => theme.colors.text};
     margin-right: 5px;
 `;
 
 export const CategoryName = styled.Text`
-    font-size: ${RFValue(18)}px;
+    font-size: ${RFValue(20)}px;
     font-family: ${({ theme }) => theme.fonts.regular};
 `;
 
@@ -87,9 +87,15 @@ export const HeaderTable = styled.View<HeaderTableProps>`
     border-color: ${({ color }) => color};
 `;
 
+export const DescriptionHeaderCell = styled.Text`
+    font-size: ${RFValue(12)}px;
+    font-family: ${({ theme }) => theme.fonts.regular};
+`;
+
 export const Description = styled.Text`
     font-size: ${RFValue(12)}px;
     font-family: ${({ theme }) => theme.fonts.regular};
+    width: 27%;
 `;
 
 export const DescriptionResult = styled.Text<TypeResultProps>`
@@ -111,7 +117,6 @@ export const CellTable = styled.View`
     background-color: ${({ theme }) => theme.colors.shape};
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
     padding: 10px;
 `;
 

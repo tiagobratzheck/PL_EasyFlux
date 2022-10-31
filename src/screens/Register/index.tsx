@@ -119,24 +119,6 @@ export function Register() {
                     "Não foi possível registrar o pedido"
                 );
             });
-
-        //try {
-        //    const dataKey = `@EasyFlux:transactions_user:${user.id}`;
-        //    const data = await AsyncStorage.getItem(dataKey);
-        //    const currentData = data ? JSON.parse(data) : [];
-
-        //    const dataFormatted = [...currentData, newTransaction];
-
-        //    await AsyncStorage.setItem(dataKey, JSON.stringify(dataFormatted));
-
-        //    reset();
-        //    setTransactionType("");
-        //    setCategory({
-        //        key: "category",
-        //        name: "Categoria",
-        //    });
-        //    navigate("Listagem");
-        //} catch (error) {}
     }
 
     return (
