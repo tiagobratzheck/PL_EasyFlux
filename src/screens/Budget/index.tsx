@@ -63,6 +63,7 @@ export interface BudgetListProps extends TransactionCardProps {
     color: string;
     icon: string;
     total: string;
+    residual: string;
     percent: string;
 }
 
@@ -288,6 +289,8 @@ export function Budget() {
                                 )[0];
 
                             let percent: string = "";
+                            let residual: number;
+                            let residualFormatted: string = "";
 
                             if (totalActualByCategory) {
                                 percent = `${(
@@ -295,6 +298,24 @@ export function Budget() {
                                         Number(entry.amount)) *
                                     100
                                 ).toFixed(2)}%`;
+
+                                if (entry.type === "negative") {
+                                    residual =
+                                        Number(entry.amount) -
+                                        totalActualByCategory.total;
+                                } else {
+                                    residual =
+                                        totalActualByCategory.total -
+                                        Number(entry.amount);
+                                }
+
+                                residualFormatted = residual.toLocaleString(
+                                    "pt-BR",
+                                    {
+                                        style: "currency",
+                                        currency: "BRL",
+                                    }
+                                );
                             }
 
                             const amountFormatted = Number(
@@ -330,6 +351,7 @@ export function Budget() {
                                           }
                                       )
                                     : "R$ 0,00",
+                                residual: residualFormatted,
                                 percent,
                             };
                         });
@@ -518,6 +540,7 @@ export function Budget() {
                                 color={item.color}
                                 icon={item.icon}
                                 total={item.total}
+                                residual={item.residual}
                                 percent={item.percent}
                             />
                         )}

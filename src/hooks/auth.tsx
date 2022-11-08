@@ -1,9 +1,9 @@
 import React, { createContext, ReactNode, useContext, useState } from "react";
 
-const { CLIENT_ID } = process.env;
+const { WEB_CLIENT_ID, ANDROID_ID } = process.env;
 const { REDIRECT_URI } = process.env;
 
-import * as AuthSession from "expo-auth-session";
+import * as Google from "expo-auth-session/providers/google";
 import * as AppleAuthentication from "expo-apple-authentication";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -20,7 +20,7 @@ interface User {
 
 interface AuthContextData {
     user: User;
-    signInWithGoogle(): Promise<void>;
+    signInWithGoogleRequest(): Promise<void>;
     signInWithApple(): Promise<void>;
     signOut(): Promise<void>;
     userStorageLoading: boolean;
@@ -40,35 +40,78 @@ function AuthProvider({ children }: AuthProviderProps) {
     const [userStorageLoading, setUserStorageLoading] = useState(true);
     const userStorageKey = "@EasyFlux:user";
 
-    async function signInWithGoogle() {
+    //async function signInWithGoogle() {
+    //    try {
+    //        const RESPONSE_TYPE = "token";
+    //        const SCOPE = encodeURI("profile email");
+    //        const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=${SCOPE}`;
+    //        const { params, type } = (await AuthSession.startAsync({
+    //            authUrl,
+    //        })) as AuthorizationResponse;
+
+    //        if (type === "success") {
+    //            const response = await fetch(
+    //                `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${params.access_token}`
+    //            );
+    //            const userInfo = await response.json();
+    //            const userLogged = {
+    //                id: userInfo.id,
+    //                email: userInfo.email,
+    //                name: userInfo.given_name,
+    //                photo: userInfo.picture,
+    //            };
+
+    //            setUser(userLogged);
+    //            await AsyncStorage.setItem(
+    //                userStorageKey,
+    //                JSON.stringify(userLogged)
+    //            );
+    //        }
+    //    } catch (error: any) {
+    //        throw new Error(error);
+    //    }
+    //}
+
+    const [req, res, promptAsyncGoogle] = Google.useAuthRequest({
+        expoClientId: WEB_CLIENT_ID,
+        androidClientId: ANDROID_ID,
+    });
+
+    async function signInWithGoogleRequest() {
         try {
-            const RESPONSE_TYPE = "token";
-            const SCOPE = encodeURI("profile email");
-            const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=${SCOPE}`;
-            const { params, type } = (await AuthSession.startAsync({
-                authUrl,
-            })) as AuthorizationResponse;
+            setUserStorageLoading(true);
+            await promptAsyncGoogle();
+        } catch (error) {
+            setUserStorageLoading(false);
+            console.log(error);
+            throw error;
+        }
+    }
 
-            if (type === "success") {
-                const response = await fetch(
-                    `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${params.access_token}`
-                );
-                const userInfo = await response.json();
-                const userLogged = {
-                    id: userInfo.id,
-                    email: userInfo.email,
-                    name: userInfo.given_name,
-                    photo: userInfo.picture,
-                };
+    async function signInWithGoogle(accessToken: string) {
+        try {
+            const response = await fetch(
+                `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${accessToken}`
+            );
+            const userInfo = await response.json();
 
-                setUser(userLogged);
-                await AsyncStorage.setItem(
-                    userStorageKey,
-                    JSON.stringify(userLogged)
-                );
-            }
-        } catch (error: any) {
-            throw new Error(error);
+            const userLoggedIn = {
+                id: userInfo.id,
+                name: userInfo.given_name,
+                email: userInfo.email,
+                photo: userInfo.picture,
+            };
+
+            setUser(userLoggedIn);
+            await AsyncStorage.setItem(
+                userStorageKey,
+                JSON.stringify(userLoggedIn)
+            );
+        } catch (error) {
+            console.log(error);
+            throw error;
+        } finally {
+            setUserStorageLoading(false);
         }
     }
 
@@ -106,23 +149,31 @@ function AuthProvider({ children }: AuthProviderProps) {
         await AsyncStorage.removeItem(userStorageKey);
     }
 
+    //React.useEffect(() => {
+    //    async function loadUserStorageDate() {
+    //        const data = await AsyncStorage.getItem(userStorageKey);
+    //        if (data) {
+    //            const userLogged = JSON.parse(data) as User;
+    //            setUser(userLogged);
+    //        }
+    //        setUserStorageLoading(false);
+    //    }
+    //    loadUserStorageDate();
+    //}, []);
+
     React.useEffect(() => {
-        async function loadUserStorageDate() {
-            const data = await AsyncStorage.getItem(userStorageKey);
-            if (data) {
-                const userLogged = JSON.parse(data) as User;
-                setUser(userLogged);
-            }
+        if (res?.type === "success" && res.authentication?.accessToken) {
+            signInWithGoogle(res.authentication.accessToken);
+        } else if (userStorageLoading) {
             setUserStorageLoading(false);
         }
-        loadUserStorageDate();
-    }, []);
+    }, [res]);
 
     return (
         <AuthContext.Provider
             value={{
                 user,
-                signInWithGoogle,
+                signInWithGoogleRequest,
                 signInWithApple,
                 signOut,
                 userStorageLoading,

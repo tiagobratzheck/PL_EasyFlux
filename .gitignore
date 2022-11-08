@@ -116,3 +116,5 @@ web-build/
 dist/
 
 # @end expo-cli
+@tiagobratzheck__EasyFlux.jks
+credentials.txt

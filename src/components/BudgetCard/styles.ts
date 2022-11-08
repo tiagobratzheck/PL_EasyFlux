@@ -7,6 +7,10 @@ interface ContainerProps {
     color: string;
 }
 
+interface ResidualProps {
+    residual: string;
+}
+
 export const Container = styled.View<ContainerProps>`
     width: 100%;
     background-color: ${({ theme }) => theme.colors.shape};
@@ -74,12 +78,21 @@ export const Footer = styled.View`
 `;
 
 export const Account = styled.Text`
-    font-size: ${RFValue(9)}px;
+    font-size: ${RFValue(10)}px;
     padding-right: 5px;
 `;
 
 export const Total = styled.Text`
-    font-size: ${RFValue(11)}px;
+    font-size: ${RFValue(12)}px;
+`;
+
+export const ResidualValue = styled.Text<ResidualProps>`
+    font-size: ${RFValue(10)}px;
+    margin-left: 4px;
+    color: ${({ theme, residual }) =>
+        residual.split("")[0] === "-"
+            ? theme.colors.attention
+            : theme.colors.primary};
 `;
 
 export const Percent = styled.Text`

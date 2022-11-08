@@ -2,7 +2,7 @@ import React from "react";
 import { View, ActivityIndicator } from "react-native";
 
 import { Button } from "../../components/Forms/Button";
-import { format, subMonths, startOfMonth } from "date-fns";
+import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 import firestore from "@react-native-firebase/firestore";
@@ -145,7 +145,7 @@ export function HistoryAccount({
             .collection("@EasyFlux:transactions_user:2547789544")
             .where("category", "==", category)
             .where("date", ">=", startOfMonth(sixMonthsToSelectedDate))
-            .where("date", "<=", selectedDate)
+            .where("date", "<=", endOfMonth(selectedDate))
             .get()
             .then((transactions) => {
                 const dataFormatted = transactions.docs.map((doc) => {

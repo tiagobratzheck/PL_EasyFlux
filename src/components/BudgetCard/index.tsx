@@ -14,6 +14,7 @@ import {
     DescriptionTotals,
     Account,
     Total,
+    ResidualValue,
     Percent,
     DeleteRegister,
     DeleteIcon,
@@ -27,6 +28,7 @@ interface Props {
     color: string;
     icon: string;
     total: string;
+    residual: string;
     percent: string;
 }
 
@@ -38,6 +40,7 @@ export function BudgetCard({
     color,
     icon,
     total,
+    residual,
     percent,
 }: Props) {
     function deleteEntry(id: string) {
@@ -84,6 +87,9 @@ export function BudgetCard({
                 <DescriptionTotals>
                     <Account>Total para essa conta:</Account>
                     <Total>{total}</Total>
+                    <ResidualValue residual={residual}>
+                        {residual && `(${residual})`}
+                    </ResidualValue>
                 </DescriptionTotals>
                 <Percent>{percent}</Percent>
             </Footer>
