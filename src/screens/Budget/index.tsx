@@ -162,7 +162,7 @@ export function Budget() {
         };
 
         firestore()
-            .collection("@EasyFlux:transactions_user:2547789544")
+            .collection(`@EasyFlux:transactions_user:${user.id}`)
             .add(budgetEntry)
             .then(() => {
                 reset();
@@ -187,7 +187,7 @@ export function Budget() {
             calculateBudgetResult(selectedDate);
         } else {
             firestore()
-                .collection("@EasyFlux:transactions_user:2547789544")
+                .collection(`@EasyFlux:transactions_user:${user.id}`)
                 .where("type", "==", transactionType)
                 .where(
                     "period",
@@ -364,7 +364,7 @@ export function Budget() {
 
     function calculateBudgetResult(selectedDate: Date) {
         firestore()
-            .collection("@EasyFlux:transactions_user:2547789544")
+            .collection(`@EasyFlux:transactions_user:${user.id}`)
             .where("entryType", "==", "budget")
             .where(
                 "period",

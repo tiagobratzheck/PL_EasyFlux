@@ -33,6 +33,7 @@ import {
 import theme from "../../global/styles/theme";
 import { commonCategories } from "../../utils/categories";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { useAuth } from "../../hooks/auth";
 
 interface TransactionProps {
     entryType: "actual" | "budget";
@@ -74,6 +75,8 @@ export function HistoryAccount({
     selectedDate,
     closeHistoryAccount,
 }: HistoryAccountProps) {
+    const { user } = useAuth();
+
     const [isLoading, setIsLoading] = React.useState(true);
 
     const [actualTransactions, setActualTransactions] = React.useState<
@@ -142,7 +145,7 @@ export function HistoryAccount({
         const sixMonthsToSelectedDate = subMonths(selectedDate, 5);
         let listOfPeriodsSelected: string[] = [];
         firestore()
-            .collection("@EasyFlux:transactions_user:2547789544")
+            .collection(`@EasyFlux:transactions_user:${user.id}`)
             .where("category", "==", category)
             .where("date", ">=", startOfMonth(sixMonthsToSelectedDate))
             .where("date", "<=", endOfMonth(selectedDate))

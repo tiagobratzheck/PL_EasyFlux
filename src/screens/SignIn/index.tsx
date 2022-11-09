@@ -1,11 +1,12 @@
 import React from "react";
 import { SignInSocialButton } from "../../components/SignInSocialButton";
 import { useAuth } from "../../hooks/auth";
-import { Alert, ActivityIndicator } from "react-native";
+import { Alert, ActivityIndicator, Platform } from "react-native";
 import { useTheme } from "styled-components";
 
 import AppleSvg from "../../assets/apple.svg";
-import GoogleSvg from "../../assets/google.svg";
+import GoogleSvg from "../../assets/icons8-google32.svg";
+import FacebookSvg from "../../assets/icons8-facebook32.svg";
 
 import {
     Container,
@@ -20,13 +21,13 @@ import {
 
 export function SignIn() {
     const [isLoading, setIsLoading] = React.useState(false);
-    const { signInWithGoogle, signInWithApple } = useAuth();
+    const { signInWithGoogleRequest, signInWithApple } = useAuth();
     const theme = useTheme();
 
     async function handleSignInWithGoogle() {
         try {
             setIsLoading(true);
-            return await signInWithGoogle();
+            return await signInWithGoogleRequest();
         } catch (error) {
             console.log(error);
             Alert.alert("Não foi possível conectar a conta Google");
@@ -62,10 +63,17 @@ export function SignIn() {
                         onPress={handleSignInWithGoogle}
                     />
                     <SignInSocialButton
-                        title="Entrar com Apple"
-                        svg={AppleSvg}
+                        title="Entrar com Facebook"
+                        svg={FacebookSvg}
                         onPress={handleSignInWithApple}
                     />
+                    {Platform.OS === "ios" ? (
+                        <SignInSocialButton
+                            title="Entrar com Apple"
+                            svg={AppleSvg}
+                            onPress={handleSignInWithApple}
+                        />
+                    ) : null}
                 </FooterWrapper>
                 {isLoading && (
                     <ActivityIndicator

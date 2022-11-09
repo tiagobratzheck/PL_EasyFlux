@@ -100,7 +100,7 @@ export function Dashboard() {
 
     function loadTransactions() {
         firestore()
-            .collection("@EasyFlux:transactions_user:2547789544")
+            .collection(`@EasyFlux:transactions_user:${user.id}`)
             .where("entryType", "==", "actual")
             .where(
                 "period",
@@ -222,15 +222,13 @@ export function Dashboard() {
                             <UserInfo>
                                 <Photo
                                     source={{
-                                        uri: "https://avatars.githubusercontent.com/u/44751489?v=4",
+                                        uri: user.photo,
                                     }}
                                 />
                                 <User>
                                     <UserGreeting>Olá!</UserGreeting>
-                                    {
-                                        //<UserName>{user.name}</UserName>
-                                    }
-                                    <UserName>Tiago</UserName>
+
+                                    <UserName>{user.name}</UserName>
                                 </User>
                             </UserInfo>
                             <LogoutButton onPress={signOut}>

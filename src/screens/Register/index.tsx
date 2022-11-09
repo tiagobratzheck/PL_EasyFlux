@@ -97,7 +97,7 @@ export function Register() {
         };
 
         firestore()
-            .collection("@EasyFlux:transactions_user:2547789544")
+            .collection(`@EasyFlux:transactions_user:${user.id}`)
             .add(newTransaction)
             .then(() => {
                 Alert.alert(

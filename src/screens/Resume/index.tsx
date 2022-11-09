@@ -95,7 +95,7 @@ export function Resume() {
     function loadData() {
         setIsLoading(true);
         firestore()
-            .collection("@EasyFlux:transactions_user:2547789544")
+            .collection(`@EasyFlux:transactions_user:${user.id}`)
             .where("entryType", "==", "actual")
             .where("type", "==", transactionType)
             .where(

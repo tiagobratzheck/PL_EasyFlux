@@ -16,6 +16,7 @@ import {
     CategoryName,
     DisplayDate,
 } from "./styles";
+import { useAuth } from "../../hooks/auth";
 
 interface Category {
     name: string;
@@ -39,6 +40,8 @@ interface Props {
 }
 
 export function TransactionCard({ data, selectedDate }: Props) {
+    const { user } = useAuth();
+
     const category = commonCategories.filter(
         (item) => item.key === data.category
     )[0];
@@ -59,7 +62,7 @@ export function TransactionCard({ data, selectedDate }: Props) {
                 text: "Deletar",
                 onPress: () =>
                     firestore()
-                        .collection("@EasyFlux:transactions_user:2547789544")
+                        .collection(`@EasyFlux:transactions_user:${user.id}`)
                         .doc(id)
                         .delete()
                         .then(() => {

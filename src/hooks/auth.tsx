@@ -4,6 +4,7 @@ const { WEB_CLIENT_ID, ANDROID_ID } = process.env;
 const { REDIRECT_URI } = process.env;
 
 import * as Google from "expo-auth-session/providers/google";
+import * as Facebook from "expo-auth-session/providers/facebook";
 import * as AppleAuthentication from "expo-apple-authentication";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -72,15 +73,17 @@ function AuthProvider({ children }: AuthProviderProps) {
     //    }
     //}
 
-    const [req, res, promptAsyncGoogle] = Google.useAuthRequest({
-        expoClientId: WEB_CLIENT_ID,
-        androidClientId: ANDROID_ID,
-    });
+    const [googleRequest, googleResponse, googlePromptAsync] =
+        Google.useAuthRequest({
+            expoClientId: WEB_CLIENT_ID,
+            androidClientId:
+                "202885171437-in7tvfaesfm45jlhinp333257ki1o625.apps.googleusercontent.com",
+        });
 
     async function signInWithGoogleRequest() {
         try {
             setUserStorageLoading(true);
-            await promptAsyncGoogle();
+            await googlePromptAsync();
         } catch (error) {
             setUserStorageLoading(false);
             console.log(error);
@@ -162,12 +165,15 @@ function AuthProvider({ children }: AuthProviderProps) {
     //}, []);
 
     React.useEffect(() => {
-        if (res?.type === "success" && res.authentication?.accessToken) {
-            signInWithGoogle(res.authentication.accessToken);
+        if (
+            googleResponse?.type === "success" &&
+            googleResponse.authentication?.accessToken
+        ) {
+            signInWithGoogle(googleResponse.authentication.accessToken);
         } else if (userStorageLoading) {
             setUserStorageLoading(false);
         }
-    }, [res]);
+    }, [googleResponse]);
 
     return (
         <AuthContext.Provider

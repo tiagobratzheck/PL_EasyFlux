@@ -19,6 +19,7 @@ import {
     DeleteRegister,
     DeleteIcon,
 } from "./styles";
+import { useAuth } from "../../hooks/auth";
 
 interface Props {
     selectedDate: Date;
@@ -43,6 +44,8 @@ export function BudgetCard({
     residual,
     percent,
 }: Props) {
+    const { user } = useAuth();
+
     function deleteEntry(id: string) {
         Alert.alert("Atenção!", "Deseja realmente deletar esse lançamento?", [
             {
@@ -53,7 +56,7 @@ export function BudgetCard({
                 text: "Deletar",
                 onPress: () =>
                     firestore()
-                        .collection("@EasyFlux:transactions_user:2547789544")
+                        .collection(`@EasyFlux:transactions_user:${user.id}`)
                         .doc(id)
                         .delete()
                         .then(() => {
