@@ -21,7 +21,11 @@ import {
 
 export function SignIn() {
     const [isLoading, setIsLoading] = React.useState(false);
-    const { signInWithGoogleRequest, signInWithApple } = useAuth();
+    const {
+        signInWithGoogleRequest,
+        signInWithFacebookRequest,
+        signInWithApple,
+    } = useAuth();
     const theme = useTheme();
 
     async function handleSignInWithGoogle() {
@@ -31,6 +35,17 @@ export function SignIn() {
         } catch (error) {
             console.log(error);
             Alert.alert("Não foi possível conectar a conta Google");
+            setIsLoading(false);
+        }
+    }
+
+    async function handleSignInWithFacebook() {
+        try {
+            setIsLoading(true);
+            return await signInWithFacebookRequest();
+        } catch (error) {
+            console.log(error);
+            Alert.alert("Não foi possível conectar a conta Facebook");
             setIsLoading(false);
         }
     }
@@ -65,7 +80,7 @@ export function SignIn() {
                     <SignInSocialButton
                         title="Entrar com Facebook"
                         svg={FacebookSvg}
-                        onPress={handleSignInWithApple}
+                        onPress={handleSignInWithFacebook}
                     />
                     {Platform.OS === "ios" ? (
                         <SignInSocialButton

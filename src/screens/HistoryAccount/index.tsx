@@ -79,6 +79,8 @@ export function HistoryAccount({
 
     const [isLoading, setIsLoading] = React.useState(true);
 
+    const [barRatio, setBarRatio] = React.useState<number>(0.6);
+
     const [actualTransactions, setActualTransactions] = React.useState<
         TotalByPeriodProps[]
     >([]);
@@ -265,6 +267,13 @@ export function HistoryAccount({
 
                 if (totalByPeriod.length > 0) {
                     setActualTransactions(totalByPeriod);
+                    if (totalByPeriod.length === 1) {
+                        setBarRatio(3);
+                    } else if (totalByPeriod.length === 2) {
+                        setBarRatio(0.4);
+                    } else if (totalByPeriod.length === 3) {
+                        setBarRatio(0.5);
+                    }
                 }
 
                 if (totalBudgetByPeriod.length > 0) {
@@ -326,7 +335,7 @@ export function HistoryAccount({
                                     style={{ tickLabels: { fontSize: 11 } }}
                                 />
                                 <VictoryBar
-                                    barRatio={0.6}
+                                    barRatio={barRatio}
                                     alignment={"middle"}
                                     data={actualTransactions}
                                     x="quarter"

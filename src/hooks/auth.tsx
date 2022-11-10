@@ -6,7 +6,9 @@ const { REDIRECT_URI } = process.env;
 import * as Google from "expo-auth-session/providers/google";
 import * as Facebook from "expo-auth-session/providers/facebook";
 import * as AppleAuthentication from "expo-apple-authentication";
+import * as WebBrowser from "expo-web-browser";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { makeRedirectUri, ResponseType } from "expo-auth-session";
 
 interface AuthProviderProps {
     children: ReactNode;
@@ -22,6 +24,7 @@ interface User {
 interface AuthContextData {
     user: User;
     signInWithGoogleRequest(): Promise<void>;
+    signInWithFacebookRequest(): Promise<void>;
     signInWithApple(): Promise<void>;
     signOut(): Promise<void>;
     userStorageLoading: boolean;
@@ -36,48 +39,23 @@ interface AuthorizationResponse {
 
 const AuthContext = createContext({} as AuthContextData);
 
+//WebBrowser.maybeCompleteAuthSession();
+
 function AuthProvider({ children }: AuthProviderProps) {
     const [user, setUser] = useState<User>({} as User);
     const [userStorageLoading, setUserStorageLoading] = useState(true);
     const userStorageKey = "@EasyFlux:user";
-
-    //async function signInWithGoogle() {
-    //    try {
-    //        const RESPONSE_TYPE = "token";
-    //        const SCOPE = encodeURI("profile email");
-    //        const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}&scope=${SCOPE}`;
-    //        const { params, type } = (await AuthSession.startAsync({
-    //            authUrl,
-    //        })) as AuthorizationResponse;
-
-    //        if (type === "success") {
-    //            const response = await fetch(
-    //                `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${params.access_token}`
-    //            );
-    //            const userInfo = await response.json();
-    //            const userLogged = {
-    //                id: userInfo.id,
-    //                email: userInfo.email,
-    //                name: userInfo.given_name,
-    //                photo: userInfo.picture,
-    //            };
-
-    //            setUser(userLogged);
-    //            await AsyncStorage.setItem(
-    //                userStorageKey,
-    //                JSON.stringify(userLogged)
-    //            );
-    //        }
-    //    } catch (error: any) {
-    //        throw new Error(error);
-    //    }
-    //}
 
     const [googleRequest, googleResponse, googlePromptAsync] =
         Google.useAuthRequest({
             expoClientId: WEB_CLIENT_ID,
             androidClientId:
                 "202885171437-in7tvfaesfm45jlhinp333257ki1o625.apps.googleusercontent.com",
+        });
+
+    const [facebookRequest, facebookResponse, facebookPromptAsync] =
+        Facebook.useAuthRequest({
+            clientId: "488498116581123",
         });
 
     async function signInWithGoogleRequest() {
@@ -91,13 +69,24 @@ function AuthProvider({ children }: AuthProviderProps) {
         }
     }
 
+    async function signInWithFacebookRequest() {
+        try {
+            setUserStorageLoading(true);
+            await facebookPromptAsync();
+        } catch (error) {
+            setUserStorageLoading(false);
+            console.log(error);
+            throw error;
+        }
+    }
+
     async function signInWithGoogle(accessToken: string) {
         try {
             const response = await fetch(
                 `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${accessToken}`
             );
             const userInfo = await response.json();
-
+            console.log(userInfo);
             const userLoggedIn = {
                 id: userInfo.id,
                 name: userInfo.given_name,
@@ -110,6 +99,21 @@ function AuthProvider({ children }: AuthProviderProps) {
                 userStorageKey,
                 JSON.stringify(userLoggedIn)
             );
+        } catch (error) {
+            console.log(error);
+            throw error;
+        } finally {
+            setUserStorageLoading(false);
+        }
+    }
+
+    async function signInWithFacebook(accessToken: string) {
+        try {
+            const response = await fetch(
+                `https://graph.facebook.com/me?fields=first_name,last_name,email&access_token=${accessToken}`
+            );
+            const userInfo = await response.json();
+            console.log(userInfo);
         } catch (error) {
             console.log(error);
             throw error;
@@ -175,11 +179,23 @@ function AuthProvider({ children }: AuthProviderProps) {
         }
     }, [googleResponse]);
 
+    React.useEffect(() => {
+        if (
+            facebookResponse?.type === "success" &&
+            facebookResponse.authentication?.accessToken
+        ) {
+            signInWithFacebook(facebookResponse.authentication.accessToken);
+        } else if (userStorageLoading) {
+            setUserStorageLoading(false);
+        }
+    }, [facebookResponse]);
+
     return (
         <AuthContext.Provider
             value={{
                 user,
                 signInWithGoogleRequest,
+                signInWithFacebookRequest,
                 signInWithApple,
                 signOut,
                 userStorageLoading,
