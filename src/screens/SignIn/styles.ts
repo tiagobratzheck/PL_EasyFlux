@@ -15,8 +15,8 @@ export const Header = styled.View`
 `;
 
 export const Image = styled.Image`
-    width: 340px;
-    height: 340px;
+    width: 320px;
+    height: 320px;
 `;
 
 export const TitleWrapper = styled.View`
@@ -26,14 +26,14 @@ export const TitleWrapper = styled.View`
 export const Title = styled.Text`
     font-family: ${({ theme }) => theme.fonts.medium};
     color: ${({ theme }) => theme.colors.primary};
-    font-size: ${RFValue(25)}px;
+    font-size: ${RFValue(23)}px;
     text-align: center;
 `;
 
 export const SignInTitle = styled.Text`
     font-family: ${({ theme }) => theme.fonts.regular};
     color: ${({ theme }) => theme.colors.primary};
-    font-size: ${RFValue(12)}px;
+    font-size: ${RFValue(10)}px;
     text-align: center;
     margin-top: 30px;
 `;

@@ -2,4 +2,7 @@
   <string name="app_name">EasyFlux</string>
   <string name="expo_splash_screen_resize_mode" translatable="false">contain</string>
   <string name="expo_splash_screen_status_bar_translucent" translatable="false">false</string>
+  <string name="facebook_app_id">661877188855839</string>
+  <string name="facebook_client_token">2ff3e4a6aca314a5b43d6cc17790895d</string>
+  <string name="fb_login_protocol_scheme">fb661877188855839</string>
 </resources>

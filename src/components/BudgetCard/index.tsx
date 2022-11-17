@@ -22,6 +22,7 @@ import {
 import { useAuth } from "../../hooks/auth";
 
 interface Props {
+    transactionType: string;
     selectedDate: Date;
     id: string;
     title: string;
@@ -34,6 +35,7 @@ interface Props {
 }
 
 export function BudgetCard({
+    transactionType,
     selectedDate,
     id,
     title,
@@ -88,7 +90,12 @@ export function BudgetCard({
             </Header>
             <Footer>
                 <DescriptionTotals>
-                    <Account>Total para essa conta:</Account>
+                    {transactionType === "positive" ? (
+                        <Account>Total recebido no mês:</Account>
+                    ) : (
+                        <Account>Total gasto no mês:</Account>
+                    )}
+
                     <Total>{total}</Total>
                     <ResidualValue residual={residual}>
                         {residual && `(${residual})`}

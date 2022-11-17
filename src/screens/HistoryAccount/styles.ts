@@ -1,8 +1,7 @@
 import styled from "styled-components/native";
 
-import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
-import { getStatusBarHeight } from "react-native-iphone-x-helper";
-import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import { RFValue } from "react-native-responsive-fontsize";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import theme from "../../global/styles/theme";
 
@@ -60,13 +59,13 @@ export const CategoryInformation = styled.View`
 `;
 
 export const Icon = styled(MaterialCommunityIcons)`
-    font-size: ${RFValue(25)}px;
+    font-size: ${RFValue(20)}px;
     color: ${({ theme }) => theme.colors.text};
     margin-right: 5px;
 `;
 
 export const CategoryName = styled.Text`
-    font-size: ${RFValue(20)}px;
+    font-size: ${RFValue(13)}px;
     font-family: ${({ theme }) => theme.fonts.regular};
 `;
 
@@ -88,18 +87,18 @@ export const HeaderTable = styled.View<HeaderTableProps>`
 `;
 
 export const DescriptionHeaderCell = styled.Text`
-    font-size: ${RFValue(12)}px;
+    font-size: ${RFValue(11)}px;
     font-family: ${({ theme }) => theme.fonts.regular};
 `;
 
 export const Description = styled.Text`
-    font-size: ${RFValue(12)}px;
+    font-size: ${RFValue(10)}px;
     font-family: ${({ theme }) => theme.fonts.regular};
     width: 27%;
 `;
 
 export const DescriptionResult = styled.Text<TypeResultProps>`
-    font-size: ${RFValue(12)}px;
+    font-size: ${RFValue(10)}px;
     font-family: ${({ theme }) => theme.fonts.regular};
     color: ${({ amount }) =>
         amount.split("")[0] === "-"

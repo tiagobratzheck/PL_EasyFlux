@@ -6,7 +6,6 @@ import { BorderlessButton } from "react-native-gesture-handler";
 export const Container = styled.View`
     flex: 1;
     background-color: ${({ theme }) => theme.colors.background};
-    justify-content: flex-start;
 `;
 
 export const LoadContainer = styled.View`
@@ -69,15 +68,19 @@ export const Month = styled.Text`
 `;
 
 export const Form = styled.View`
-    flex: 1;
     width: 100%;
-    padding: 0px 24px;
-    justify-content: space-evenly;
+    padding: 10px 24px;
+    justify-content: flex-start;
 `;
 
-export const Fields = styled.View``;
+export const Fields = styled.View`
+    margin-bottom: 10px;
+    margin-top: 10px;
+`;
 
 export const TransactionsTypes = styled.View`
     flex-direction: row;
     justify-content: space-between;
+    margin-bottom: 10px;
+    margin-top: 5px;
 `;

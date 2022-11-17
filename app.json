@@ -1,39 +1,46 @@
 {
-  "expo": {
-    "name": "EasyFlux",
-    "slug": "EasyFlux",
-    "schema": "EasyFlux",
-    "version": "1.0.0",
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "plugins": [
-      "@react-native-firebase/app"
-    ],
-    "icon": "./assets/icon.png",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+    "expo": {
+        "name": "EasyFlux",
+        "slug": "EasyFlux",
+
+        "schema": "EasyFlux",
+        "version": "1.0.0",
+        "assetBundlePatterns": ["**/*"],
+        "plugins": [
+            "@react-native-firebase/app",
+            [
+                "react-native-fbsdk-next",
+                {
+                    "appID": "661877188855839",
+                    "clientToken": "2ff3e4a6aca314a5b43d6cc17790895d",
+                    "displayName": "EasyFlux"
+                }
+            ]
+        ],
+        "icon": "./assets/icon.png",
+        "splash": {
+            "image": "./assets/splash.png",
+            "resizeMode": "contain",
+            "backgroundColor": "#ffffff"
+        },
+        "android": {
+            "package": "com.tiagobratzheck.easyflux",
+            "googleServicesFile": "./google-services.json",
+            "adaptiveIcon": {
+                "foregroundImage": "./assets/adaptive-icon.png",
+                "backgroundColor": "#FFFFFF"
+            },
+            "softwareKeyboardLayoutMode": "pan"
+        },
+        "ios": {
+            "bundleIdentifier": "com.tiagobratzheck.easyflux",
+            "googleServicesFile": "./GoogleService-Info.plist"
+        },
+        "extra": {
+            "eas": {
+                "projectId": "c5b2463a-619e-4b8d-8e17-64c7ce213e33"
+            }
+        }
     },
-    "android": {
-      "package": "com.tiagobratzheck.easyflux",
-      "googleServicesFile": "./google-services.json",
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
-      },
-      "softwareKeyboardLayoutMode": "pan"
-    },
-    "ios": {
-      "bundleIdentifier": "com.tiagobratzheck.easyflux",
-      "googleServicesFile": "./GoogleService-Info.plist"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "c5b2463a-619e-4b8d-8e17-64c7ce213e33"
-      }
-    }
-  },
-  "name": "EasyFlux"
+    "name": "EasyFlux"
 }

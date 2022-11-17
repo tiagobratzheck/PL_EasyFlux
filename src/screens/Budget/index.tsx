@@ -17,18 +17,16 @@ import { useForm } from "react-hook-form";
 import { Button } from "../../components/Forms/Button";
 import { CategorySelectButton } from "../../components/Forms/CategorySelectButton";
 import { InputForm } from "../../components/Forms/InputForm";
-import { TransactionTypeButton } from "../../components/Forms/TransactionTypeButton";
 import { CategorySelect } from "../CategorySelect";
 
 import { useAuth } from "../../hooks/auth";
 import { BudgetCard } from "../../components/BudgetCard";
-import { categoriesOutcome, commonCategories } from "../../utils/categories";
+import { commonCategories } from "../../utils/categories";
 import { getBottomSpace } from "react-native-iphone-x-helper";
 
 import {
     Container,
     LoadContainer,
-    TransactionsTypeSelectable,
     Content,
     TitleList,
     Header,
@@ -488,25 +486,30 @@ export function Budget() {
                         isActive={transactionType === "result"}
                     />
                 </TransactionsTypes>
-
-                <CategorySelectButton
-                    onPress={handleOpenSelectCategory}
-                    title={category.name}
-                />
-                <Fields>
-                    <InputForm
-                        name="amount"
-                        control={control}
-                        placeholder="valor"
-                        keyboardType="numeric"
-                        error={errors.amount && errors.amount.message}
-                    />
-                </Fields>
-                <Button
-                    title="Cadastrar orçamento"
-                    onPress={handleSubmit(handleRegister)}
-                    enabled={isAfter(selectedDate, new Date()) ? true : false}
-                ></Button>
+                {isAfter(selectedDate, new Date()) ? (
+                    <>
+                        <CategorySelectButton
+                            onPress={handleOpenSelectCategory}
+                            title={category.name}
+                        />
+                        <Fields>
+                            <InputForm
+                                name="amount"
+                                control={control}
+                                placeholder="valor"
+                                keyboardType="numeric"
+                                error={errors.amount && errors.amount.message}
+                            />
+                        </Fields>
+                        <Button
+                            title="Cadastrar orçamento"
+                            onPress={handleSubmit(handleRegister)}
+                            enabled={
+                                isAfter(selectedDate, new Date()) ? true : false
+                            }
+                        ></Button>
+                    </>
+                ) : null}
             </Form>
             <Modal visible={categoryModalOpen}>
                 <CategorySelect
@@ -532,6 +535,7 @@ export function Budget() {
                         keyExtractor={(item) => item.id}
                         renderItem={({ item }) => (
                             <BudgetCard
+                                transactionType={transactionType}
                                 selectedDate={selectedDate}
                                 key={item.category}
                                 id={item.id}

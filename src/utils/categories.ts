@@ -26,7 +26,7 @@ export const categoriesOutcome = [
     {
         key: "supermarket",
         name: "Supermercado",
-        icon: "warehouse",
+        icon: "cart-variant",
         color: "#0A6407",
     },
     {
@@ -38,7 +38,7 @@ export const categoriesOutcome = [
     { key: "water", name: "Água", icon: "water-outline", color: "#1F86DE" },
     { key: "light", name: "Luz", icon: "lightbulb-outline", color: "#F0980C" },
     { key: "net", name: "Internet", icon: "wifi", color: "#0CF07C" },
-    { key: "gas", name: "Gás", icon: "cylinder", color: "#56665E" },
+    { key: "gas", name: "Gás", icon: "propane-tank-outline", color: "#56665E" },
     { key: "bank", name: "Bancos", icon: "bank-outline", color: "#982EC9" },
     { key: "car", name: "Carro", icon: "car-outline", color: "#C96A2E" },
     { key: "fuel", name: "Combustível", icon: "fuel", color: "#EC3434" },
@@ -68,7 +68,7 @@ export const categoriesIncome = [
     },
     {
         key: "voucher",
-        name: "Vale alimentação/refeição",
+        name: "Vale alimentação",
         icon: "food-apple-outline",
         color: "#F18C2D",
     },
@@ -80,7 +80,7 @@ export const categoriesIncome = [
     },
     {
         key: "13",
-        name: "Décimo terceiro salário",
+        name: "13° salário",
         icon: "calendar-outline",
         color: "#781473",
     },
@@ -113,7 +113,7 @@ export const commonCategories = [
     },
     {
         key: "voucher",
-        name: "Vale alimentação/refeição",
+        name: "Vale alimentação",
         icon: "food-apple-outline",
         color: "#F18C2D",
     },
@@ -125,7 +125,7 @@ export const commonCategories = [
     },
     {
         key: "13",
-        name: "Décimo terceiro salário",
+        name: "13° salário",
         icon: "calendar-outline",
         color: "#781473",
     },
@@ -174,7 +174,7 @@ export const commonCategories = [
     {
         key: "supermarket",
         name: "Supermercado",
-        icon: "warehouse",
+        icon: "cart-variant",
         color: "#0A6407",
     },
     {
@@ -186,7 +186,7 @@ export const commonCategories = [
     { key: "water", name: "Água", icon: "water-outline", color: "#1F86DE" },
     { key: "light", name: "Luz", icon: "lightbulb-outline", color: "#F0980C" },
     { key: "net", name: "Internet", icon: "wifi", color: "#0CF07C" },
-    { key: "gas", name: "Gás", icon: "cylinder", color: "#56665E" },
+    { key: "gas", name: "Gás", icon: "propane-tank-outline", color: "#56665E" },
     { key: "bank", name: "Bancos", icon: "bank-outline", color: "#982EC9" },
     { key: "car", name: "Carro", icon: "car-outline", color: "#C96A2E" },
     { key: "fuel", name: "Combustível", icon: "fuel", color: "#EC3434" },

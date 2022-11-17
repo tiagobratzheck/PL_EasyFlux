@@ -26,7 +26,7 @@ export const Container = styled.View<ContainerProps>`
 
 export const Content = styled.View`
     flex-direction: row;
-    margin-bottom: 3px;
+    margin-bottom: 4px;
     justify-content: space-between;
 `;
 

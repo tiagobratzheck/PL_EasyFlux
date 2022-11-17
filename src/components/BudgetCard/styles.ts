@@ -30,7 +30,7 @@ export const Icon = styled(MaterialCommunityIcons)`
 
 export const Title = styled.Text`
     font-family: ${({ theme }) => theme.fonts.regular};
-    font-size: ${RFValue(13)}px;
+    font-size: ${RFValue(11)}px;
 `;
 
 export const Amount = styled.Text`
