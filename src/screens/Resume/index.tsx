@@ -4,6 +4,7 @@ import { HistoryCard } from "../../components/HistoryCard";
 import { commonCategories } from "../../utils/categories";
 
 import { useAuth } from "../../hooks/auth";
+import { useDate } from "../../hooks/date";
 
 import { useTheme } from "styled-components";
 
@@ -63,22 +64,11 @@ export function Resume() {
     const [categoryKey, setCategoryKey] = React.useState("");
 
     const { user } = useAuth();
-
-    const [selectedDate, setSelectedDate] = React.useState(new Date());
+    const { dateTransactions, changeDateTransactions } = useDate();
 
     const [isLoading, setIsLoading] = React.useState(false);
 
     const theme = useTheme();
-
-    function handleDateChange(action: "next" | "prev") {
-        if (action === "next") {
-            const newDate = addMonths(selectedDate, 1);
-            setSelectedDate(newDate);
-        } else {
-            const newDate = subMonths(selectedDate, 1);
-            setSelectedDate(newDate);
-        }
-    }
 
     function handleTransactionsType(type: "positive" | "negative") {
         setTransactionType(type);
@@ -101,7 +91,7 @@ export function Resume() {
             .where(
                 "period",
                 "==",
-                format(selectedDate, "MMMM/yyyy", { locale: ptBR })
+                format(dateTransactions, "MMMM/yyyy", { locale: ptBR })
             )
             .onSnapshot((snapshot) => {
                 const dataTransformed: TransactionData[] = snapshot.docs.map(
@@ -132,9 +122,9 @@ export function Resume() {
                 const totalEntries = dataTransformed.filter(
                     (entry: TransactionData) =>
                         new Date(entry.date).getMonth() ===
-                            selectedDate.getMonth() &&
+                            dateTransactions.getMonth() &&
                         new Date(entry.date).getFullYear() ===
-                            selectedDate.getFullYear()
+                            dateTransactions.getFullYear()
                 );
 
                 const sumEntries = totalEntries.reduce(
@@ -195,7 +185,7 @@ export function Resume() {
         const subscriber = loadData();
 
         return subscriber;
-    }, [selectedDate, transactionType]);
+    }, [dateTransactions, transactionType]);
 
     return (
         <Container>
@@ -213,17 +203,17 @@ export function Resume() {
                 <>
                     <MonthSelect>
                         <MonthSelectButton
-                            onPress={() => handleDateChange("prev")}
+                            onPress={() => changeDateTransactions("prev")}
                         >
                             <MonthSelectIcon name="chevron-left" />
                         </MonthSelectButton>
                         <Month>
-                            {format(selectedDate, "MMMM, yyyy", {
+                            {format(dateTransactions, "MMMM, yyyy", {
                                 locale: ptBR,
                             })}
                         </Month>
                         <MonthSelectButton
-                            onPress={() => handleDateChange("next")}
+                            onPress={() => changeDateTransactions("next")}
                         >
                             <MonthSelectIcon name="chevron-right" />
                         </MonthSelectButton>
@@ -295,7 +285,7 @@ export function Resume() {
             <Modal visible={categoryModalOpen}>
                 <HistoryAccount
                     category={categoryKey}
-                    selectedDate={selectedDate}
+                    selectedDate={dateTransactions}
                     closeHistoryAccount={handleCloseSelectCategory}
                 />
             </Modal>

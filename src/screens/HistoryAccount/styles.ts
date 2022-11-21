@@ -87,18 +87,18 @@ export const HeaderTable = styled.View<HeaderTableProps>`
 `;
 
 export const DescriptionHeaderCell = styled.Text`
-    font-size: ${RFValue(11)}px;
+    font-size: ${RFValue(10)}px;
     font-family: ${({ theme }) => theme.fonts.regular};
 `;
 
 export const Description = styled.Text`
-    font-size: ${RFValue(10)}px;
+    font-size: ${RFValue(9)}px;
     font-family: ${({ theme }) => theme.fonts.regular};
     width: 27%;
 `;
 
 export const DescriptionResult = styled.Text<TypeResultProps>`
-    font-size: ${RFValue(10)}px;
+    font-size: ${RFValue(9)}px;
     font-family: ${({ theme }) => theme.fonts.regular};
     color: ${({ amount }) =>
         amount.split("")[0] === "-"

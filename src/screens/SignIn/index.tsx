@@ -65,7 +65,12 @@ export function SignIn() {
                     <SignInSocialButton
                         title="Entrar com usuário e senha"
                         svg={Key}
-                        onPress={() => console.log("criar a função")}
+                        onPress={() =>
+                            Alert.alert(
+                                "Desculpe",
+                                "Essa função ainda será implementada. Faça seu login com sua conta Google."
+                            )
+                        }
                     />
                     {
                         //<SignInSocialButton

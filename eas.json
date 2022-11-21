@@ -10,6 +10,12 @@
                 "buildType": "apk"
             }
         },
+        "version_1.0": {
+            "distribution": "internal",
+            "android": {
+                "buildType": "apk"
+            }
+        },
         "preview2": {
             "android": {
                 "gradleCommand": ":app:assembleRelease"

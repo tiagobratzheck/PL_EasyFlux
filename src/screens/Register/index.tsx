@@ -46,6 +46,7 @@ const schema = Yup.object().shape({
 });
 
 export function Register() {
+    const [isSaving, setIsSaving] = useState(true);
     const [transactionType, setTransactionType] = useState("positive");
     const [categoryModalOpen, setCategoryModalOpen] = useState(false);
     const [category, setCategory] = useState({
@@ -78,6 +79,7 @@ export function Register() {
     }
 
     async function handleRegister(form: FormData) {
+        setIsSaving(false);
         if (!transactionType) {
             return Alert.alert("Selecione o tipo do lançamento");
         }
@@ -106,6 +108,7 @@ export function Register() {
                 );
                 reset();
                 setTransactionType("");
+                setIsSaving(true);
                 setCategory({
                     key: "category",
                     name: "Categoria",
@@ -154,6 +157,10 @@ export function Register() {
                                 title="Entrada"
                                 onPress={() => {
                                     handleTransactionsType("positive");
+                                    setCategory({
+                                        key: "category",
+                                        name: "Categoria",
+                                    });
                                 }}
                                 isActive={transactionType === "positive"}
                             />
@@ -162,6 +169,10 @@ export function Register() {
                                 title="Saída"
                                 onPress={() => {
                                     handleTransactionsType("negative");
+                                    setCategory({
+                                        key: "category",
+                                        name: "Categoria",
+                                    });
                                 }}
                                 isActive={transactionType === "negative"}
                             />
@@ -174,6 +185,7 @@ export function Register() {
                     <Button
                         title="Lançar"
                         onPress={handleSubmit(handleRegister)}
+                        enabled={isSaving}
                     ></Button>
                 </Form>
 

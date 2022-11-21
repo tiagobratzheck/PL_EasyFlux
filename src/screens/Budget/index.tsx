@@ -20,6 +20,7 @@ import { InputForm } from "../../components/Forms/InputForm";
 import { CategorySelect } from "../CategorySelect";
 
 import { useAuth } from "../../hooks/auth";
+import { useDate } from "../../hooks/date";
 import { BudgetCard } from "../../components/BudgetCard";
 import { commonCategories } from "../../utils/categories";
 import { getBottomSpace } from "react-native-iphone-x-helper";
@@ -41,6 +42,7 @@ import {
 } from "./styles";
 import { TransactionTypeButtonForBudget } from "../../components/Forms/TransactionTypeButtonForBudget";
 import { ResultBudgetCard } from "../../components/ResultBudgetCard";
+import { ResultActualCard } from "../../components/ResultActualCard";
 
 interface CategoryData {
     key: string;
@@ -89,8 +91,12 @@ export function Budget() {
         expenseSum: "R$0,00",
         result: "R$0,00",
     });
+    const [actualResult, setActualResult] = React.useState<BudgetResultProps>({
+        entrySum: "R$0,00",
+        expenseSum: "R$0,00",
+        result: "R$0,00",
+    });
 
-    const [selectedDate, setSelectedDate] = React.useState(new Date());
     const [transactionType, setTransactionType] = React.useState("positive");
     const [categoryModalOpen, setCategoryModalOpen] = React.useState(false);
     const [category, setCategory] = React.useState({
@@ -99,6 +105,7 @@ export function Budget() {
     });
 
     const { user } = useAuth();
+    const { dateTransactions, changeDateTransactions } = useDate();
     const theme = useTheme();
 
     const {
@@ -120,16 +127,6 @@ export function Budget() {
 
     function handleOpenSelectCategory() {
         setCategoryModalOpen(true);
-    }
-
-    function handleDateChange(action: "next" | "prev") {
-        if (action === "next") {
-            const newDate = addMonths(selectedDate, 1);
-            setSelectedDate(newDate);
-        } else {
-            const newDate = subMonths(selectedDate, 1);
-            setSelectedDate(newDate);
-        }
     }
 
     async function handleRegister(form: FormData) {
@@ -155,8 +152,8 @@ export function Budget() {
             amount: form.amount,
             type: transactionType,
             category: category.key,
-            date: selectedDate,
-            period: format(selectedDate, "MMMM/yyyy", { locale: ptBR }),
+            date: dateTransactions,
+            period: format(dateTransactions, "MMMM/yyyy", { locale: ptBR }),
         };
 
         firestore()
@@ -182,7 +179,7 @@ export function Budget() {
     function loadTransactions() {
         setIsLoading(true);
         if (transactionType === "result") {
-            calculateBudgetResult(selectedDate);
+            calculateBudgetResult(dateTransactions);
         } else {
             firestore()
                 .collection(`@EasyFlux:transactions_user:${user.id}`)
@@ -190,7 +187,7 @@ export function Budget() {
                 .where(
                     "period",
                     "==",
-                    format(selectedDate, "MMMM/yyyy", { locale: ptBR })
+                    format(dateTransactions, "MMMM/yyyy", { locale: ptBR })
                 )
                 .onSnapshot((snapshot) => {
                     const dataTransformed: TransactionCardProps[] =
@@ -363,7 +360,6 @@ export function Budget() {
     function calculateBudgetResult(selectedDate: Date) {
         firestore()
             .collection(`@EasyFlux:transactions_user:${user.id}`)
-            .where("entryType", "==", "budget")
             .where(
                 "period",
                 "==",
@@ -395,11 +391,15 @@ export function Budget() {
                     });
 
                 const entryBudgets = dataTransformed.filter(
-                    (entry) => entry.type === "positive"
+                    (entry) =>
+                        entry.type === "positive" &&
+                        entry.entryType === "budget"
                 );
 
                 const expenseBudgets = dataTransformed.filter(
-                    (entry) => entry.type === "negative"
+                    (entry) =>
+                        entry.type === "negative" &&
+                        entry.entryType === "budget"
                 );
 
                 const sumEntries = entryBudgets.reduce(
@@ -417,6 +417,33 @@ export function Budget() {
 
                 const budgetResult = sumEntries - sumExpenses;
 
+                const entryActuals = dataTransformed.filter(
+                    (entry) =>
+                        entry.type === "positive" &&
+                        entry.entryType === "actual"
+                );
+
+                const expenseActuals = dataTransformed.filter(
+                    (entry) =>
+                        entry.type === "negative" &&
+                        entry.entryType === "actual"
+                );
+
+                const sumActualsEntries = entryActuals.reduce(
+                    (acumullator: number, entry) => {
+                        return acumullator + Number(entry.amount);
+                    },
+                    0
+                );
+                const sumActualsExpenses = expenseActuals.reduce(
+                    (acumullator: number, entry) => {
+                        return acumullator + Number(entry.amount);
+                    },
+                    0
+                );
+
+                const actualResult = sumActualsEntries - sumActualsExpenses;
+
                 setBudgetResult({
                     entrySum: sumEntries.toLocaleString("pt-BR", {
                         style: "currency",
@@ -431,6 +458,21 @@ export function Budget() {
                         currency: "BRL",
                     }),
                 });
+
+                setActualResult({
+                    entrySum: sumActualsEntries.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                    }),
+                    expenseSum: sumActualsExpenses.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                    }),
+                    result: actualResult.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                    }),
+                });
                 setIsLoading(false);
             });
     }
@@ -439,7 +481,7 @@ export function Budget() {
         const subscriber = loadTransactions();
 
         return subscriber;
-    }, [selectedDate, transactionType]);
+    }, [dateTransactions, transactionType]);
 
     return (
         <Container>
@@ -447,15 +489,19 @@ export function Budget() {
                 <Title>Orçamentos</Title>
             </Header>
             <MonthSelect>
-                <MonthSelectButton onPress={() => handleDateChange("prev")}>
+                <MonthSelectButton
+                    onPress={() => changeDateTransactions("prev")}
+                >
                     <MonthSelectIcon name="chevron-left" />
                 </MonthSelectButton>
                 <Month>
-                    {format(selectedDate, "MMMM, yyyy", {
+                    {format(dateTransactions, "MMMM, yyyy", {
                         locale: ptBR,
                     })}
                 </Month>
-                <MonthSelectButton onPress={() => handleDateChange("next")}>
+                <MonthSelectButton
+                    onPress={() => changeDateTransactions("next")}
+                >
                     <MonthSelectIcon name="chevron-right" />
                 </MonthSelectButton>
             </MonthSelect>
@@ -486,7 +532,7 @@ export function Budget() {
                         isActive={transactionType === "result"}
                     />
                 </TransactionsTypes>
-                {isAfter(selectedDate, new Date()) ? (
+                {isAfter(dateTransactions, new Date()) ? (
                     <>
                         <CategorySelectButton
                             onPress={handleOpenSelectCategory}
@@ -505,7 +551,9 @@ export function Budget() {
                             title="Cadastrar orçamento"
                             onPress={handleSubmit(handleRegister)}
                             enabled={
-                                isAfter(selectedDate, new Date()) ? true : false
+                                isAfter(dateTransactions, new Date())
+                                    ? true
+                                    : false
                             }
                         ></Button>
                     </>
@@ -521,7 +569,12 @@ export function Budget() {
                 />
             </Modal>
             <Content>
-                <TitleList>Lista de orçamentos:</TitleList>
+                {transactionType === "result" ? (
+                    <TitleList>Orçamento:</TitleList>
+                ) : (
+                    <TitleList>Lista de orçamentos:</TitleList>
+                )}
+
                 {isLoading ? (
                     <LoadContainer>
                         <ActivityIndicator
@@ -536,7 +589,7 @@ export function Budget() {
                         renderItem={({ item }) => (
                             <BudgetCard
                                 transactionType={transactionType}
-                                selectedDate={selectedDate}
+                                selectedDate={dateTransactions}
                                 key={item.category}
                                 id={item.id}
                                 title={item.name}
@@ -554,11 +607,19 @@ export function Budget() {
                         }}
                     />
                 ) : (
-                    <ResultBudgetCard
-                        entrySum={budgetResult.entrySum}
-                        expenseSum={budgetResult.expenseSum}
-                        result={budgetResult.result}
-                    />
+                    <>
+                        <ResultBudgetCard
+                            entrySum={budgetResult.entrySum}
+                            expenseSum={budgetResult.expenseSum}
+                            result={budgetResult.result}
+                        />
+                        <TitleList>Resultado:</TitleList>
+                        <ResultActualCard
+                            entrySum={actualResult.entrySum}
+                            expenseSum={actualResult.expenseSum}
+                            result={actualResult.result}
+                        />
+                    </>
                 )}
             </Content>
         </Container>

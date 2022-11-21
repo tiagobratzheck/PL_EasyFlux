@@ -3,7 +3,7 @@ import { ActivityIndicator } from "react-native";
 
 import firestore from "@react-native-firebase/firestore";
 
-import { addMonths, subMonths, format } from "date-fns";
+import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 import { useTheme } from "styled-components";
@@ -16,6 +16,9 @@ import {
     TransactionCard,
     TransactionCardProps,
 } from "../../components/TransactionCard";
+
+import { useAuth } from "../../hooks/auth";
+import { useDate } from "../../hooks/date";
 
 import {
     Container,
@@ -37,7 +40,6 @@ import {
     MonthSelectIcon,
     Month,
 } from "./styles";
-import { useAuth } from "../../hooks/auth";
 
 export interface DataListProps extends TransactionCardProps {}
 
@@ -58,9 +60,10 @@ export function Dashboard() {
     const [highLightData, setHighLightData] = React.useState<HighLightData>(
         {} as HighLightData
     );
-    const [selectedDate, setSelectedDate] = React.useState(new Date());
+
     const theme = useTheme();
     const { user, signOut } = useAuth();
+    const { dateTransactions, changeDateTransactions } = useDate();
 
     function getLastTransactionDate(
         collection: DataListProps[],
@@ -88,16 +91,6 @@ export function Dashboard() {
         )}`;
     }
 
-    function handleDateChange(action: "next" | "prev") {
-        if (action === "next") {
-            const newDate = addMonths(selectedDate, 1);
-            setSelectedDate(newDate);
-        } else {
-            const newDate = subMonths(selectedDate, 1);
-            setSelectedDate(newDate);
-        }
-    }
-
     function loadTransactions() {
         firestore()
             .collection(`@EasyFlux:transactions_user:${user.id}`)
@@ -105,7 +98,7 @@ export function Dashboard() {
             .where(
                 "period",
                 "==",
-                format(selectedDate, "MMMM/yyyy", { locale: ptBR })
+                format(dateTransactions, "MMMM/yyyy", { locale: ptBR })
             )
             .onSnapshot((snapshot) => {
                 let entriesSum = 0;
@@ -204,7 +197,7 @@ export function Dashboard() {
         const subscriber = loadTransactions();
 
         return subscriber;
-    }, [selectedDate]);
+    }, [dateTransactions]);
 
     return (
         <Container>
@@ -237,17 +230,17 @@ export function Dashboard() {
                         </UserWrapper>
                         <MonthSelect>
                             <MonthSelectButton
-                                onPress={() => handleDateChange("prev")}
+                                onPress={() => changeDateTransactions("prev")}
                             >
                                 <MonthSelectIcon name="chevron-left" />
                             </MonthSelectButton>
                             <Month>
-                                {format(selectedDate, "MMMM, yyyy", {
+                                {format(dateTransactions, "MMMM, yyyy", {
                                     locale: ptBR,
                                 })}
                             </Month>
                             <MonthSelectButton
-                                onPress={() => handleDateChange("next")}
+                                onPress={() => changeDateTransactions("next")}
                             >
                                 <MonthSelectIcon name="chevron-right" />
                             </MonthSelectButton>
@@ -288,7 +281,7 @@ export function Dashboard() {
                             renderItem={({ item }) => (
                                 <TransactionCard
                                     data={item}
-                                    selectedDate={selectedDate}
+                                    selectedDate={dateTransactions}
                                 />
                             )}
                             showsVerticalScrollIndicator={false}

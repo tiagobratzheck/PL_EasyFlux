@@ -51,8 +51,8 @@ export const Button = styled(RectButton)`
 `;
 
 export const Icon = styled(Feather)<IconsProps>`
-    font-size: ${RFValue(20)}px;
-    margin-right: 12px;
+    font-size: ${RFValue(19)}px;
+    margin-right: 10px;
 
     ${({ type }) =>
         type === "up" &&
@@ -73,6 +73,6 @@ export const Icon = styled(Feather)<IconsProps>`
 
 export const Title = styled.Text`
     font-family: ${({ theme }) => theme.fonts.regular};
-    font-size: ${RFValue(10)}px;
+    font-size: ${RFValue(9)}px;
     color: ${({ theme }) => theme.colors.text_dark};
 `;

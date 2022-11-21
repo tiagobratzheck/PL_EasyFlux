@@ -30,5 +30,5 @@ export const Text = styled.Text`
     flex: 1;
     text-align: center;
     font-family: ${({ theme }) => theme.fonts.medium};
-    font-size: ${RFValue(14)}px;
+    font-size: ${RFValue(12)}px;
 `;

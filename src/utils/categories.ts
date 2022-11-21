@@ -48,6 +48,72 @@ export const categoriesOutcome = [
         icon: "card-bulleted-outline",
         color: "#281D73",
     },
+    {
+        key: "pet",
+        name: "Veterinário/Pet",
+        icon: "cat",
+        color: "#0006FF",
+    },
+    {
+        key: "tool",
+        name: "Consertos",
+        icon: "tools",
+        color: "#AF871A",
+    },
+    {
+        key: "health",
+        name: "Saúde",
+        icon: "heart-outline",
+        color: "#F90000",
+    },
+    {
+        key: "tol",
+        name: "Taxas/impostos",
+        icon: "hand-coin-outline",
+        color: "#AF3155",
+    },
+    {
+        key: "phone",
+        name: "Telefone/celular",
+        icon: "phone-outline",
+        color: "#0D856E",
+    },
+    {
+        key: "dentist",
+        name: "Dentista",
+        icon: "tooth-outline",
+        color: "#9900E6",
+    },
+    {
+        key: "doctor",
+        name: "Consultas médicas",
+        icon: "doctor",
+        color: "#003E97",
+    },
+    {
+        key: "monitor",
+        name: "Monitoramento",
+        icon: "eye-outline",
+        color: "#88BF69",
+    },
+    {
+        key: "ensurance",
+        name: "Seguros",
+        icon: "shield-key-outline",
+        color: "#7B1007",
+    },
+    {
+        key: "saving",
+        name: "Aplicações",
+        icon: "bank-outline",
+        color: "#005D95",
+    },
+    {
+        key: "tv",
+        name: "Televisão/streaming",
+        icon: "television-classic",
+        color: "#00A7E6",
+    },
     { key: "leisure", name: "Lazer", icon: "palm-tree", color: "#84CB1D" },
     {
         key: "studies",
@@ -56,7 +122,18 @@ export const categoriesOutcome = [
         color: "#0B507C",
     },
     { key: "gim", name: "Academia", icon: "weight-lifter", color: "#7CA2BE" },
-    { key: "others", name: "Outros", icon: "basket-outline", color: "#333434" },
+    {
+        key: "debt",
+        name: "Dívidas/boletos",
+        icon: "credit-card-clock-outline",
+        color: "#D65D5D",
+    },
+    {
+        key: "outothers",
+        name: "Outros",
+        icon: "basket-outline",
+        color: "#333434",
+    },
 ];
 
 export const categoriesIncome = [
@@ -97,7 +174,7 @@ export const categoriesIncome = [
         color: "#088EA9",
     },
     {
-        key: "others",
+        key: "inothers",
         name: "Outras entradas",
         icon: "archive-arrow-down-outline",
         color: "#461BBA",
@@ -142,7 +219,7 @@ export const commonCategories = [
         color: "#088EA9",
     },
     {
-        key: "others",
+        key: "inothers",
         name: "Outras entradas",
         icon: "archive-arrow-down-outline",
         color: "#461BBA",
@@ -196,6 +273,72 @@ export const commonCategories = [
         icon: "card-bulleted-outline",
         color: "#281D73",
     },
+    {
+        key: "pet",
+        name: "Veterinário/Pet",
+        icon: "cat",
+        color: "#0006FF",
+    },
+    {
+        key: "tool",
+        name: "Consertos",
+        icon: "tools",
+        color: "#AF871A",
+    },
+    {
+        key: "health",
+        name: "Saúde",
+        icon: "heart-outline",
+        color: "#F90000",
+    },
+    {
+        key: "tol",
+        name: "Taxas/impostos",
+        icon: "hand-coin-outline",
+        color: "#AF3155",
+    },
+    {
+        key: "phone",
+        name: "Telefone/celular",
+        icon: "phone-outline",
+        color: "#0D856E",
+    },
+    {
+        key: "dentist",
+        name: "Dentista",
+        icon: "tooth-outline",
+        color: "#9900E6",
+    },
+    {
+        key: "doctor",
+        name: "Consultas médicas",
+        icon: "doctor",
+        color: "#003E97",
+    },
+    {
+        key: "monitor",
+        name: "Monitoramento",
+        icon: "eye-outline",
+        color: "#88BF69",
+    },
+    {
+        key: "ensurance",
+        name: "Seguros",
+        icon: "shield-key-outline",
+        color: "#7B1007",
+    },
+    {
+        key: "saving",
+        name: "Aplicações",
+        icon: "bank-outline",
+        color: "#005D95",
+    },
+    {
+        key: "tv",
+        name: "Televisão/streaming",
+        icon: "television-classic",
+        color: "#00A7E6",
+    },
     { key: "leisure", name: "Lazer", icon: "palm-tree", color: "#84CB1D" },
     {
         key: "studies",
@@ -204,5 +347,16 @@ export const commonCategories = [
         color: "#0B507C",
     },
     { key: "gim", name: "Academia", icon: "weight-lifter", color: "#7CA2BE" },
-    { key: "others", name: "Outros", icon: "basket-outline", color: "#333434" },
+    {
+        key: "debt",
+        name: "Dívidas/boletos",
+        icon: "credit-card-clock-outline",
+        color: "#D65D5D",
+    },
+    {
+        key: "outothers",
+        name: "Outros",
+        icon: "basket-outline",
+        color: "#333434",
+    },
 ];

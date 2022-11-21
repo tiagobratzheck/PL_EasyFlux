@@ -78,16 +78,16 @@ export const Footer = styled.View`
 `;
 
 export const Account = styled.Text`
-    font-size: ${RFValue(10)}px;
+    font-size: ${RFValue(9)}px;
     padding-right: 5px;
 `;
 
 export const Total = styled.Text`
-    font-size: ${RFValue(12)}px;
+    font-size: ${RFValue(10)}px;
 `;
 
 export const ResidualValue = styled.Text<ResidualProps>`
-    font-size: ${RFValue(10)}px;
+    font-size: ${RFValue(9)}px;
     margin-left: 4px;
     color: ${({ theme, residual }) =>
         residual.split("")[0] === "-"
@@ -96,6 +96,6 @@ export const ResidualValue = styled.Text<ResidualProps>`
 `;
 
 export const Percent = styled.Text`
-    font-size: ${RFValue(11)}px;
+    font-size: ${RFValue(10)}px;
     margin-right: 4px;
 `;
