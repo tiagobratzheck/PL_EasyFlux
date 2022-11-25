@@ -10,7 +10,7 @@
                 "buildType": "apk"
             }
         },
-        "version_1.0": {
+        "version_1.0.1": {
             "distribution": "internal",
             "android": {
                 "buildType": "apk"

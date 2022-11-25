@@ -183,7 +183,7 @@ export function Register() {
                         />
                     </Fields>
                     <Button
-                        title="Lançar"
+                        title={isSaving ? "Lançar" : "Salvando..."}
                         onPress={handleSubmit(handleRegister)}
                         enabled={isSaving}
                     ></Button>

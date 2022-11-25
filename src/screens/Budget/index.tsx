@@ -81,6 +81,8 @@ const schema = Yup.object().shape({
 
 export function Budget() {
     const [isLoading, setIsLoading] = React.useState(true);
+    const [isSaving, setIsSaving] = React.useState(true);
+
     const [budgetEntries, setBudgetEntries] = React.useState<BudgetListProps[]>(
         []
     );
@@ -155,7 +157,7 @@ export function Budget() {
             date: dateTransactions,
             period: format(dateTransactions, "MMMM/yyyy", { locale: ptBR }),
         };
-
+        setIsSaving(false);
         firestore()
             .collection(`@EasyFlux:transactions_user:${user.id}`)
             .add(budgetEntry)
@@ -165,6 +167,7 @@ export function Budget() {
                     key: "category",
                     name: "Categoria",
                 });
+                setIsSaving(true);
             })
             .catch((error: any) => {
                 console.log(error);
@@ -172,8 +175,7 @@ export function Budget() {
                     "Solicitação",
                     "Não foi possível registrar o pedido"
                 );
-            })
-            .finally(() => loadTransactions());
+            });
     }
 
     function loadTransactions() {
@@ -548,13 +550,11 @@ export function Budget() {
                             />
                         </Fields>
                         <Button
-                            title="Cadastrar orçamento"
-                            onPress={handleSubmit(handleRegister)}
-                            enabled={
-                                isAfter(dateTransactions, new Date())
-                                    ? true
-                                    : false
+                            title={
+                                isSaving ? "Cadastrar orçamento" : "Salvando..."
                             }
+                            onPress={handleSubmit(handleRegister)}
+                            enabled={isSaving}
                         ></Button>
                     </>
                 ) : null}

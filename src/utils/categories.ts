@@ -29,12 +29,6 @@ export const categoriesOutcome = [
         icon: "cart-variant",
         color: "#0A6407",
     },
-    {
-        key: "pharmacy",
-        name: "Farmácia",
-        icon: "medical-bag",
-        color: "#BF0000",
-    },
     { key: "water", name: "Água", icon: "water-outline", color: "#1F86DE" },
     { key: "light", name: "Luz", icon: "lightbulb-outline", color: "#F0980C" },
     { key: "net", name: "Internet", icon: "wifi", color: "#0CF07C" },
@@ -61,12 +55,6 @@ export const categoriesOutcome = [
         color: "#AF871A",
     },
     {
-        key: "health",
-        name: "Saúde",
-        icon: "heart-outline",
-        color: "#F90000",
-    },
-    {
         key: "tol",
         name: "Taxas/impostos",
         icon: "hand-coin-outline",
@@ -89,6 +77,24 @@ export const categoriesOutcome = [
         name: "Consultas médicas",
         icon: "doctor",
         color: "#003E97",
+    },
+    {
+        key: "spa",
+        name: "Cuidados pessoais",
+        icon: "spa-outline",
+        color: "#229729",
+    },
+    {
+        key: "health",
+        name: "Saúde",
+        icon: "heart-outline",
+        color: "#F90000",
+    },
+    {
+        key: "pharmacy",
+        name: "Farmácia",
+        icon: "medical-bag",
+        color: "#BF0000",
     },
     {
         key: "monitor",
@@ -290,6 +296,12 @@ export const commonCategories = [
         name: "Saúde",
         icon: "heart-outline",
         color: "#F90000",
+    },
+    {
+        key: "spa",
+        name: "Cuidados pessoais",
+        icon: "spa-outline",
+        color: "#229729",
     },
     {
         key: "tol",
