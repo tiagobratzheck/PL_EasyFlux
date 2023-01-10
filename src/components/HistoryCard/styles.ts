@@ -1,6 +1,6 @@
+import { RectButton } from "react-native-gesture-handler";
 import { RFValue } from "react-native-responsive-fontsize";
 import styled from "styled-components/native";
-import { RectButton } from "react-native-gesture-handler";
 
 interface ContainerProps {
     color: string;
@@ -30,7 +30,18 @@ export const Title = styled.Text`
     font-size: ${RFValue(13)}px;
 `;
 
+export const Footer = styled.View`
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+`
+
 export const Amount = styled.Text`
     font-family: ${({ theme }) => theme.fonts.bold};
     font-size: ${RFValue(13)}px;
 `;
+
+export const Percent = styled.Text`
+    font-family: ${({ theme }) => theme.fonts.regular};
+    font-size: ${RFValue(10)}px;
+`

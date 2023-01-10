@@ -1,17 +1,16 @@
 import React, { useState } from "react";
-import { Keyboard, Modal, Alert } from "react-native";
+import { Alert, Keyboard, Modal } from "react-native";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 import firestore from "@react-native-firebase/firestore";
 
-import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm } from "react-hook-form";
 import {
-    useNavigation,
     NavigationProp,
-    ParamListBase,
+    ParamListBase, useNavigation
 } from "@react-navigation/native";
+import { useForm } from "react-hook-form";
+import * as Yup from "yup";
 
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -22,15 +21,12 @@ import { InputForm } from "../../components/Forms/InputForm";
 import { TransactionTypeButton } from "../../components/Forms/TransactionTypeButton";
 import { CategorySelect } from "../CategorySelect";
 
-import {
-    Container,
-    Header,
-    Title,
-    Form,
-    Fields,
-    TransactionsTypes,
-} from "./styles";
 import { useAuth } from "../../hooks/auth";
+import { DocumentSelect } from "../DocumentSelect";
+import {
+    Attachment, AttachmentContainer, Container, Fields, Form, Header, Icon, Title,
+    TransactionsTypes
+} from "./styles";
 
 export type FormData = {
     [name: string]: any;
@@ -49,10 +45,13 @@ export function Register() {
     const [isSaving, setIsSaving] = useState(true);
     const [transactionType, setTransactionType] = useState("positive");
     const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+    const [attachmentDocsModalOpen, setAttachmentDocsModalOpen] = useState(false);
+    const [itHasDocAttached, setItHasDocAttached] = useState(false);
     const [category, setCategory] = useState({
         key: "category",
         name: "Categoria",
     });
+    const [document, setDocument] = useState('');
     const { user } = useAuth();
 
     const { navigate }: NavigationProp<ParamListBase> = useNavigation();
@@ -74,8 +73,16 @@ export function Register() {
         setCategoryModalOpen(false);
     }
 
+    function handleCloseDocumentSelect(){
+        setAttachmentDocsModalOpen(false)
+    }
+
     function handleOpenSelectCategory() {
         setCategoryModalOpen(true);
+    }
+
+    function handleOpenAttachmentDocs(){
+        setAttachmentDocsModalOpen(true);
     }
 
     async function handleRegister(form: FormData) {
@@ -177,10 +184,16 @@ export function Register() {
                                 isActive={transactionType === "negative"}
                             />
                         </TransactionsTypes>
-                        <CategorySelectButton
-                            onPress={handleOpenSelectCategory}
-                            title={category.name}
-                        />
+                        <AttachmentContainer>
+                            <CategorySelectButton
+                                size="small"
+                                onPress={handleOpenSelectCategory}
+                                title={category.name}
+                            />
+                            <Attachment onPress={handleOpenAttachmentDocs}>
+                                <Icon itHasDocAttached={itHasDocAttached} name="paperclip"/>
+                            </Attachment>
+                        </AttachmentContainer>
                     </Fields>
                     <Button
                         title={isSaving ? "Lançar" : "Salvando..."}
@@ -195,6 +208,12 @@ export function Register() {
                         setCategory={setCategory}
                         closeSelectCategory={handleCloseSelectCategory}
                         transactionType={transactionType}
+                    />
+                </Modal>
+                <Modal visible={attachmentDocsModalOpen}>
+                    <DocumentSelect 
+                        setDocument={setDocument}
+                        closeDocumentSelect={handleCloseDocumentSelect}
                     />
                 </Modal>
             </Container>

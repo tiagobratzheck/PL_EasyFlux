@@ -1,9 +1,7 @@
-import styled from "styled-components/native";
 import { Feather } from "@expo/vector-icons";
-import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
-import { getStatusBarHeight } from "react-native-iphone-x-helper";
-import { Platform } from "react-native";
 import { BorderlessButton } from "react-native-gesture-handler";
+import { RFValue } from "react-native-responsive-fontsize";
+import styled from "styled-components/native";
 
 export const Container = styled.View`
     flex: 1;
@@ -72,4 +70,20 @@ export const Form = styled.View`
 export const TransactionsTypes = styled.View`
     flex-direction: row;
     justify-content: space-between;
+`;
+
+export const Totalizador = styled.View`    
+    padding: 20px;
+    flex-direction: row;
+    justify-content: space-between;
+`
+
+export const TitleAmount = styled.Text`
+    font-family: ${({ theme }) => theme.fonts.regular};
+    font-size: ${RFValue(15)}px;
+`
+
+export const Amount = styled.Text`
+    font-family: ${({ theme }) => theme.fonts.regular};
+    font-size: ${RFValue(15)}px;
 `;

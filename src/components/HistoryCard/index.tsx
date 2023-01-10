@@ -1,20 +1,24 @@
 import React from "react";
 
-import { Container, Button, Title, Amount } from "./styles";
+import { Amount, Button, Container, Footer, Percent, Title } from "./styles";
 
 interface Props {
     title: string;
     amount: string;
+    percent: string;
     color: string;
     onPress: () => void;
 }
 
-export function HistoryCard({ title, amount, color, onPress }: Props) {
+export function HistoryCard({ title, amount, percent, color, onPress }: Props) {
     return (
         <Container color={color}>
             <Button onPress={onPress}>
                 <Title>{title}</Title>
-                <Amount>{amount}</Amount>
+                <Footer>
+                    <Amount>{amount}</Amount>
+                    <Percent>{percent}</Percent>
+                </Footer>
             </Button>
         </Container>
     );

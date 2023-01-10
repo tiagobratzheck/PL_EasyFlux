@@ -8,32 +8,23 @@ import { useDate } from "../../hooks/date";
 
 import { useTheme } from "styled-components";
 
-import { VictoryPie } from "victory-native";
-import { RFValue } from "react-native-responsive-fontsize";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { RFValue } from "react-native-responsive-fontsize";
+import { VictoryPie } from "victory-native";
 
-import { addMonths, subMonths, format } from "date-fns";
+import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 import firestore from "@react-native-firebase/firestore";
 
 import { TransactionTypeButton } from "../../components/Forms/TransactionTypeButton";
 
-import {
-    Container,
-    Header,
-    Title,
-    Content,
-    ChartContainer,
-    MonthSelect,
-    MonthSelectButton,
-    MonthSelectIcon,
-    Month,
-    LoadContainer,
-    Form,
-    TransactionsTypes,
-} from "./styles";
 import { HistoryAccount } from "../HistoryAccount";
+import {
+    Amount, ChartContainer, Container, Content, Form, Header, LoadContainer, Month, MonthSelect,
+    MonthSelectButton,
+    MonthSelectIcon, Title, TitleAmount, Totalizador, TransactionsTypes
+} from "./styles";
 
 interface TransactionData {
     id: string;
@@ -52,6 +43,7 @@ interface CategoryData {
     total: number;
     totalFormatted: string;
     color: string;
+    percentNumber: number;
     percent: string;
 }
 
@@ -61,13 +53,13 @@ export function Resume() {
         CategoryData[]
     >([]);
     const [categoryModalOpen, setCategoryModalOpen] = React.useState(false);
-    const [categoryKey, setCategoryKey] = React.useState("");
+    const [categoryKey, setCategoryKey] = React.useState("");       
+    const [isLoading, setIsLoading] = React.useState(false);
+    const [totalEntries, setTotalEntries] = React.useState("");
 
     const { user } = useAuth();
     const { dateTransactions, changeDateTransactions } = useDate();
-
-    const [isLoading, setIsLoading] = React.useState(false);
-
+    
     const theme = useTheme();
 
     function handleTransactionsType(type: "positive" | "negative") {
@@ -153,6 +145,7 @@ export function Resume() {
                             }
                         );
 
+                        const percentNumber = ((categorySum / sumEntries) * 100);                        
                         const percent = `${(
                             (categorySum / sumEntries) *
                             100
@@ -165,6 +158,7 @@ export function Resume() {
                             total: categorySum,
                             totalFormatted,
                             percent,
+                            percentNumber
                         });
                     }
                 });
@@ -172,6 +166,13 @@ export function Resume() {
                     a.total < b.total ? 1 : b.total < a.total ? -1 : 0
                 );
                 setTotalByCategories(totalByCategory);
+                setTotalEntries(sumEntries.toLocaleString(
+                    "pt-BR",
+                    {
+                        style: "currency",
+                        currency: "BRL",
+                    }
+                ));
                 setIsLoading(false);
             });
     }
@@ -186,7 +187,7 @@ export function Resume() {
 
         return subscriber;
     }, [dateTransactions, transactionType]);
-
+    
     return (
         <Container>
             <Header>
@@ -251,6 +252,7 @@ export function Resume() {
                                 colorScale={totalByCategories.map(
                                     (category) => category.color
                                 )}
+                                labels={({ datum }) => datum.percentNumber > 2 ? datum.percent: ''}
                                 style={{
                                     labels: {
                                         fontSize: RFValue(11),
@@ -266,6 +268,14 @@ export function Resume() {
                                 y="total"
                             />
                         </ChartContainer>
+                        <Totalizador>
+                            <TitleAmount>
+                                {transactionType === 'positive' ? 'Total recebido' : 'Total gasto'}
+                            </TitleAmount>
+                            <Amount>
+                                {totalEntries}
+                            </Amount>
+                        </Totalizador>
                         {totalByCategories.map((item) => {
                             return (
                                 <HistoryCard
@@ -275,6 +285,7 @@ export function Resume() {
                                     key={item.key}
                                     title={item.name}
                                     amount={item.totalFormatted}
+                                    percent={item.percent}
                                     color={item.color}
                                 />
                             );

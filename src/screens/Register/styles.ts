@@ -1,5 +1,11 @@
-import styled from "styled-components/native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { RectButton } from "react-native-gesture-handler";
 import { RFValue } from "react-native-responsive-fontsize";
+import styled from "styled-components/native";
+
+interface IconProps {
+    itHasDocAttached: boolean
+}
 
 export const Container = styled.View`
     flex: 1;
@@ -35,4 +41,22 @@ export const TransactionsTypes = styled.View`
     justify-content: space-between;
     margin-top: 8px;
     margin-bottom: 16px; ;
+`;
+
+export const AttachmentContainer = styled.View`
+    flex-direction: row;
+    justify-content: space-between;
+`
+
+export const Attachment = styled(RectButton).attrs({
+    activeOpacity: 0.9,
+    borderless: false,
+})`        
+    justify-content: center;
+`;
+
+export const Icon = styled(MaterialCommunityIcons)<IconProps>`    
+    font-size: ${RFValue(40)}px;
+    color: ${({theme, itHasDocAttached}) => 
+        itHasDocAttached === true ? theme.colors.secondary : theme.colors.text };
 `;
