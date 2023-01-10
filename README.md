@@ -1,2 +1,2 @@
-# PL_EasyFlux
-Personal EasyFlux
+# EasyFlux
+Aplicativo de gestão financeira pessoal baseado no controle do orçamento doméstico
