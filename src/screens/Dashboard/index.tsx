@@ -14,7 +14,7 @@ import { getBottomSpace } from "react-native-iphone-x-helper";
 import { HighlightCard } from "../../components/HighlightCard";
 import {
     TransactionCard,
-    TransactionCardProps,
+    TransactionCardProps
 } from "../../components/TransactionCard";
 
 import { useAuth } from "../../hooks/auth";
@@ -22,23 +22,10 @@ import { useDate } from "../../hooks/date";
 
 import {
     Container,
-    Header,
-    UserWrapper,
-    UserInfo,
-    Photo,
-    User,
-    UserGreeting,
-    UserName,
-    Icon,
-    HighlightCards,
-    Transactions,
-    Title,
-    LogoutButton,
-    LoadContainer,
-    MonthSelect,
+    Header, HighlightCards, Icon, LoadContainer, LogoutButton, Month, MonthSelect,
     MonthSelectButton,
-    MonthSelectIcon,
-    Month,
+    MonthSelectIcon, Photo, Title, Transactions, User,
+    UserGreeting, UserInfo, UserName, UserWrapper
 } from "./styles";
 
 export interface DataListProps extends TransactionCardProps {}
@@ -112,7 +99,7 @@ export function Dashboard() {
                         entryType,
                         name,
                         period,
-                        type,
+                        type, 
                     } = doc.data();
 
                     if (type === "positive") {
@@ -138,6 +125,7 @@ export function Dashboard() {
                         name,
                         period,
                         type,
+                        hasDocument: doc.data().hasDocument && doc.data().hasDocument
                     };
                 });
                 setData(dataTransformed);

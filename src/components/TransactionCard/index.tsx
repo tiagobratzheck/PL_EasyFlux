@@ -1,22 +1,14 @@
-import React from "react";
-import { Alert } from "react-native";
 import firestore from "@react-native-firebase/firestore";
+import React from "react";
+import { Alert, Modal } from "react-native";
 import { commonCategories } from "../../utils/categories";
 
-import {
-    Container,
-    Description,
-    DeleteRegister,
-    DeleteIcon,
-    Title,
-    Amount,
-    Footer,
-    Category,
-    Icon,
-    CategoryName,
-    DisplayDate,
-} from "./styles";
 import { useAuth } from "../../hooks/auth";
+import { DocumentViewer } from "../../screens/DocumentViewer";
+import {
+    Amount, Category, CategoryName, Container, DeleteIcon, DeleteRegister, Description, DisplayDate,
+    DocumentAttached, DocumentIcon, Footer, Icon, IconsBox, Title
+} from "./styles";
 
 interface Category {
     name: string;
@@ -32,6 +24,7 @@ export interface TransactionCardProps {
     date: string;
     period: string;
     type: "positive" | "negative";
+    hasDocument?: true | false;
 }
 
 interface Props {
@@ -40,6 +33,9 @@ interface Props {
 }
 
 export function TransactionCard({ data, selectedDate }: Props) {
+
+    const [documentId, setDocumentId] = React.useState('');
+    const [documentAttachedModalOpen, setDocumentAttachedModalOpen] = React.useState(false);
     const { user } = useAuth();
 
     const category = commonCategories.filter(
@@ -51,6 +47,15 @@ export function TransactionCard({ data, selectedDate }: Props) {
         month: "2-digit",
         year: "2-digit",
     }).format(new Date(data.date));
+
+    function handleOpenDocumentAttached(id:string){
+        setDocumentId(id);
+        setDocumentAttachedModalOpen(true)
+    }
+
+    function handleCloseDocumentAttached(){
+        setDocumentAttachedModalOpen(false)
+    }
 
     function deleteEntry(id: string) {
         Alert.alert("Atenção!", "Deseja realmente deletar esse lançamento?", [
@@ -71,21 +76,30 @@ export function TransactionCard({ data, selectedDate }: Props) {
             },
         ]);
     }
-
-    return (
+    
+    return (        
         <Container>
             <Description>
                 <Title>{data.name}</Title>
-                {new Date().getMonth() === selectedDate.getMonth() &&
-                new Date().getFullYear() === selectedDate.getFullYear() ? (
-                    <DeleteRegister
-                        onPress={() => {
-                            deleteEntry(data.id);
-                        }}
-                    >
-                        <DeleteIcon name="delete" />
-                    </DeleteRegister>
-                ) : null}
+                <IconsBox>
+                    {
+                        data.hasDocument && data.hasDocument === true ? (
+                            <DocumentAttached onPress={() => { handleOpenDocumentAttached(data.id) }}>
+                                <DocumentIcon name="file-text"></DocumentIcon>
+                            </DocumentAttached> 
+                            ) : null
+                    }                    
+                    {new Date().getMonth() === selectedDate.getMonth() &&
+                    new Date().getFullYear() === selectedDate.getFullYear() ? (
+                        <DeleteRegister
+                            onPress={() => {
+                                deleteEntry(data.id);
+                            }}
+                        >
+                            <DeleteIcon name="delete" />
+                        </DeleteRegister>
+                    ) : null}
+                </IconsBox>
             </Description>
             <Amount type={data.type}>
                 {data.type === "negative" && "-"}
@@ -98,6 +112,11 @@ export function TransactionCard({ data, selectedDate }: Props) {
                 </Category>
                 <DisplayDate>{dateFormatted}</DisplayDate>
             </Footer>
+            <Modal visible={documentAttachedModalOpen}>
+                <DocumentViewer 
+                    id_document={documentId} 
+                    closeDocumentViewer={handleCloseDocumentAttached} />                
+            </Modal>
         </Container>
     );
 }

@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Alert, Keyboard, Modal } from "react-native";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 import firestore from "@react-native-firebase/firestore";
+import storage from '@react-native-firebase/storage';
 
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
@@ -103,18 +104,32 @@ export function Register() {
             category: category.key,
             date: new Date(),
             period: format(new Date(), "MMMM/yyyy", { locale: ptBR }),
+            hasDocument: document === '' ? false : true
         };
 
         firestore()
             .collection(`@EasyFlux:transactions_user:${user.id}`)
             .add(newTransaction)
-            .then(() => {
+            .then((doc) => {
+                if(newTransaction.hasDocument === true){
+                    const reference = storage()
+                        .ref(`/images/@EasyFlux:documents_user:${user.id}/${doc.id}`);
+                    const uploadTask = reference.putFile(document);
+                    uploadTask.then(async () => {
+                        const imageUrl = await reference.getDownloadURL();
+                        setItHasDocAttached(false)
+                        Alert.alert('Anexo', "Documento salvo")
+                    })
+                }
+            })
+            .then(() => {                
                 Alert.alert(
                     "Solicitação",
                     "Solicitação registrada com sucesso."
                 );
                 reset();
                 setTransactionType("");
+                setDocument('');
                 setIsSaving(true);
                 setCategory({
                     key: "category",
@@ -128,7 +143,8 @@ export function Register() {
                     "Solicitação",
                     "Não foi possível registrar o pedido"
                 );
-            });
+            });       
+      
     }
 
     return (
@@ -213,6 +229,8 @@ export function Register() {
                 <Modal visible={attachmentDocsModalOpen}>
                     <DocumentSelect 
                         setDocument={setDocument}
+                        document={document}
+                        setItHasDocAttached={setItHasDocAttached}
                         closeDocumentSelect={handleCloseDocumentSelect}
                     />
                 </Modal>

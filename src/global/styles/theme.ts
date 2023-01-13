@@ -16,6 +16,7 @@ export default {
         title: "#363f5f",
         text: "#b0c1b7",
         background: "#edf4f0",
+        document: "#BF9D43"
     },
 
     fonts: {
