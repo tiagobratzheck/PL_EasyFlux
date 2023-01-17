@@ -1,39 +1,22 @@
 import React from "react";
-import { View, ActivityIndicator } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 
-import { Button } from "../../components/Forms/Button";
-import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
+import { endOfMonth, format, startOfMonth, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { Button } from "../../components/Forms/Button";
 
 import firestore from "@react-native-firebase/firestore";
 
-import { VictoryChart, VictoryAxis, VictoryBar } from "victory-native";
+import { VictoryAxis, VictoryBar, VictoryChart } from "victory-native";
 
-import {
-    Container,
-    Header,
-    Title,
-    Footer,
-    LoadContainer,
-    Content,
-    CategoryInformation,
-    Icon,
-    CategoryName,
-    HeaderWrapper,
-    HeaderTable,
-    DescriptionHeaderCell,
-    Description,
-    CellTable,
-    CellWrapper,
-    WrapperPeriod,
-    WrapperCenterCell,
-    WrapperResult,
-    DescriptionResult,
-} from "./styles";
-import theme from "../../global/styles/theme";
-import { commonCategories } from "../../utils/categories";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import theme from "../../global/styles/theme";
 import { useAuth } from "../../hooks/auth";
+import { commonCategories } from "../../utils/categories";
+import {
+    CategoryInformation, CategoryName, CellTable,
+    CellWrapper, Container, Content, Description, DescriptionHeaderCell, DescriptionResult, Footer, Header, HeaderTable, HeaderWrapper, Icon, LoadContainer, Title
+} from "./styles";
 
 interface TransactionProps {
     entryType: "actual" | "budget";
@@ -78,19 +61,17 @@ export function HistoryAccount({
     const { user } = useAuth();
 
     const [isLoading, setIsLoading] = React.useState(true);
-
     const [barRatio, setBarRatio] = React.useState<number>(0.6);
-
     const [actualTransactions, setActualTransactions] = React.useState<
         TotalByPeriodProps[]
     >([]);
-
+    const [actualTransactionsForTable, setActualTransactionsForTable] = React.useState<
+        TotalByPeriodProps[]
+    >([]);
     const [budgetTransactions, setBudgetTransactions] = React.useState<
         TransactionProps[]
     >([]);
-
     const [listPeriods, setListPeriods] = React.useState<string[]>([]);
-
     const [categoryProperties, setCategoryProperties] =
         React.useState<Category>({} as Category);
 
@@ -119,7 +100,7 @@ export function HistoryAccount({
         )[0];
 
         const total = actualTransactions.filter(
-            (item) => item.period === period
+            (item) => item.date === period
         )[0];
 
         if (budget) {
@@ -136,7 +117,7 @@ export function HistoryAccount({
                     currency: "BRL",
                 });
             }
-        } else if (total && type === "negative") {
+        } else if (total && type === "negative" && total.amount !== 0) {
             return `-${total.totalFormatted}`;
         } else {
             return `R$ 0,00`;
@@ -145,7 +126,7 @@ export function HistoryAccount({
 
     function loadTransactions() {
         const sixMonthsToSelectedDate = subMonths(selectedDate, 5);
-        let listOfPeriodsSelected: string[] = [];
+        
         firestore()
             .collection(`@EasyFlux:transactions_user:${user.id}`)
             .where("category", "==", category)
@@ -174,17 +155,6 @@ export function HistoryAccount({
                     };
                 });
 
-                let listOfPeriods: string[] = [];
-                dataFormatted.map((doc) => {
-                    listOfPeriods.push(doc.period);
-                });
-
-                listOfPeriodsSelected = listOfPeriods.filter(
-                    (element, index) => {
-                        return listOfPeriods.indexOf(element) === index;
-                    }
-                );
-
                 const dataActualFormatted = dataFormatted.filter(
                     (entry) => entry.entryType === "actual"
                 );
@@ -192,90 +162,79 @@ export function HistoryAccount({
                 const totalBudgetByPeriod: TransactionProps[] =
                     dataFormatted.filter(
                         (entry) => entry.entryType === "budget"
-                    );
+                    );               
 
-                const totalByPeriod: TotalByPeriodProps[] = [];
+                const totalByPeriod: TotalByPeriodProps[] = [];    
+                const budgetByPeriod: TransactionProps[] = [];  
+
+                let listOfPeriods: Date[] = [];
+                const listOfDatesUniques: string[] = [];
+
+                for(var i=0; i<=5; i++){
+                    listOfPeriods.push((subMonths(selectedDate, i)))
+                }
+
+                listOfPeriods.reverse();
+
+                listOfPeriods.forEach((date)=>{
+                    listOfDatesUniques.push(format(new Date(date), "MMM/yyyy", { locale: ptBR }))
+                })
+               
+                setListPeriods(listOfDatesUniques);
+
                 let quarter = 0;
 
-                listOfPeriodsSelected.forEach((period) => {
+                listOfPeriods.forEach((period)=>{
+                    let datePeriod = format(new Date(period), "MMMM/yyyy", { locale: ptBR })                  
                     let periodSum = 0;
                     let entryType = "";
                     let name = "";
                     let category = "";
                     let date = "";
                     let type = "";
-
                     quarter += 1;
 
-                    dataActualFormatted.forEach((entry) => {
-                        if (period === entry.period) {
-                            periodSum += Number(entry.amount);
-                            entryType = entry.entryType;
-                            type = entry.type;
-                            name = entry.name;
-                            category = entry.category;
-                            date = entry.date;
+                    dataActualFormatted.forEach((entry) => {                      
+                        entryType = entry.entryType;
+                        type = entry.type;
+                        name = entry.name;
+                        category = entry.category;
+                        date = entry.date;
+
+                        if(entry.period === datePeriod){                                                    
+                            periodSum += Number(entry.amount);                       
                         }
-                    });
-
-                    if (periodSum > 0) {
-                        const totalFormatted = periodSum.toLocaleString(
-                            "pt-BR",
-                            {
-                                style: "currency",
-                                currency: "BRL",
-                            }
-                        );
-
-                        totalByPeriod.push({
-                            category,
-                            name,
-                            quarter,
-                            period,
-                            date: format(new Date(date), "MMM/yyyy", {
-                                locale: ptBR,
-                            }),
-                            amount: periodSum,
-                            totalFormatted,
-                            entryType,
-                            type,
-                        });
-                    }
-                });
-
-                const listOfDates: string[] = [];
-                const listOfDatesFormatted: string[] = [];
-                let listOfDatesUniques: string[] = [];
-
-                dataFormatted.map((doc) => {
-                    listOfDates.push(doc.date);
-                });
-
-                listOfDates.forEach((date) => {
-                    listOfDatesFormatted.push(
-                        format(new Date(date), "MMM/yyyy", { locale: ptBR })
+                    })
+                    
+                    const totalFormatted = periodSum.toLocaleString(
+                        "pt-BR",
+                        {
+                            style: "currency",
+                            currency: "BRL",
+                        }
                     );
-                });
-
-                listOfDatesUniques = listOfDatesFormatted.filter(
-                    (element, index) => {
-                        return listOfDatesFormatted.indexOf(element) === index;
-                    }
-                );
-
-                setListPeriods(listOfDatesUniques);
-
-                if (totalByPeriod.length > 0) {
-                    setActualTransactions(totalByPeriod);
-                    if (totalByPeriod.length === 1) {
-                        setBarRatio(3);
-                    } else if (totalByPeriod.length === 2) {
-                        setBarRatio(0.4);
-                    } else if (totalByPeriod.length === 3) {
-                        setBarRatio(0.5);
-                    }
-                }
-
+                        
+                    totalByPeriod.push({
+                        category,
+                        name,
+                        quarter,
+                        period: format(new Date(period), "MMM/yyyy", {
+                            locale: ptBR,
+                        }),
+                        date: format(new Date(period), "MMMM/yyyy", {
+                            locale: ptBR,
+                        }),
+                        amount: periodSum,
+                        totalFormatted,
+                        entryType,
+                        type,
+                    });
+                                                   
+                })
+                                                   
+                setActualTransactions(totalByPeriod);  
+                setActualTransactionsForTable(totalByPeriod.reverse())              
+                
                 if (totalBudgetByPeriod.length > 0) {
                     setBudgetTransactions(totalBudgetByPeriod);
                 }
@@ -323,6 +282,10 @@ export function HistoryAccount({
                             <VictoryChart
                                 width={380}
                                 domainPadding={25}
+                                animate={{
+                                    duration: 1000,
+                                    onLoad: {duration: 1000}
+                                }}
                                 padding={{
                                     left: 55,
                                     right: 30,
@@ -336,6 +299,7 @@ export function HistoryAccount({
                                 />
                                 <VictoryBar
                                     barRatio={barRatio}
+                                    cornerRadius={5}
                                     alignment={"middle"}
                                     data={actualTransactions}
                                     x="quarter"
@@ -348,7 +312,7 @@ export function HistoryAccount({
                                             fill: categoryProperties.color,
                                         },
                                         labels: {
-                                            fontSize: 11,
+                                            fontSize: 10,
                                         },
                                     }}
                                 />
@@ -379,12 +343,12 @@ export function HistoryAccount({
                             </HeaderTable>
                         </HeaderWrapper>
                         <CellWrapper>
-                            {actualTransactions.map((entry) => {
+                            {actualTransactionsForTable.map((entry) => {
                                 return (
                                     <CellTable key={entry.period}>
-                                        <Description>{entry.date}</Description>
+                                        <Description>{entry.period}</Description>
                                         <Description>
-                                            {searchBudgetPeriod(entry.period)}
+                                            {searchBudgetPeriod(entry.date)}
                                         </Description>
 
                                         <Description>
@@ -392,12 +356,12 @@ export function HistoryAccount({
                                         </Description>
                                         <DescriptionResult
                                             amount={calculateResult(
-                                                entry.period,
+                                                entry.date,
                                                 entry.type
                                             )}
                                         >
                                             {calculateResult(
-                                                entry.period,
+                                                entry.date,
                                                 entry.type
                                             )}
                                         </DescriptionResult>
