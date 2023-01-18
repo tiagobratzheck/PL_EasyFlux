@@ -1,7 +1,7 @@
 import React from "react";
-import { Modal, Alert, FlatList, ActivityIndicator } from "react-native";
+import { ActivityIndicator, Alert, FlatList, Modal } from "react-native";
 
-import { addMonths, subMonths, format, isAfter } from "date-fns";
+import { format, isAfter } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 import firestore from "@react-native-firebase/firestore";
@@ -10,39 +10,29 @@ import { TransactionCardProps } from "../../components/TransactionCard";
 
 import { useTheme } from "styled-components";
 
-import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
+import * as Yup from "yup";
 
 import { Button } from "../../components/Forms/Button";
 import { CategorySelectButton } from "../../components/Forms/CategorySelectButton";
 import { InputForm } from "../../components/Forms/InputForm";
 import { CategorySelect } from "../CategorySelect";
 
+import { getBottomSpace } from "react-native-iphone-x-helper";
+import { BudgetCard } from "../../components/BudgetCard";
 import { useAuth } from "../../hooks/auth";
 import { useDate } from "../../hooks/date";
-import { BudgetCard } from "../../components/BudgetCard";
 import { commonCategories } from "../../utils/categories";
-import { getBottomSpace } from "react-native-iphone-x-helper";
 
-import {
-    Container,
-    LoadContainer,
-    Content,
-    TitleList,
-    Header,
-    Title,
-    MonthSelect,
-    MonthSelectButton,
-    MonthSelectIcon,
-    Month,
-    Form,
-    Fields,
-    TransactionsTypes,
-} from "./styles";
 import { TransactionTypeButtonForBudget } from "../../components/Forms/TransactionTypeButtonForBudget";
-import { ResultBudgetCard } from "../../components/ResultBudgetCard";
 import { ResultActualCard } from "../../components/ResultActualCard";
+import { ResultBudgetCard } from "../../components/ResultBudgetCard";
+import {
+    Container, Content, Fields, Form, Header, LoadContainer, Month, MonthSelect,
+    MonthSelectButton,
+    MonthSelectIcon, Title, TitleList, TransactionsTypes
+} from "./styles";
 
 interface CategoryData {
     key: string;
@@ -88,12 +78,18 @@ export function Budget() {
     );
     const [listCategoriesNotSelectable, setListCategoriesNotSelectable] =
         React.useState<string[]>([]);
+
     const [budgetResult, setBudgetResult] = React.useState<BudgetResultProps>({
         entrySum: "R$0,00",
         expenseSum: "R$0,00",
         result: "R$0,00",
     });
     const [actualResult, setActualResult] = React.useState<BudgetResultProps>({
+        entrySum: "R$0,00",
+        expenseSum: "R$0,00",
+        result: "R$0,00",
+    });
+    const [result, setResult] = React.useState<BudgetResultProps>({
         entrySum: "R$0,00",
         expenseSum: "R$0,00",
         result: "R$0,00",
@@ -118,6 +114,20 @@ export function Budget() {
     } = useForm({
         resolver: yupResolver(schema),
     });
+
+    const handleListFooter = () => {
+        if (!isAfter(dateTransactions, new Date())){
+            return(
+                <Button title={ transactionType === 'positive' ? 'Ver entradas fora do orçamento'
+                                : 'Ver despesas fora do orçamento' }
+                        onPress={() => {}}
+                >
+                </Button>   
+            )
+        } else {
+            return null
+        }        
+    }
 
     function handleTransactionsType(type: "positive" | "negative" | "result") {
         setTransactionType(type);
@@ -446,6 +456,10 @@ export function Budget() {
 
                 const actualResult = sumActualsEntries - sumActualsExpenses;
 
+                const actualBudgetEntriesResult =  sumActualsEntries - sumEntries;
+                const actualBudgetExpensesResult = sumExpenses - sumActualsExpenses;
+                const actualBudgetResult = actualResult - budgetResult;
+
                 setBudgetResult({
                     entrySum: sumEntries.toLocaleString("pt-BR", {
                         style: "currency",
@@ -475,6 +489,21 @@ export function Budget() {
                         currency: "BRL",
                     }),
                 });
+
+                setResult({
+                    entrySum : actualBudgetEntriesResult.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                    }),
+                    expenseSum : actualBudgetExpensesResult.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                    }),
+                    result : actualBudgetResult.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                    })
+                })
                 setIsLoading(false);
             });
     }
@@ -604,7 +633,8 @@ export function Budget() {
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={{
                             paddingBottom: getBottomSpace(),
-                        }}
+                        }}                        
+                        ListFooterComponent = { handleListFooter }
                     />
                 ) : (
                     <>
@@ -616,8 +646,11 @@ export function Budget() {
                         <TitleList>Resultado:</TitleList>
                         <ResultActualCard
                             entrySum={actualResult.entrySum}
+                            budgetEntrySum={result.entrySum}
                             expenseSum={actualResult.expenseSum}
+                            budgetExpenseSum={result.expenseSum}
                             result={actualResult.result}
+                            budgetResultSum={result.result}
                         />
                     </>
                 )}

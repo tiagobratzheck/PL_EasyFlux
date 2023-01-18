@@ -1,23 +1,28 @@
 import React from "react";
 
-import { Container, Content, Icon, Title, Amount, Description } from "./styles";
+import { Amount, Container, Content, Description, Icon, Result, Title } from "./styles";
 
 interface Props {
     entrySum: string;
+    budgetEntrySum: string;
     expenseSum: string;
+    budgetExpenseSum: string;
     result: string;
+    budgetResultSum: string;
 }
 
-export function ResultActualCard({ entrySum, expenseSum, result }: Props) {
+export function ResultActualCard(
+    { entrySum, budgetEntrySum, expenseSum, budgetExpenseSum, result, budgetResultSum }: Props) {
     return (
         <Container result={result}>
             <Content>
                 <Description>
                     <Icon name="arrow-up-circle" type="up" />
                     <Title>Entradas</Title>
+                    <Result result={budgetEntrySum}>{`(${budgetEntrySum})`}</Result>
                 </Description>
                 <Description>
-                    <Amount>{entrySum}</Amount>
+                    <Amount>{entrySum}</Amount>                    
                 </Description>
             </Content>
 
@@ -25,9 +30,10 @@ export function ResultActualCard({ entrySum, expenseSum, result }: Props) {
                 <Description>
                     <Icon name="arrow-down-circle" type="down" />
                     <Title>Saídas</Title>
+                    <Result result={budgetExpenseSum}>{`(${budgetExpenseSum})`}</Result>
                 </Description>
                 <Description>
-                    <Amount>{expenseSum}</Amount>
+                    <Amount>{expenseSum}</Amount>                    
                 </Description>
             </Content>
 
@@ -35,9 +41,10 @@ export function ResultActualCard({ entrySum, expenseSum, result }: Props) {
                 <Description>
                     <Icon name="dollar-sign" type="result" />
                     <Title>Resultado</Title>
+                    <Result result={budgetResultSum}>{`(${budgetResultSum})`}</Result>
                 </Description>
                 <Description>
-                    <Amount>{result}</Amount>
+                    <Amount>{result}</Amount>                    
                 </Description>
             </Content>
         </Container>

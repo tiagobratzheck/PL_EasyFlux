@@ -61,7 +61,7 @@ export function HistoryAccount({
     const { user } = useAuth();
 
     const [isLoading, setIsLoading] = React.useState(true);
-    const [barRatio, setBarRatio] = React.useState<number>(0.6);
+    const [barRatio, setBarRatio] = React.useState<number>(0.8);
     const [actualTransactions, setActualTransactions] = React.useState<
         TotalByPeriodProps[]
     >([]);
@@ -164,8 +164,7 @@ export function HistoryAccount({
                         (entry) => entry.entryType === "budget"
                     );               
 
-                const totalByPeriod: TotalByPeriodProps[] = [];    
-                const budgetByPeriod: TransactionProps[] = [];  
+                const totalByPeriod: TotalByPeriodProps[] = [];               
 
                 let listOfPeriods: Date[] = [];
                 const listOfDatesUniques: string[] = [];
@@ -184,7 +183,7 @@ export function HistoryAccount({
 
                 let quarter = 0;
 
-                listOfPeriods.forEach((period)=>{
+                listOfPeriods.forEach((period) => {
                     let datePeriod = format(new Date(period), "MMMM/yyyy", { locale: ptBR })                  
                     let periodSum = 0;
                     let entryType = "";
@@ -283,7 +282,7 @@ export function HistoryAccount({
                                 width={380}
                                 domainPadding={25}
                                 animate={{
-                                    duration: 1000,
+                                    duration: 2000,
                                     onLoad: {duration: 1000}
                                 }}
                                 padding={{
@@ -299,7 +298,7 @@ export function HistoryAccount({
                                 />
                                 <VictoryBar
                                     barRatio={barRatio}
-                                    cornerRadius={5}
+                                    cornerRadius={3}
                                     alignment={"middle"}
                                     data={actualTransactions}
                                     x="quarter"
@@ -312,7 +311,7 @@ export function HistoryAccount({
                                             fill: categoryProperties.color,
                                         },
                                         labels: {
-                                            fontSize: 10,
+                                            fontSize: 9,
                                         },
                                     }}
                                 />

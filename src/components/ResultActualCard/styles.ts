@@ -1,8 +1,12 @@
-import styled, { css } from "styled-components/native";
+import { Feather } from "@expo/vector-icons";
 import { RFValue } from "react-native-responsive-fontsize";
-import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import styled, { css } from "styled-components/native";
 
 interface ContainerProps {
+    result: string;
+}
+
+interface ResultProps {
     result: string;
 }
 
@@ -59,6 +63,16 @@ export const Amount = styled.Text`
     font-family: ${({ theme }) => theme.fonts.regular};
     font-size: ${RFValue(10)}px;
     margin-right: 4px;
+`;
+
+export const Result = styled.Text<ResultProps>`
+    color: ${({ theme, result }) =>
+        result.split("")[0] === "-"
+            ? theme.colors.attention
+            : theme.colors.primary};
+    font-family: ${({ theme }) => theme.fonts.regular};
+    font-size: ${RFValue(8)}px;
+    margin-left: 5px;
 `;
 
 export const Description = styled.View`
