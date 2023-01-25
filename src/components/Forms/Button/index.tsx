@@ -1,18 +1,20 @@
 import React from "react";
-import { TouchableOpacityProps } from "react-native";
 import { RectButtonProps } from "react-native-gesture-handler";
 
-import { Container, Title } from "./styles";
+import { Container, ContainerView, Title } from "./styles";
 
 interface Props extends RectButtonProps {
+    themeColor?: "secondary" | "light";
     title: string;
     onPress: () => void;
 }
 
-export function Button({ title, onPress, ...rest }: Props) {
+export function Button({ themeColor = 'secondary', title, onPress, ...rest }: Props) {
     return (
-        <Container onPress={onPress} {...rest}>
-            <Title>{title}</Title>
-        </Container>
+        <ContainerView themeColor={themeColor}>
+            <Container themeColor={themeColor} onPress={onPress} {...rest}>
+                <Title themeColor={themeColor} >{title}</Title>
+            </Container>
+        </ContainerView>
     );
 }

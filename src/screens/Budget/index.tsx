@@ -28,6 +28,7 @@ import { commonCategories } from "../../utils/categories";
 import { TransactionTypeButtonForBudget } from "../../components/Forms/TransactionTypeButtonForBudget";
 import { ResultActualCard } from "../../components/ResultActualCard";
 import { ResultBudgetCard } from "../../components/ResultBudgetCard";
+import { OutOfBudgetRegisters } from "../OutOfBudgetRegisters";
 import {
     Container, Content, Fields, Form, Header, LoadContainer, Month, MonthSelect,
     MonthSelectButton,
@@ -76,6 +77,7 @@ export function Budget() {
     const [budgetEntries, setBudgetEntries] = React.useState<BudgetListProps[]>(
         []
     );
+    const [listBudgetCategories, setListBudgetCategories] = React.useState<string[]>([])
     const [listCategoriesNotSelectable, setListCategoriesNotSelectable] =
         React.useState<string[]>([]);
 
@@ -97,6 +99,7 @@ export function Budget() {
 
     const [transactionType, setTransactionType] = React.useState("positive");
     const [categoryModalOpen, setCategoryModalOpen] = React.useState(false);
+    const [outOfBudgetModalOpen, setOutOfBudgetModalOpen] = React.useState(false);
     const [category, setCategory] = React.useState({
         key: "category",
         name: "Categoria",
@@ -118,9 +121,11 @@ export function Budget() {
     const handleListFooter = () => {
         if (!isAfter(dateTransactions, new Date())){
             return(
-                <Button title={ transactionType === 'positive' ? 'Ver entradas fora do orçamento'
-                                : 'Ver despesas fora do orçamento' }
-                        onPress={() => {}}
+                <Button 
+                    themeColor="light"
+                    title={ transactionType === 'positive' ? 'Ver entradas fora do orçamento'
+                        : 'Ver despesas fora do orçamento' }
+                    onPress={handleOpenEntriesOutOfBudget}
                 >
                 </Button>   
             )
@@ -131,6 +136,14 @@ export function Budget() {
 
     function handleTransactionsType(type: "positive" | "negative" | "result") {
         setTransactionType(type);
+    }
+
+    function handleOpenEntriesOutOfBudget() {        
+        setOutOfBudgetModalOpen(true);
+    }
+
+    function handleCloseEntriesOutOfBudget() {        
+        setOutOfBudgetModalOpen(false);
     }
 
     function handleCloseSelectCategory() {
@@ -362,6 +375,14 @@ export function Budget() {
                                 percent,
                             };
                         });
+                    
+                    const listCategories:string[] = []
+                    budgetData.forEach(element => listCategories.push(element.category));
+                    listCategories.filter((element, index) => {
+                        return listCategories.indexOf(element) === index;
+                    });     
+                    setListBudgetCategories(listCategories)
+                                           
                     setBudgetEntries(budgetDataFormatted);
                     setListCategoriesNotSelectable(categoriesAlreadySelected);
                     setIsLoading(false);
@@ -578,7 +599,7 @@ export function Budget() {
                                 error={errors.amount && errors.amount.message}
                             />
                         </Fields>
-                        <Button
+                        <Button                            
                             title={
                                 isSaving ? "Cadastrar orçamento" : "Salvando..."
                             }
@@ -595,6 +616,14 @@ export function Budget() {
                     closeSelectCategory={handleCloseSelectCategory}
                     transactionType={transactionType}
                     listCategoriesNotSelectable={listCategoriesNotSelectable}
+                />
+            </Modal>
+            <Modal visible={outOfBudgetModalOpen}>
+                <OutOfBudgetRegisters 
+                    transactionType={transactionType}
+                    listBudgetCategories={listBudgetCategories}
+                    dateTransactions={dateTransactions}
+                    closeOutOfBudgetRegisters={handleCloseEntriesOutOfBudget}
                 />
             </Modal>
             <Content>
