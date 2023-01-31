@@ -14,6 +14,12 @@ export const Container = styled(GestureHandlerRootView)`
     justify-content: space-between;
 `;
 
+export const LoadContainer = styled.View`
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+`;
+
 export const Header = styled.View`
     width: 100%;
     height: ${RFValue(60)}px;

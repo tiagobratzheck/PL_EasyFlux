@@ -2,16 +2,32 @@ import firestore from "@react-native-firebase/firestore";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import React, { useState } from "react";
-import { FlatList } from "react-native";
+import { ActivityIndicator, FlatList } from "react-native";
 import { Button } from "../../components/Forms/Button";
 import theme from "../../global/styles/theme";
 import { useAuth } from "../../hooks/auth";
 import { commonCategories } from "../../utils/categories";
 import {
-    AmountCard, AmountEntry, Cards, CategoryEntry, Container,
-    ContainerCard, Description, Footer,
+    AmountCard,
+    AmountEntry,
+    Cards,
+    CategoryEntry,
+    Container,
+    ContainerCard,
+    Description,
+    Footer,
     FooterCard,
-    Header, Icon, ListEntries, NameEntry, PercentCard, Separator, Title, TitleCard, TitleList, VisualCards
+    Header,
+    Icon,
+    ListEntries,
+    LoadContainer,
+    NameEntry,
+    PercentCard,
+    Separator,
+    Title,
+    TitleCard,
+    TitleList,
+    VisualCards
 } from "./styles";
 
 interface CategoryData {
@@ -38,26 +54,26 @@ export function OutOfBudgetRegisters({
     dateTransactions,
     closeOutOfBudgetRegisters,
 }: OutOfBudgetRegistersProps) {
-
-    const [totalBudget, setTotalBudget] = useState<string>('');
+    const [isLoading, setIsLoading] = React.useState(true);
+    const [totalBudget, setTotalBudget] = useState<string>("");
     const [colors, setColors] = useState({
-        colorFirstCard: '#ffffff',
-        colorSecondCard: '#ffffff',
-        colorThirdCard: '#ffffff',
-        colorFourthCard: '#ffffff'
-    })
+        colorFirstCard: "#ffffff",
+        colorSecondCard: "#ffffff",
+        colorThirdCard: "#ffffff",
+        colorFourthCard: "#ffffff",
+    });
     const [totalEntries, setTotalEntries] = useState({
-        value: '',
-        percentage: '',
-    })
+        value: "",
+        percentage: "",
+    });
     const [totalEntriesInBudget, setTotalEntriesInBudget] = useState({
-        value: '',
-        percentage: '',
-    })
+        value: "",
+        percentage: "",
+    });
     const [totalEntriesOutOfBudget, setTotalEntriesOutOfBudget] = useState({
-        value: '',
-        percentage: '',
-    })
+        value: "",
+        percentage: "",
+    });
     const [entries, setEntries] = useState<CategoryData[]>([]);
     const { user } = useAuth();
 
@@ -70,8 +86,9 @@ export function OutOfBudgetRegisters({
                 "==",
                 format(dateTransactions, "MMMM/yyyy", { locale: ptBR })
             )
-            .onSnapshot((snapshot) => {
-                const dataTransformed = snapshot.docs.map((doc) => {
+            .get()
+            .then((registers) => {
+                const dataTransformed = registers.docs.map((doc) => {
                     const {
                         amount,
                         category,
@@ -92,7 +109,7 @@ export function OutOfBudgetRegisters({
                         period,
                         type,
                     };
-                });                
+                });
 
                 const listBudget = dataTransformed.filter(
                     (register) => register.entryType === "budget"
@@ -105,11 +122,12 @@ export function OutOfBudgetRegisters({
                     0
                 );
 
-                setTotalBudget(sumBudgetRegisters.toLocaleString("pt-BR", {
+                setTotalBudget(
+                    sumBudgetRegisters.toLocaleString("pt-BR", {
                         style: "currency",
                         currency: "BRL",
-                    }
-                ));
+                    })
+                );
 
                 const listActuals = dataTransformed.filter(
                     (register) => register.entryType === "actual"
@@ -123,14 +141,15 @@ export function OutOfBudgetRegisters({
                 );
 
                 setTotalEntries({
-                    value: sumActualsRegisters.toLocaleString(
-                        "pt-BR", {
-                            style: "currency",
-                            currency: "BRL",
-                        }
-                    ),
-                    percentage: `${((sumActualsRegisters / sumBudgetRegisters) * 100).toFixed(2)}%`
-                })
+                    value: sumActualsRegisters.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                    }),
+                    percentage: `${(
+                        (sumActualsRegisters / sumBudgetRegisters) *
+                        100
+                    ).toFixed(2)}%`,
+                });
 
                 const actualsInBugdet = listActuals.filter((register) =>
                     listBudgetCategories.includes(register.category)
@@ -144,14 +163,15 @@ export function OutOfBudgetRegisters({
                 );
 
                 setTotalEntriesInBudget({
-                    value: sumActualsInBudget.toLocaleString(
-                        "pt-BR", {
-                            style: "currency",
-                            currency: "BRL",
-                        }
-                    ),
-                    percentage: `${((sumActualsInBudget / sumActualsRegisters) * 100).toFixed(2)}%`
-                })
+                    value: sumActualsInBudget.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                    }),
+                    percentage: `${(
+                        (sumActualsInBudget / sumActualsRegisters) *
+                        100
+                    ).toFixed(2)}%`,
+                });
 
                 const actualsOutOfBugdet = listActuals.filter(
                     (register) =>
@@ -164,27 +184,35 @@ export function OutOfBudgetRegisters({
                     },
                     0
                 );
-                
+
                 setTotalEntriesOutOfBudget({
-                    value: sumActualsOutOfBudget.toLocaleString(
-                        "pt-BR", {
-                            style: "currency",
-                            currency: "BRL",
-                        }
-                    ),
-                    percentage: `${((sumActualsOutOfBudget / sumActualsRegisters) * 100).toFixed(2)}%`
-                })
+                    value: sumActualsOutOfBudget.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                    }),
+                    percentage: `${(
+                        (sumActualsOutOfBudget / sumActualsRegisters) *
+                        100
+                    ).toFixed(2)}%`,
+                });
 
                 setColors({
-                    colorFirstCard : theme.colors.success,
-                    colorSecondCard: transactionType === 'positive' ? 
-                        theme.colors.secondary : theme.colors.attention,
-                    colorThirdCard: transactionType === 'positive' ? 
-                        theme.colors.secondary : theme.colors.attention,
-                    colorFourthCard: transactionType === 'positive' ?
-                        theme.colors.secondary : ( sumActualsOutOfBudget > 0 ? 
-                        theme.colors.attention : theme.colors.success )
-                })
+                    colorFirstCard: theme.colors.success,
+                    colorSecondCard:
+                        transactionType === "positive"
+                            ? theme.colors.secondary
+                            : theme.colors.attention,
+                    colorThirdCard:
+                        transactionType === "positive"
+                            ? theme.colors.secondary
+                            : theme.colors.attention,
+                    colorFourthCard:
+                        transactionType === "positive"
+                            ? theme.colors.secondary
+                            : sumActualsOutOfBudget > 0
+                            ? theme.colors.attention
+                            : theme.colors.success,
+                });
 
                 const totalByCategory: CategoryData[] = [];
 
@@ -211,7 +239,7 @@ export function OutOfBudgetRegisters({
                             (categorySum / sumActualsOutOfBudget) *
                             100
                         ).toFixed(2)}%`;
-                     
+
                         totalByCategory.push({
                             key: category.key,
                             name: category.name,
@@ -228,6 +256,7 @@ export function OutOfBudgetRegisters({
                     a.total < b.total ? 1 : b.total < a.total ? -1 : 0
                 );
                 setEntries(totalByCategory);
+                setIsLoading(false);
             });
     }, []);
 
@@ -240,65 +269,97 @@ export function OutOfBudgetRegisters({
                         : "Despesas não planejadas"}
                 </Title>
             </Header>
-            <Cards>
-            <VisualCards>
-                <ContainerCard color={colors.colorFirstCard}>
-                    <TitleCard>Orçamento</TitleCard>
-                    <FooterCard>
-                        <AmountCard>{totalBudget}</AmountCard>                        
-                    </FooterCard>
-                </ContainerCard>
+            {isLoading ? (
+                <LoadContainer>
+                    <ActivityIndicator
+                        size={"large"}
+                        color={theme.colors.primary}
+                    />
+                </LoadContainer>
+            ) : (
+                <>
+                    <Cards>
+                        <VisualCards>
+                            <ContainerCard color={colors.colorFirstCard}>
+                                <TitleCard>Orçamento</TitleCard>
+                                <FooterCard>
+                                    <AmountCard>{totalBudget}</AmountCard>
+                                </FooterCard>
+                            </ContainerCard>
 
-                <ContainerCard color={colors.colorSecondCard}>
-                    <TitleCard>{transactionType === 'positive' ? 'Total de entradas' : 'Total de Saídas'}</TitleCard>
-                    <FooterCard>
-                        <AmountCard>{totalEntries.value}</AmountCard>
-                        <PercentCard>{totalEntries.percentage}</PercentCard>
-                    </FooterCard>
-                </ContainerCard>
-            </VisualCards>
+                            <ContainerCard color={colors.colorSecondCard}>
+                                <TitleCard>
+                                    {transactionType === "positive"
+                                        ? "Total de entradas"
+                                        : "Total de Saídas"}
+                                </TitleCard>
+                                <FooterCard>
+                                    <AmountCard>
+                                        {totalEntries.value}
+                                    </AmountCard>
+                                    <PercentCard>
+                                        {totalEntries.percentage}
+                                    </PercentCard>
+                                </FooterCard>
+                            </ContainerCard>
+                        </VisualCards>
 
-            <VisualCards>
-                <ContainerCard color={colors.colorThirdCard}>
-                    <TitleCard>
-                        {transactionType === 'positive' ? 'Entradas com orçamento' : 'Saídas com orçamento'}
-                    </TitleCard>
-                    <FooterCard>
-                        <AmountCard>{totalEntriesInBudget.value}</AmountCard>
-                        <PercentCard>{totalEntriesInBudget.percentage}</PercentCard>
-                    </FooterCard>
-                </ContainerCard>
+                        <VisualCards>
+                            <ContainerCard color={colors.colorThirdCard}>
+                                <TitleCard>
+                                    {transactionType === "positive"
+                                        ? "Entradas com orçamento"
+                                        : "Saídas com orçamento"}
+                                </TitleCard>
+                                <FooterCard>
+                                    <AmountCard>
+                                        {totalEntriesInBudget.value}
+                                    </AmountCard>
+                                    <PercentCard>
+                                        {totalEntriesInBudget.percentage}
+                                    </PercentCard>
+                                </FooterCard>
+                            </ContainerCard>
 
-                <ContainerCard color={colors.colorFourthCard}>
-                    <TitleCard>
-                        {transactionType === 'positive' ? 'Entradas sem orçamento' : 'Saídas sem orçamento'}
-                    </TitleCard>
-                    <FooterCard>
-                        <AmountCard>{totalEntriesOutOfBudget.value}</AmountCard>
-                        <PercentCard>{totalEntriesOutOfBudget.percentage}</PercentCard>
-                    </FooterCard>
-                </ContainerCard>
-            </VisualCards>
-            </Cards>
+                            <ContainerCard color={colors.colorFourthCard}>
+                                <TitleCard>
+                                    {transactionType === "positive"
+                                        ? "Entradas sem orçamento"
+                                        : "Saídas sem orçamento"}
+                                </TitleCard>
+                                <FooterCard>
+                                    <AmountCard>
+                                        {totalEntriesOutOfBudget.value}
+                                    </AmountCard>
+                                    <PercentCard>
+                                        {totalEntriesOutOfBudget.percentage}
+                                    </PercentCard>
+                                </FooterCard>
+                            </ContainerCard>
+                        </VisualCards>
+                    </Cards>
 
-            <ListEntries>
-                <TitleList>Lista de lançamentos</TitleList>
-                <FlatList
-                    data={entries}
-                    keyExtractor={(item) => item.key}                
-                    renderItem={({ item }) => (
-                        <CategoryEntry>
-                            <Description>
-                                <Icon name={item.icon} />
-                                <NameEntry>{item.name}</NameEntry>
-                            </Description>
-                            <AmountEntry>{item.totalFormatted}</AmountEntry>
-                        </CategoryEntry>
-                    )}
-                    ItemSeparatorComponent={() => <Separator />}
-                />
-            </ListEntries>
-
+                    <ListEntries>
+                        <TitleList>Lista de lançamentos</TitleList>
+                        <FlatList
+                            data={entries}
+                            keyExtractor={(item) => item.key}
+                            renderItem={({ item }) => (
+                                <CategoryEntry>
+                                    <Description>
+                                        <Icon name={item.icon} />
+                                        <NameEntry>{item.name}</NameEntry>
+                                    </Description>
+                                    <AmountEntry>
+                                        {item.totalFormatted}
+                                    </AmountEntry>
+                                </CategoryEntry>
+                            )}
+                            ItemSeparatorComponent={() => <Separator />}
+                        />
+                    </ListEntries>
+                </>
+            )}
             <Footer>
                 <Button title="Voltar" onPress={closeOutOfBudgetRegisters} />
             </Footer>

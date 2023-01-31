@@ -30,9 +30,19 @@ import { ResultActualCard } from "../../components/ResultActualCard";
 import { ResultBudgetCard } from "../../components/ResultBudgetCard";
 import { OutOfBudgetRegisters } from "../OutOfBudgetRegisters";
 import {
-    Container, Content, Fields, Form, Header, LoadContainer, Month, MonthSelect,
+    Container,
+    Content,
+    Fields,
+    Form,
+    Header,
+    LoadContainer,
+    Month,
+    MonthSelect,
     MonthSelectButton,
-    MonthSelectIcon, Title, TitleList, TransactionsTypes
+    MonthSelectIcon,
+    Title,
+    TitleList,
+    TransactionsTypes
 } from "./styles";
 
 interface CategoryData {
@@ -77,7 +87,9 @@ export function Budget() {
     const [budgetEntries, setBudgetEntries] = React.useState<BudgetListProps[]>(
         []
     );
-    const [listBudgetCategories, setListBudgetCategories] = React.useState<string[]>([])
+    const [listBudgetCategories, setListBudgetCategories] = React.useState<
+        string[]
+    >([]);
     const [listCategoriesNotSelectable, setListCategoriesNotSelectable] =
         React.useState<string[]>([]);
 
@@ -99,7 +111,8 @@ export function Budget() {
 
     const [transactionType, setTransactionType] = React.useState("positive");
     const [categoryModalOpen, setCategoryModalOpen] = React.useState(false);
-    const [outOfBudgetModalOpen, setOutOfBudgetModalOpen] = React.useState(false);
+    const [outOfBudgetModalOpen, setOutOfBudgetModalOpen] =
+        React.useState(false);
     const [category, setCategory] = React.useState({
         key: "category",
         name: "Categoria",
@@ -119,30 +132,32 @@ export function Budget() {
     });
 
     const handleListFooter = () => {
-        if (!isAfter(dateTransactions, new Date())){
-            return(
-                <Button 
+        if (!isAfter(dateTransactions, new Date())) {
+            return (
+                <Button
                     themeColor="light"
-                    title={ transactionType === 'positive' ? 'Ver entradas fora do orçamento'
-                        : 'Ver despesas fora do orçamento' }
+                    title={
+                        transactionType === "positive"
+                            ? "Ver entradas fora do orçamento"
+                            : "Ver despesas fora do orçamento"
+                    }
                     onPress={handleOpenEntriesOutOfBudget}
-                >
-                </Button>   
-            )
+                ></Button>
+            );
         } else {
-            return null
-        }        
-    }
+            return null;
+        }
+    };
 
     function handleTransactionsType(type: "positive" | "negative" | "result") {
         setTransactionType(type);
     }
 
-    function handleOpenEntriesOutOfBudget() {        
+    function handleOpenEntriesOutOfBudget() {
         setOutOfBudgetModalOpen(true);
     }
 
-    function handleCloseEntriesOutOfBudget() {        
+    function handleCloseEntriesOutOfBudget() {
         setOutOfBudgetModalOpen(false);
     }
 
@@ -375,14 +390,16 @@ export function Budget() {
                                 percent,
                             };
                         });
-                    
-                    const listCategories:string[] = []
-                    budgetData.forEach(element => listCategories.push(element.category));
+
+                    const listCategories: string[] = [];
+                    budgetData.forEach((element) =>
+                        listCategories.push(element.category)
+                    );
                     listCategories.filter((element, index) => {
                         return listCategories.indexOf(element) === index;
-                    });     
-                    setListBudgetCategories(listCategories)
-                                           
+                    });
+                    setListBudgetCategories(listCategories);
+
                     setBudgetEntries(budgetDataFormatted);
                     setListCategoriesNotSelectable(categoriesAlreadySelected);
                     setIsLoading(false);
@@ -477,8 +494,10 @@ export function Budget() {
 
                 const actualResult = sumActualsEntries - sumActualsExpenses;
 
-                const actualBudgetEntriesResult =  sumActualsEntries - sumEntries;
-                const actualBudgetExpensesResult = sumExpenses - sumActualsExpenses;
+                const actualBudgetEntriesResult =
+                    sumActualsEntries - sumEntries;
+                const actualBudgetExpensesResult =
+                    sumExpenses - sumActualsExpenses;
                 const actualBudgetResult = actualResult - budgetResult;
 
                 setBudgetResult({
@@ -512,19 +531,25 @@ export function Budget() {
                 });
 
                 setResult({
-                    entrySum : actualBudgetEntriesResult.toLocaleString("pt-BR", {
+                    entrySum: actualBudgetEntriesResult.toLocaleString(
+                        "pt-BR",
+                        {
+                            style: "currency",
+                            currency: "BRL",
+                        }
+                    ),
+                    expenseSum: actualBudgetExpensesResult.toLocaleString(
+                        "pt-BR",
+                        {
+                            style: "currency",
+                            currency: "BRL",
+                        }
+                    ),
+                    result: actualBudgetResult.toLocaleString("pt-BR", {
                         style: "currency",
                         currency: "BRL",
                     }),
-                    expenseSum : actualBudgetExpensesResult.toLocaleString("pt-BR", {
-                        style: "currency",
-                        currency: "BRL",
-                    }),
-                    result : actualBudgetResult.toLocaleString("pt-BR", {
-                        style: "currency",
-                        currency: "BRL",
-                    })
-                })
+                });
                 setIsLoading(false);
             });
     }
@@ -599,7 +624,7 @@ export function Budget() {
                                 error={errors.amount && errors.amount.message}
                             />
                         </Fields>
-                        <Button                            
+                        <Button
                             title={
                                 isSaving ? "Cadastrar orçamento" : "Salvando..."
                             }
@@ -619,7 +644,7 @@ export function Budget() {
                 />
             </Modal>
             <Modal visible={outOfBudgetModalOpen}>
-                <OutOfBudgetRegisters 
+                <OutOfBudgetRegisters
                     transactionType={transactionType}
                     listBudgetCategories={listBudgetCategories}
                     dateTransactions={dateTransactions}
@@ -662,8 +687,8 @@ export function Budget() {
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={{
                             paddingBottom: getBottomSpace(),
-                        }}                        
-                        ListFooterComponent = { handleListFooter }
+                        }}
+                        ListFooterComponent={handleListFooter}
                     />
                 ) : (
                     <>
@@ -681,6 +706,13 @@ export function Budget() {
                             result={actualResult.result}
                             budgetResultSum={result.result}
                         />
+                        {isAfter(dateTransactions, new Date()) ? null : (
+                            <Button
+                                themeColor="light"
+                                title="Conferir histórico"
+                                onPress={() => {}}
+                            ></Button>
+                        )}
                     </>
                 )}
             </Content>

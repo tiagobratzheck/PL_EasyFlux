@@ -25,7 +25,7 @@ export const Container = styled.View<ContainerProps>`
             ? theme.colors.attention
             : theme.colors.primary};
     padding: 4px 15px;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
 `;
 
 export const Content = styled.View`

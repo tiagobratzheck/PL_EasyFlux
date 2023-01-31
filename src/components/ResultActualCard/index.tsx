@@ -1,6 +1,17 @@
 import React from "react";
 
-import { Amount, Container, Content, Description, Icon, Result, Title } from "./styles";
+import { isAfter } from "date-fns";
+import { useDate } from "../../hooks/date";
+
+import {
+    Amount,
+    Container,
+    Content,
+    Description,
+    Icon,
+    Result,
+    Title
+} from "./styles";
 
 interface Props {
     entrySum: string;
@@ -11,18 +22,30 @@ interface Props {
     budgetResultSum: string;
 }
 
-export function ResultActualCard(
-    { entrySum, budgetEntrySum, expenseSum, budgetExpenseSum, result, budgetResultSum }: Props) {
+export function ResultActualCard({
+    entrySum,
+    budgetEntrySum,
+    expenseSum,
+    budgetExpenseSum,
+    result,
+    budgetResultSum,
+}: Props) {
+    const { dateTransactions } = useDate();
+
     return (
         <Container result={result}>
             <Content>
                 <Description>
                     <Icon name="arrow-up-circle" type="up" />
                     <Title>Entradas</Title>
-                    <Result result={budgetEntrySum}>{`(${budgetEntrySum})`}</Result>
+                    {isAfter(dateTransactions, new Date()) ? null : (
+                        <Result result={budgetEntrySum}>
+                            {`(${budgetEntrySum})`}
+                        </Result>
+                    )}
                 </Description>
                 <Description>
-                    <Amount>{entrySum}</Amount>                    
+                    <Amount>{entrySum}</Amount>
                 </Description>
             </Content>
 
@@ -30,10 +53,14 @@ export function ResultActualCard(
                 <Description>
                     <Icon name="arrow-down-circle" type="down" />
                     <Title>Saídas</Title>
-                    <Result result={budgetExpenseSum}>{`(${budgetExpenseSum})`}</Result>
+                    {isAfter(dateTransactions, new Date()) ? null : (
+                        <Result result={budgetExpenseSum}>
+                            {`(${budgetExpenseSum})`}
+                        </Result>
+                    )}
                 </Description>
                 <Description>
-                    <Amount>{expenseSum}</Amount>                    
+                    <Amount>{expenseSum}</Amount>
                 </Description>
             </Content>
 
@@ -41,10 +68,14 @@ export function ResultActualCard(
                 <Description>
                     <Icon name="dollar-sign" type="result" />
                     <Title>Resultado</Title>
-                    <Result result={budgetResultSum}>{`(${budgetResultSum})`}</Result>
+                    {isAfter(dateTransactions, new Date()) ? null : (
+                        <Result result={budgetResultSum}>
+                            {`(${budgetResultSum})`}
+                        </Result>
+                    )}
                 </Description>
                 <Description>
-                    <Amount>{result}</Amount>                    
+                    <Amount>{result}</Amount>
                 </Description>
             </Content>
         </Container>
