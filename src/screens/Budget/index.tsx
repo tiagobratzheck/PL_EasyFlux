@@ -28,6 +28,7 @@ import { commonCategories } from "../../utils/categories";
 import { TransactionTypeButtonForBudget } from "../../components/Forms/TransactionTypeButtonForBudget";
 import { ResultActualCard } from "../../components/ResultActualCard";
 import { ResultBudgetCard } from "../../components/ResultBudgetCard";
+import { BudgetHistory } from "../BudgetHistory";
 import { OutOfBudgetRegisters } from "../OutOfBudgetRegisters";
 import {
     Container,
@@ -113,6 +114,8 @@ export function Budget() {
     const [categoryModalOpen, setCategoryModalOpen] = React.useState(false);
     const [outOfBudgetModalOpen, setOutOfBudgetModalOpen] =
         React.useState(false);
+    const [budgetHistoryModalOpen, setBudgetHistoryModalOpen] =
+        React.useState(false);
     const [category, setCategory] = React.useState({
         key: "category",
         name: "Categoria",
@@ -167,6 +170,14 @@ export function Budget() {
 
     function handleOpenSelectCategory() {
         setCategoryModalOpen(true);
+    }
+
+    function handleOpenBudgetHistory() {
+        setBudgetHistoryModalOpen(true);
+    }
+
+    function handleCloseBudgetHistory() {
+        setBudgetHistoryModalOpen(false);
     }
 
     async function handleRegister(form: FormData) {
@@ -651,6 +662,12 @@ export function Budget() {
                     closeOutOfBudgetRegisters={handleCloseEntriesOutOfBudget}
                 />
             </Modal>
+            <Modal visible={budgetHistoryModalOpen}>
+                <BudgetHistory
+                    transactionDate={dateTransactions}
+                    handleCloseBudgetHistory={handleCloseBudgetHistory}
+                />
+            </Modal>
             <Content>
                 {transactionType === "result" ? (
                     <TitleList>Orçamento:</TitleList>
@@ -710,7 +727,7 @@ export function Budget() {
                             <Button
                                 themeColor="light"
                                 title="Conferir histórico"
-                                onPress={() => {}}
+                                onPress={ handleOpenBudgetHistory }
                             ></Button>
                         )}
                     </>
