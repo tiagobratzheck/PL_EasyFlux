@@ -14,8 +14,22 @@ import theme from "../../global/styles/theme";
 import { useAuth } from "../../hooks/auth";
 import { commonCategories } from "../../utils/categories";
 import {
-    CategoryInformation, CategoryName, CellTable,
-    CellWrapper, Container, Content, Description, DescriptionHeaderCell, DescriptionResult, Footer, Header, HeaderTable, HeaderWrapper, Icon, LoadContainer, Title
+    CategoryInformation,
+    CategoryName,
+    CellTable,
+    CellWrapper,
+    Container,
+    Content,
+    Description,
+    DescriptionHeaderCell,
+    DescriptionResult,
+    Footer,
+    Header,
+    HeaderTable,
+    HeaderWrapper,
+    Icon,
+    LoadContainer,
+    Title
 } from "./styles";
 
 interface TransactionProps {
@@ -65,9 +79,8 @@ export function HistoryAccount({
     const [actualTransactions, setActualTransactions] = React.useState<
         TotalByPeriodProps[]
     >([]);
-    const [actualTransactionsForTable, setActualTransactionsForTable] = React.useState<
-        TotalByPeriodProps[]
-    >([]);
+    const [actualTransactionsForTable, setActualTransactionsForTable] =
+        React.useState<TotalByPeriodProps[]>([]);
     const [budgetTransactions, setBudgetTransactions] = React.useState<
         TransactionProps[]
     >([]);
@@ -126,7 +139,7 @@ export function HistoryAccount({
 
     function loadTransactions() {
         const sixMonthsToSelectedDate = subMonths(selectedDate, 5);
-        
+
         firestore()
             .collection(`@EasyFlux:transactions_user:${user.id}`)
             .where("category", "==", category)
@@ -162,29 +175,33 @@ export function HistoryAccount({
                 const totalBudgetByPeriod: TransactionProps[] =
                     dataFormatted.filter(
                         (entry) => entry.entryType === "budget"
-                    );               
+                    );
 
-                const totalByPeriod: TotalByPeriodProps[] = [];               
+                const totalByPeriod: TotalByPeriodProps[] = [];
 
                 let listOfPeriods: Date[] = [];
                 const listOfDatesUniques: string[] = [];
 
-                for(var i=0; i<=5; i++){
-                    listOfPeriods.push((subMonths(selectedDate, i)))
+                for (var i = 0; i <= 5; i++) {
+                    listOfPeriods.push(subMonths(selectedDate, i));
                 }
 
                 listOfPeriods.reverse();
 
-                listOfPeriods.forEach((date)=>{
-                    listOfDatesUniques.push(format(new Date(date), "MMM/yyyy", { locale: ptBR }))
-                })
-               
+                listOfPeriods.forEach((date) => {
+                    listOfDatesUniques.push(
+                        format(new Date(date), "MMM/yyyy", { locale: ptBR })
+                    );
+                });
+
                 setListPeriods(listOfDatesUniques);
 
                 let quarter = 0;
 
                 listOfPeriods.forEach((period) => {
-                    let datePeriod = format(new Date(period), "MMMM/yyyy", { locale: ptBR })                  
+                    let datePeriod = format(new Date(period), "MMMM/yyyy", {
+                        locale: ptBR,
+                    });
                     let periodSum = 0;
                     let entryType = "";
                     let name = "";
@@ -193,26 +210,23 @@ export function HistoryAccount({
                     let type = "";
                     quarter += 1;
 
-                    dataActualFormatted.forEach((entry) => {                      
+                    dataActualFormatted.forEach((entry) => {
                         entryType = entry.entryType;
                         type = entry.type;
                         name = entry.name;
                         category = entry.category;
                         date = entry.date;
 
-                        if(entry.period === datePeriod){                                                    
-                            periodSum += Number(entry.amount);                       
+                        if (entry.period === datePeriod) {
+                            periodSum += Number(entry.amount);
                         }
-                    })
-                    
-                    const totalFormatted = periodSum.toLocaleString(
-                        "pt-BR",
-                        {
-                            style: "currency",
-                            currency: "BRL",
-                        }
-                    );
-                        
+                    });
+
+                    const totalFormatted = periodSum.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                    });
+
                     totalByPeriod.push({
                         category,
                         name,
@@ -228,12 +242,11 @@ export function HistoryAccount({
                         entryType,
                         type,
                     });
-                                                   
-                })
-                                                   
-                setActualTransactions(totalByPeriod);  
-                setActualTransactionsForTable(totalByPeriod.reverse())              
-                
+                });
+
+                setActualTransactions(totalByPeriod);
+                setActualTransactionsForTable(totalByPeriod.reverse());
+
                 if (totalBudgetByPeriod.length > 0) {
                     setBudgetTransactions(totalBudgetByPeriod);
                 }
@@ -282,8 +295,8 @@ export function HistoryAccount({
                                 width={380}
                                 domainPadding={25}
                                 animate={{
-                                    duration: 2000,
-                                    onLoad: {duration: 1000}
+                                    duration: 1000,
+                                    onLoad: { duration: 1000 },
                                 }}
                                 padding={{
                                     left: 55,
@@ -345,7 +358,9 @@ export function HistoryAccount({
                             {actualTransactionsForTable.map((entry) => {
                                 return (
                                     <CellTable key={entry.period}>
-                                        <Description>{entry.period}</Description>
+                                        <Description>
+                                            {entry.period}
+                                        </Description>
                                         <Description>
                                             {searchBudgetPeriod(entry.date)}
                                         </Description>

@@ -1,12 +1,29 @@
 import React from "react";
+import { ActivityIndicator } from "react-native";
 
 import firestore from "@react-native-firebase/firestore";
 import { endOfMonth, format, startOfMonth, subMonths } from "date-fns";
 import { useAuth } from "../../hooks/auth";
 
 import { ptBR } from "date-fns/locale";
+import {
+    VictoryAxis,
+    VictoryBar,
+    VictoryChart,
+    VictoryGroup
+} from "victory-native";
 import { Button } from "../../components/Forms/Button";
-import { Container, Footer, Header, Title } from "./styles";
+
+import theme from "../../global/styles/theme";
+import {
+    Container,
+    DisplayData,
+    Footer,
+    Header,
+    HistoryContainer,
+    LoadContainer,
+    Title
+} from "./styles";
 
 interface historyGraphicProps {
     quarter: number;
@@ -46,7 +63,10 @@ export function BudgetHistory({
 }: BudgetHistoryProps) {
     const { user } = useAuth();
 
-    const [listPeriods, setListPeriods] = React.useState<string[]>([]);    
+    const [isLoading, setIsLoading] = React.useState(true);
+    const [listPeriods, setListPeriods] = React.useState<string[]>([]);
+    const [budget, setBudget] = React.useState<historyGraphicProps[]>([]);
+    const [actuals, setActuals] = React.useState<historyGraphicProps[]>([]);
 
     function loadTransactions() {
         const sixMonthsToSelectedDate = subMonths(transactionDate, 5);
@@ -88,6 +108,7 @@ export function BudgetHistory({
                 for (var i = 0; i <= 5; i++) {
                     listOfPeriods.push(subMonths(transactionDate, i));
                 }
+                listOfPeriods.reverse();
 
                 // Agrupamentos das entradas do budget
                 const budgetEntriesRegisters: entryProps[] = [];
@@ -391,25 +412,235 @@ export function BudgetHistory({
                 });
 
                 const listOfDatesUniques: string[] = [];
-                listOfPeriods.reverse();
                 listOfPeriods.forEach((date) => {
                     listOfDatesUniques.push(
                         format(new Date(date), "MMM/yyyy", { locale: ptBR })
                     );
                 });
                 setListPeriods(listOfDatesUniques);
+                setBudget(budgetHistory);
+                setActuals(actualHistory);
+                setIsLoading(false);
             });
     }
 
     React.useEffect(() => {
-        loadTransactions()
-    }, [])
+        loadTransactions();
+    }, []);
 
     return (
         <Container>
             <Header>
                 <Title>Histórico dos orçamentos</Title>
             </Header>
+            {isLoading ? (
+                <LoadContainer>
+                    <ActivityIndicator
+                        size={"large"}
+                        color={theme.colors.primary}
+                    />
+                </LoadContainer>
+            ) : (
+                <HistoryContainer>
+                    <DisplayData>
+                        <VictoryChart
+                            width={380}
+                            domainPadding={24}
+                            animate={{
+                                duration: 1000,
+                                onLoad: { duration: 1000 },
+                            }}
+                            padding={{
+                                left: 20,
+                                right: 20,
+                                bottom: 40,
+                                top: 20,
+                            }}
+                        >
+                            <VictoryGroup
+                                offset={22}
+                                colorScale={["#510793", "#974dd8"]}
+                                width={380}
+                            >
+                                <VictoryBar
+                                    barWidth={20}
+                                    cornerRadius={3}
+                                    alignment={"middle"}
+                                    data={budget}
+                                    x="period"
+                                    y="entries"
+                                    labels={({ datum }) =>
+                                        datum.entries > 0
+                                            ? `${datum.entriesFormatted}`
+                                            : ""
+                                    }
+                                    style={{
+                                        labels: {
+                                            fontSize: 9,
+                                        },
+                                    }}
+                                />
+                                <VictoryBar
+                                    barWidth={20}
+                                    cornerRadius={3}
+                                    alignment={"middle"}
+                                    data={actuals}
+                                    x="period"
+                                    y="entries"
+                                    labels={({ datum }) =>
+                                        datum.entries > 0
+                                            ? `${datum.entriesFormatted}`
+                                            : ""
+                                    }
+                                    style={{
+                                        labels: {
+                                            fontSize: 9,
+                                        },
+                                    }}
+                                />
+                            </VictoryGroup>
+                            <VictoryAxis
+                                orientation="bottom"
+                                width={380}
+                                tickValues={[1, 2, 3, 4, 5, 6]}
+                                tickFormat={listPeriods}
+                                style={{ tickLabels: { fontSize: 10 } }}
+                            />
+                        </VictoryChart>
+
+                        <VictoryChart
+                            width={380}
+                            domainPadding={24}
+                            animate={{
+                                duration: 1000,
+                                onLoad: { duration: 1000 },
+                            }}
+                            padding={{
+                                left: 20,
+                                right: 20,
+                                bottom: 40,
+                                top: 20,
+                            }}
+                        >
+                            <VictoryGroup
+                                offset={22}
+                                colorScale={["#ff1616", "#f76257"]}
+                                width={380}
+                            >
+                                <VictoryBar
+                                    barWidth={20}
+                                    cornerRadius={3}
+                                    alignment={"middle"}
+                                    data={budget}
+                                    x="period"
+                                    y="expenses"
+                                    labels={({ datum }) =>
+                                        datum.expenses > 0
+                                            ? `${datum.expensesFormatted}`
+                                            : ""
+                                    }
+                                    style={{
+                                        labels: {
+                                            fontSize: 9,
+                                        },
+                                    }}
+                                />
+                                <VictoryBar
+                                    barWidth={20}
+                                    cornerRadius={3}
+                                    alignment={"middle"}
+                                    data={actuals}
+                                    x="period"
+                                    y="expenses"
+                                    labels={({ datum }) =>
+                                        datum.expenses > 0
+                                            ? `${datum.expensesFormatted}`
+                                            : ""
+                                    }
+                                    style={{
+                                        labels: {
+                                            fontSize: 9,
+                                        },
+                                    }}
+                                />
+                            </VictoryGroup>
+                            <VictoryAxis
+                                orientation="bottom"
+                                width={380}
+                                tickValues={[1, 2, 3, 4, 5, 6]}
+                                tickFormat={listPeriods}
+                                style={{ tickLabels: { fontSize: 10 } }}
+                            />
+                        </VictoryChart>
+
+                        <VictoryChart
+                            width={380}
+                            domainPadding={24}
+                            animate={{
+                                duration: 1000,
+                                onLoad: { duration: 1000 },
+                            }}
+                            padding={{
+                                left: 20,
+                                right: 20,
+                                bottom: 40,
+                                top: 20,
+                            }}
+                        >
+                            <VictoryGroup
+                                offset={22}
+                                colorScale={["#226f09", "#53b333"]}
+                                width={380}
+                            >
+                                <VictoryBar
+                                    barWidth={20}
+                                    cornerRadius={3}
+                                    alignment={"middle"}
+                                    data={budget}
+                                    x="period"
+                                    y="result"
+                                    labels={({ datum }) =>
+                                        datum.result > 0
+                                            ? `${datum.resultFormatted}`
+                                            : ""
+                                    }
+                                    style={{
+                                        labels: {
+                                            fontSize: 9,
+                                        },
+                                    }}
+                                />
+                                <VictoryBar
+                                    barWidth={20}
+                                    cornerRadius={3}
+                                    alignment={"middle"}
+                                    data={actuals}
+                                    x="period"
+                                    y="result"
+                                    labels={({ datum }) =>
+                                        datum.result > 0
+                                            ? `${datum.resultFormatted}`
+                                            : ""
+                                    }
+                                    style={{
+                                        labels: {
+                                            fontSize: 9,
+                                        },
+                                    }}
+                                />
+                            </VictoryGroup>
+                            <VictoryAxis
+                                orientation="bottom"
+                                width={380}
+                                tickValues={[1, 2, 3, 4, 5, 6]}
+                                tickFormat={listPeriods}
+                                style={{ tickLabels: { fontSize: 10 } }}
+                            />
+                        </VictoryChart>
+                    </DisplayData>
+                </HistoryContainer>
+            )}
+
             <Footer>
                 <Button title="Voltar" onPress={handleCloseBudgetHistory} />
             </Footer>

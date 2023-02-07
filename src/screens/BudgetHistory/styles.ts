@@ -28,3 +28,19 @@ export const Footer = styled.View`
     width: 100%;
     padding: 24px;
 `;
+
+export const LoadContainer = styled.View`
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    margin-top: 60px;
+`;
+
+export const HistoryContainer = styled.View`
+    width: 100%;
+    flex: 1;
+`;
+
+export const DisplayData = styled.ScrollView`
+    flex: 1;
+`
