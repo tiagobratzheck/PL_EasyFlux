@@ -16,13 +16,21 @@ import { Button } from "../../components/Forms/Button";
 
 import theme from "../../global/styles/theme";
 import {
+    CellTable,
+    CellWrapper,
     Container,
+    Description,
+    DescriptionHeaderCell,
+    DescriptionResult,
     DisplayData,
     Footer,
     Header,
+    HeaderTable,
+    HeaderWrapper,
     HistoryContainer,
     LoadContainer,
-    Title
+    Title,
+    TitleGraph
 } from "./styles";
 
 interface historyGraphicProps {
@@ -67,6 +75,75 @@ export function BudgetHistory({
     const [listPeriods, setListPeriods] = React.useState<string[]>([]);
     const [budget, setBudget] = React.useState<historyGraphicProps[]>([]);
     const [actuals, setActuals] = React.useState<historyGraphicProps[]>([]);
+
+    function searchActualPeriod(period: string, type: string) {
+        const actual = actuals.filter((item) => item.period === period)[0];
+        let typeRegister = 0;
+
+        if (type === "entries") {
+            typeRegister = actual.entries;
+        } else if (type === "expenses") {
+            typeRegister = actual.expenses;
+        } else {
+            typeRegister = actual.result;
+        }
+
+        if (actual) {
+            const actualFormatted = Number(typeRegister).toLocaleString(
+                "pt-BR",
+                {
+                    style: "currency",
+                    currency: "BRL",
+                }
+            );
+            return actualFormatted;
+        } else {
+            return "R$0,00";
+        }
+    }
+
+    function calculateResult(period: string, type: string) {
+        const budgetRow = budget.filter((item) => item.period === period)[0];
+        const actualRow = actuals.filter((item) => item.period === period)[0];
+        let typeRegisterBudget = 0;
+        let typeRegisterActual = 0;
+
+        if (type === "entries") {
+            typeRegisterBudget = budgetRow.entries;
+            typeRegisterActual = actualRow.entries;
+        } else if (type === "expenses") {
+            typeRegisterBudget = budgetRow.expenses;
+            typeRegisterActual = actualRow.expenses;
+        } else {
+            typeRegisterBudget = budgetRow.result;
+            typeRegisterActual = actualRow.result;
+        }
+
+        if (budgetRow) {
+            if (type === "entries") {
+                const result =
+                    Number(typeRegisterActual) - Number(typeRegisterBudget);
+                return result.toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                });
+            } else if (type === "expenses") {
+                const result =
+                    Number(typeRegisterBudget) - Number(typeRegisterActual);
+                return result.toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                });
+            } else {
+                const result =
+                    Number(typeRegisterActual) - Number(typeRegisterBudget);
+                return result.toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                });
+            }
+        }
+    }
 
     function loadTransactions() {
         const sixMonthsToSelectedDate = subMonths(transactionDate, 5);
@@ -443,6 +520,9 @@ export function BudgetHistory({
             ) : (
                 <HistoryContainer>
                     <DisplayData>
+                        <TitleGraph>
+                            Entradas: Orçamento vs Realizado
+                        </TitleGraph>
                         <VictoryChart
                             width={380}
                             domainPadding={24}
@@ -459,7 +539,7 @@ export function BudgetHistory({
                         >
                             <VictoryGroup
                                 offset={22}
-                                colorScale={["#510793", "#974dd8"]}
+                                colorScale={["#510793", "#9e5dd6"]}
                                 width={380}
                             >
                                 <VictoryBar
@@ -508,71 +588,55 @@ export function BudgetHistory({
                             />
                         </VictoryChart>
 
-                        <VictoryChart
-                            width={380}
-                            domainPadding={24}
-                            animate={{
-                                duration: 1000,
-                                onLoad: { duration: 1000 },
-                            }}
-                            padding={{
-                                left: 20,
-                                right: 20,
-                                bottom: 40,
-                                top: 20,
-                            }}
-                        >
-                            <VictoryGroup
-                                offset={22}
-                                colorScale={["#ff1616", "#f76257"]}
-                                width={380}
-                            >
-                                <VictoryBar
-                                    barWidth={20}
-                                    cornerRadius={3}
-                                    alignment={"middle"}
-                                    data={budget}
-                                    x="period"
-                                    y="expenses"
-                                    labels={({ datum }) =>
-                                        datum.expenses > 0
-                                            ? `${datum.expensesFormatted}`
-                                            : ""
-                                    }
-                                    style={{
-                                        labels: {
-                                            fontSize: 9,
-                                        },
-                                    }}
-                                />
-                                <VictoryBar
-                                    barWidth={20}
-                                    cornerRadius={3}
-                                    alignment={"middle"}
-                                    data={actuals}
-                                    x="period"
-                                    y="expenses"
-                                    labels={({ datum }) =>
-                                        datum.expenses > 0
-                                            ? `${datum.expensesFormatted}`
-                                            : ""
-                                    }
-                                    style={{
-                                        labels: {
-                                            fontSize: 9,
-                                        },
-                                    }}
-                                />
-                            </VictoryGroup>
-                            <VictoryAxis
-                                orientation="bottom"
-                                width={380}
-                                tickValues={[1, 2, 3, 4, 5, 6]}
-                                tickFormat={listPeriods}
-                                style={{ tickLabels: { fontSize: 10 } }}
-                            />
-                        </VictoryChart>
+                        <HeaderWrapper>
+                            <HeaderTable color="#510793">
+                                <DescriptionHeaderCell>
+                                    Período
+                                </DescriptionHeaderCell>
+                                <DescriptionHeaderCell>
+                                    Orçamento
+                                </DescriptionHeaderCell>
+                                <DescriptionHeaderCell>
+                                    Realizado
+                                </DescriptionHeaderCell>
+                                <DescriptionHeaderCell>
+                                    Diferença
+                                </DescriptionHeaderCell>
+                            </HeaderTable>
+                        </HeaderWrapper>
+                        <CellWrapper>
+                            {budget.map((entry) => {
+                                return (
+                                    <CellTable key={entry.period}>
+                                        <Description>
+                                            {entry.period}
+                                        </Description>
+                                        <Description>
+                                            {entry.entriesFormatted}
+                                        </Description>
+                                        <Description>
+                                            {searchActualPeriod(
+                                                entry.period,
+                                                "entries"
+                                            )}
+                                        </Description>
+                                        <DescriptionResult
+                                            amount={calculateResult(
+                                                entry.period,
+                                                "entries"
+                                            )}
+                                        >
+                                            {calculateResult(
+                                                entry.period,
+                                                "entries"
+                                            )}
+                                        </DescriptionResult>
+                                    </CellTable>
+                                );
+                            })}
+                        </CellWrapper>
 
+                        <TitleGraph>Saídas: Orçamento vs Realizado</TitleGraph>
                         <VictoryChart
                             width={380}
                             domainPadding={24}
@@ -589,7 +653,7 @@ export function BudgetHistory({
                         >
                             <VictoryGroup
                                 offset={22}
-                                colorScale={["#226f09", "#53b333"]}
+                                colorScale={["#ff1616", "#fd756b"]}
                                 width={380}
                             >
                                 <VictoryBar
@@ -598,10 +662,10 @@ export function BudgetHistory({
                                     alignment={"middle"}
                                     data={budget}
                                     x="period"
-                                    y="result"
+                                    y="expenses"
                                     labels={({ datum }) =>
-                                        datum.result > 0
-                                            ? `${datum.resultFormatted}`
+                                        datum.expenses > 0
+                                            ? `${datum.expensesFormatted}`
                                             : ""
                                     }
                                     style={{
@@ -616,10 +680,10 @@ export function BudgetHistory({
                                     alignment={"middle"}
                                     data={actuals}
                                     x="period"
-                                    y="result"
+                                    y="expenses"
                                     labels={({ datum }) =>
-                                        datum.result > 0
-                                            ? `${datum.resultFormatted}`
+                                        datum.expenses > 0
+                                            ? `${datum.expensesFormatted}`
                                             : ""
                                     }
                                     style={{
@@ -637,6 +701,184 @@ export function BudgetHistory({
                                 style={{ tickLabels: { fontSize: 10 } }}
                             />
                         </VictoryChart>
+                        <HeaderWrapper>
+                            <HeaderTable color="#ff1616">
+                                <DescriptionHeaderCell>
+                                    Período
+                                </DescriptionHeaderCell>
+                                <DescriptionHeaderCell>
+                                    Orçamento
+                                </DescriptionHeaderCell>
+                                <DescriptionHeaderCell>
+                                    Realizado
+                                </DescriptionHeaderCell>
+                                <DescriptionHeaderCell>
+                                    Diferença
+                                </DescriptionHeaderCell>
+                            </HeaderTable>
+                        </HeaderWrapper>
+                        <CellWrapper>
+                            {budget.map((entry) => {
+                                return (
+                                    <CellTable key={entry.period}>
+                                        <Description>
+                                            {entry.period}
+                                        </Description>
+                                        <Description>
+                                            {entry.expensesFormatted}
+                                        </Description>
+                                        <Description>
+                                            {searchActualPeriod(
+                                                entry.period,
+                                                "expenses"
+                                            )}
+                                        </Description>
+                                        <DescriptionResult
+                                            amount={calculateResult(
+                                                entry.period,
+                                                "expenses"
+                                            )}
+                                        >
+                                            {calculateResult(
+                                                entry.period,
+                                                "expenses"
+                                            )}
+                                        </DescriptionResult>
+                                    </CellTable>
+                                );
+                            })}
+                        </CellWrapper>
+
+                        <TitleGraph>
+                            Resultado: Orçamento vs Realizado
+                        </TitleGraph>
+                        <VictoryChart
+                            width={380}
+                            domainPadding={24}
+                            animate={{
+                                duration: 1000,
+                                onLoad: { duration: 1000 },
+                            }}
+                            padding={{
+                                left: 20,
+                                right: 20,
+                                bottom: 40,
+                                top: 20,
+                            }}
+                        >
+                            <VictoryGroup
+                                offset={22}
+                                colorScale={["#226f09", "#70c553"]}
+                                width={380}
+                            >
+                                <VictoryBar
+                                    barWidth={20}
+                                    cornerRadius={3}
+                                    alignment={"middle"}
+                                    data={budget}
+                                    x="period"
+                                    y="result"
+                                    labels={({ datum }) =>
+                                        datum.result > 0
+                                            ? `${datum.resultFormatted}`
+                                            : datum.result === 0
+                                            ? ""
+                                            : `${datum.resultFormatted}`
+                                    }
+                                    style={{
+                                        labels: {
+                                            fontSize: 9,
+                                        },
+                                        data: {
+                                            fill: ({ datum }) =>
+                                                datum.result > 0
+                                                    ? "#226f09"
+                                                    : "#ff1616",
+                                        },
+                                    }}
+                                />
+                                <VictoryBar
+                                    barWidth={20}
+                                    cornerRadius={3}
+                                    alignment={"middle"}
+                                    data={actuals}
+                                    x="period"
+                                    y="result"
+                                    labels={({ datum }) =>
+                                        datum.result > 0
+                                            ? `${datum.resultFormatted}`
+                                            : datum.result === 0
+                                            ? ""
+                                            : `${datum.resultFormatted}`
+                                    }
+                                    style={{
+                                        labels: {
+                                            fontSize: 9,
+                                        },
+                                        data: {
+                                            fill: ({ datum }) =>
+                                                datum.result > 0
+                                                    ? "#70c553"
+                                                    : "#fd756b",
+                                        },
+                                    }}
+                                />
+                            </VictoryGroup>
+                            <VictoryAxis
+                                orientation="bottom"
+                                width={380}
+                                tickValues={[1, 2, 3, 4, 5, 6]}
+                                tickFormat={listPeriods}
+                                style={{ tickLabels: { fontSize: 10 } }}
+                            />
+                        </VictoryChart>
+                        <HeaderWrapper>
+                            <HeaderTable color="#226f09">
+                                <DescriptionHeaderCell>
+                                    Período
+                                </DescriptionHeaderCell>
+                                <DescriptionHeaderCell>
+                                    Orçamento
+                                </DescriptionHeaderCell>
+                                <DescriptionHeaderCell>
+                                    Realizado
+                                </DescriptionHeaderCell>
+                                <DescriptionHeaderCell>
+                                    Diferença
+                                </DescriptionHeaderCell>
+                            </HeaderTable>
+                        </HeaderWrapper>
+                        <CellWrapper>
+                            {budget.map((entry) => {
+                                return (
+                                    <CellTable key={entry.period}>
+                                        <Description>
+                                            {entry.period}
+                                        </Description>
+                                        <Description>
+                                            {entry.resultFormatted}
+                                        </Description>
+                                        <Description>
+                                            {searchActualPeriod(
+                                                entry.period,
+                                                "result"
+                                            )}
+                                        </Description>
+                                        <DescriptionResult
+                                            amount={calculateResult(
+                                                entry.period,
+                                                "result"
+                                            )}
+                                        >
+                                            {calculateResult(
+                                                entry.period,
+                                                "result"
+                                            )}
+                                        </DescriptionResult>
+                                    </CellTable>
+                                );
+                            })}
+                        </CellWrapper>
                     </DisplayData>
                 </HistoryContainer>
             )}
