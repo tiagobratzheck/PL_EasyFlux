@@ -1,5 +1,5 @@
 import React from "react";
-import { ActivityIndicator } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 
 import firestore from "@react-native-firebase/firestore";
 import { endOfMonth, format, startOfMonth, subMonths } from "date-fns";
@@ -495,8 +495,8 @@ export function BudgetHistory({
                     );
                 });
                 setListPeriods(listOfDatesUniques);
-                setBudget(budgetHistory);
-                setActuals(actualHistory);
+                setBudget(budgetHistory);                
+                setActuals(actualHistory);               
                 setIsLoading(false);
             });
     }
@@ -523,70 +523,72 @@ export function BudgetHistory({
                         <TitleGraph>
                             Entradas: Orçamento vs Realizado
                         </TitleGraph>
-                        <VictoryChart
-                            width={380}
-                            domainPadding={24}
-                            animate={{
-                                duration: 1000,
-                                onLoad: { duration: 1000 },
-                            }}
-                            padding={{
-                                left: 20,
-                                right: 20,
-                                bottom: 40,
-                                top: 20,
-                            }}
-                        >
-                            <VictoryGroup
-                                offset={22}
-                                colorScale={["#510793", "#9e5dd6"]}
-                                width={380}
+                        <View style={{ alignItems: "center" }}>
+                            <VictoryChart
+                                width={390}
+                                domainPadding={25}
+                                animate={{
+                                    duration: 500,
+                                    onLoad: { duration: 500 },
+                                }}
+                                padding={{
+                                    left: 24,
+                                    right: 24,
+                                    bottom: 40,
+                                    top: 20,
+                                }}
                             >
-                                <VictoryBar
-                                    barWidth={20}
-                                    cornerRadius={3}
-                                    alignment={"middle"}
-                                    data={budget}
-                                    x="period"
-                                    y="entries"
-                                    labels={({ datum }) =>
-                                        datum.entries > 0
-                                            ? `${datum.entriesFormatted}`
-                                            : ""
-                                    }
-                                    style={{
-                                        labels: {
-                                            fontSize: 9,
-                                        },
-                                    }}
+                                <VictoryGroup
+                                    offset={22}
+                                    colorScale={["#510793", "#9e5dd6"]}
+                                    width={390}
+                                >
+                                    <VictoryBar
+                                        barWidth={20}
+                                        cornerRadius={3}
+                                        alignment={"middle"}
+                                        data={budget}
+                                        x="period"
+                                        y="entries"
+                                        labels={({ datum }) =>
+                                            datum.entries > 0
+                                                ? `${datum.entriesFormatted}`
+                                                : ""
+                                        }
+                                        style={{
+                                            labels: {
+                                                fontSize: 9,
+                                            },
+                                        }}
+                                    />
+                                    <VictoryBar
+                                        barWidth={20}
+                                        cornerRadius={3}
+                                        alignment={"middle"}
+                                        data={actuals}
+                                        x="period"
+                                        y="entries"
+                                        labels={({ datum }) =>
+                                            datum.entries > 0
+                                                ? `${datum.entriesFormatted}`
+                                                : ""
+                                        }
+                                        style={{
+                                            labels: {
+                                                fontSize: 9,
+                                            },
+                                        }}
+                                    />
+                                </VictoryGroup>
+                                <VictoryAxis
+                                    orientation="bottom"
+                                    width={390}
+                                    tickValues={[1, 2, 3, 4, 5, 6]}
+                                    tickFormat={listPeriods}
+                                    style={{ tickLabels: { fontSize: 10 } }}
                                 />
-                                <VictoryBar
-                                    barWidth={20}
-                                    cornerRadius={3}
-                                    alignment={"middle"}
-                                    data={actuals}
-                                    x="period"
-                                    y="entries"
-                                    labels={({ datum }) =>
-                                        datum.entries > 0
-                                            ? `${datum.entriesFormatted}`
-                                            : ""
-                                    }
-                                    style={{
-                                        labels: {
-                                            fontSize: 9,
-                                        },
-                                    }}
-                                />
-                            </VictoryGroup>
-                            <VictoryAxis
-                                orientation="bottom"
-                                width={380}
-                                tickValues={[1, 2, 3, 4, 5, 6]}
-                                tickFormat={listPeriods}
-                                style={{ tickLabels: { fontSize: 10 } }}
-                            />
-                        </VictoryChart>
+                            </VictoryChart>
+                        </View>
 
                         <HeaderWrapper>
                             <HeaderTable color="#510793">
@@ -637,70 +639,72 @@ export function BudgetHistory({
                         </CellWrapper>
 
                         <TitleGraph>Saídas: Orçamento vs Realizado</TitleGraph>
-                        <VictoryChart
-                            width={380}
-                            domainPadding={24}
-                            animate={{
-                                duration: 1000,
-                                onLoad: { duration: 1000 },
-                            }}
-                            padding={{
-                                left: 20,
-                                right: 20,
-                                bottom: 40,
-                                top: 20,
-                            }}
-                        >
-                            <VictoryGroup
-                                offset={22}
-                                colorScale={["#ff1616", "#fd756b"]}
-                                width={380}
+                        <View style={{ alignItems: "center" }}>
+                            <VictoryChart
+                                width={390}
+                                domainPadding={25}
+                                animate={{
+                                    duration: 500,
+                                    onLoad: { duration: 500 },
+                                }}
+                                padding={{
+                                    left: 24,
+                                    right: 24,
+                                    bottom: 40,
+                                    top: 20,
+                                }}
                             >
-                                <VictoryBar
-                                    barWidth={20}
-                                    cornerRadius={3}
-                                    alignment={"middle"}
-                                    data={budget}
-                                    x="period"
-                                    y="expenses"
-                                    labels={({ datum }) =>
-                                        datum.expenses > 0
-                                            ? `${datum.expensesFormatted}`
-                                            : ""
-                                    }
-                                    style={{
-                                        labels: {
-                                            fontSize: 9,
-                                        },
-                                    }}
+                                <VictoryGroup
+                                    offset={22}
+                                    colorScale={["#ff1616", "#fd756b"]}
+                                    width={390}
+                                >
+                                    <VictoryBar
+                                        barWidth={20}
+                                        cornerRadius={3}
+                                        alignment={"middle"}
+                                        data={budget}
+                                        x="period"
+                                        y="expenses"
+                                        labels={({ datum }) =>
+                                            datum.expenses > 0
+                                                ? `${datum.expensesFormatted}`
+                                                : ""
+                                        }
+                                        style={{
+                                            labels: {
+                                                fontSize: 9,
+                                            },
+                                        }}
+                                    />
+                                    <VictoryBar
+                                        barWidth={20}
+                                        cornerRadius={3}
+                                        alignment={"middle"}
+                                        data={actuals}
+                                        x="period"
+                                        y="expenses"
+                                        labels={({ datum }) =>
+                                            datum.expenses > 0
+                                                ? `${datum.expensesFormatted}`
+                                                : ""
+                                        }
+                                        style={{
+                                            labels: {
+                                                fontSize: 9,
+                                            },
+                                        }}
+                                    />
+                                </VictoryGroup>
+                                <VictoryAxis
+                                    orientation="bottom"
+                                    width={390}
+                                    tickValues={[1, 2, 3, 4, 5, 6]}
+                                    tickFormat={listPeriods}
+                                    style={{ tickLabels: { fontSize: 10 } }}
                                 />
-                                <VictoryBar
-                                    barWidth={20}
-                                    cornerRadius={3}
-                                    alignment={"middle"}
-                                    data={actuals}
-                                    x="period"
-                                    y="expenses"
-                                    labels={({ datum }) =>
-                                        datum.expenses > 0
-                                            ? `${datum.expensesFormatted}`
-                                            : ""
-                                    }
-                                    style={{
-                                        labels: {
-                                            fontSize: 9,
-                                        },
-                                    }}
-                                />
-                            </VictoryGroup>
-                            <VictoryAxis
-                                orientation="bottom"
-                                width={380}
-                                tickValues={[1, 2, 3, 4, 5, 6]}
-                                tickFormat={listPeriods}
-                                style={{ tickLabels: { fontSize: 10 } }}
-                            />
-                        </VictoryChart>
+                            </VictoryChart>
+                        </View>
                         <HeaderWrapper>
                             <HeaderTable color="#ff1616">
                                 <DescriptionHeaderCell>
@@ -752,86 +756,88 @@ export function BudgetHistory({
                         <TitleGraph>
                             Resultado: Orçamento vs Realizado
                         </TitleGraph>
-                        <VictoryChart
-                            width={380}
-                            domainPadding={24}
-                            animate={{
-                                duration: 1000,
-                                onLoad: { duration: 1000 },
-                            }}
-                            padding={{
-                                left: 20,
-                                right: 20,
-                                bottom: 40,
-                                top: 20,
-                            }}
-                        >
-                            <VictoryGroup
-                                offset={22}
-                                colorScale={["#226f09", "#70c553"]}
-                                width={380}
+                        <View style={{ alignItems: "center" }}>
+                            <VictoryChart
+                                width={390}
+                                domainPadding={25}
+                                animate={{
+                                    duration: 500,
+                                    onLoad: { duration: 500 },
+                                }}
+                                padding={{
+                                    left: 24,
+                                    right: 24,
+                                    bottom: 40,
+                                    top: 20,
+                                }}
                             >
-                                <VictoryBar
-                                    barWidth={20}
-                                    cornerRadius={3}
-                                    alignment={"middle"}
-                                    data={budget}
-                                    x="period"
-                                    y="result"
-                                    labels={({ datum }) =>
-                                        datum.result > 0
-                                            ? `${datum.resultFormatted}`
-                                            : datum.result === 0
-                                            ? ""
-                                            : `${datum.resultFormatted}`
-                                    }
-                                    style={{
-                                        labels: {
-                                            fontSize: 9,
-                                        },
-                                        data: {
-                                            fill: ({ datum }) =>
-                                                datum.result > 0
-                                                    ? "#226f09"
-                                                    : "#ff1616",
-                                        },
-                                    }}
+                                <VictoryGroup
+                                    offset={22}
+                                    colorScale={["#226f09", "#70c553"]}
+                                    width={390}
+                                >
+                                    <VictoryBar
+                                        barWidth={20}
+                                        cornerRadius={3}
+                                        alignment={"middle"}
+                                        data={budget}
+                                        x="period"
+                                        y="result"
+                                        labels={({ datum }) =>
+                                            datum.result > 0
+                                                ? `${datum.resultFormatted}`
+                                                : datum.result === 0
+                                                ? ""
+                                                : `${datum.resultFormatted}`
+                                        }
+                                        style={{
+                                            labels: {
+                                                fontSize: 9,
+                                            },
+                                            data: {
+                                                fill: ({ datum }) =>
+                                                    datum.result > 0
+                                                        ? "#226f09"
+                                                        : "#ff1616",
+                                            },
+                                        }}
+                                    />
+                                    <VictoryBar
+                                        barWidth={20}
+                                        cornerRadius={3}
+                                        alignment={"middle"}
+                                        data={actuals}
+                                        x="period"
+                                        y="result"
+                                        labels={({ datum }) =>
+                                            datum.result > 0
+                                                ? `${datum.resultFormatted}`
+                                                : datum.result === 0
+                                                ? ""
+                                                : `${datum.resultFormatted}`
+                                        }
+                                        style={{
+                                            labels: {
+                                                fontSize: 9,
+                                            },
+                                            data: {
+                                                fill: ({ datum }) =>
+                                                    datum.result > 0
+                                                        ? "#70c553"
+                                                        : "#fd756b",
+                                            },
+                                        }}
+                                    />
+                                </VictoryGroup>
+                                <VictoryAxis
+                                    orientation="bottom"
+                                    width={390}
+                                    tickValues={[1, 2, 3, 4, 5, 6]}
+                                    tickFormat={listPeriods}
+                                    style={{ tickLabels: { fontSize: 10 } }}
                                 />
-                                <VictoryBar
-                                    barWidth={20}
-                                    cornerRadius={3}
-                                    alignment={"middle"}
-                                    data={actuals}
-                                    x="period"
-                                    y="result"
-                                    labels={({ datum }) =>
-                                        datum.result > 0
-                                            ? `${datum.resultFormatted}`
-                                            : datum.result === 0
-                                            ? ""
-                                            : `${datum.resultFormatted}`
-                                    }
-                                    style={{
-                                        labels: {
-                                            fontSize: 9,
-                                        },
-                                        data: {
-                                            fill: ({ datum }) =>
-                                                datum.result > 0
-                                                    ? "#70c553"
-                                                    : "#fd756b",
-                                        },
-                                    }}
-                                />
-                            </VictoryGroup>
-                            <VictoryAxis
-                                orientation="bottom"
-                                width={380}
-                                tickValues={[1, 2, 3, 4, 5, 6]}
-                                tickFormat={listPeriods}
-                                style={{ tickLabels: { fontSize: 10 } }}
-                            />
-                        </VictoryChart>
+                            </VictoryChart>
+                        </View>
                         <HeaderWrapper>
                             <HeaderTable color="#226f09">
                                 <DescriptionHeaderCell>

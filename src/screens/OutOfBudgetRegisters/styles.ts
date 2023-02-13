@@ -66,7 +66,7 @@ export const VisualCards = styled.View`
 
 export const ContainerCard = styled.View<ContainerProps>`
     width: 47%;
-    height: 80px;
+    height: 85px;
     background-color: ${({ theme }) => theme.colors.shape};
     flex-direction: column;    
     justify-content: space-between;
@@ -79,7 +79,7 @@ export const ContainerCard = styled.View<ContainerProps>`
 
 export const TitleCard = styled.Text`
     font-family: ${({ theme }) => theme.fonts.regular};
-    font-size: ${RFValue(13)}px;
+    font-size: ${RFValue(12)}px;
 `;
 
 export const FooterCard = styled.View`

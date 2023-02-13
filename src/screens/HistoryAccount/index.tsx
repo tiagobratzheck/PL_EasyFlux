@@ -295,8 +295,8 @@ export function HistoryAccount({
                                 width={380}
                                 domainPadding={25}
                                 animate={{
-                                    duration: 1000,
-                                    onLoad: { duration: 1000 },
+                                    duration: 500,
+                                    onLoad: { duration: 500 },
                                 }}
                                 padding={{
                                     left: 55,

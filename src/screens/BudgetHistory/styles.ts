@@ -50,7 +50,7 @@ export const HistoryContainer = styled.View`
 `;
 
 export const DisplayData = styled.ScrollView`
-    flex: 1;
+    flex: 1; 
 `
 
 export const TitleGraph = styled.Text`
